@@ -44,12 +44,12 @@ Google Flights resmi API sunmuyor; veriler Google Explore / fast-flights uzerind
 2. [render.com](https://render.com) → **New** → **Blueprint** → repoyu secin (`render.yaml` otomatik algilanir).
    - veya **New Web Service** → Docker → repoyu secin, plan: **Free**.
 3. Deploy bitince gecici adres: `https://ucuzbilet-online.onrender.com`
-4. Asil domain **`ucuzbilet.online.com`** icin Render panelinde:
-   - Servis → **Settings** → **Custom Domains** → `ucuzbilet.online.com` ekleyin
-   - Render'in verdigi **CNAME** kaydini domain saglayicinizda girin (ornek):
-     - **Host / Name:** `ucuzbilet` (veya `@` — saglayiciya gore)
-     - **Hedef / Value:** `ucuzbilet-online.onrender.com` (Render'in gosterdigi tam deger)
-   - DNS yayilimi 5–30 dk surebilir; Render otomatik HTTPS verir.
+4. **Onemli:** Render servis adi `ucuzbilet` olamaz (baskasinda). Settings → servis adi **`ucuzbilet-online`** olmali; DNS hedefi o zaman `ucuzbilet-online.onrender.com` olur — `ucuzbilet.onrender.com` degil.
+5. Asil domain **`ucuzbilet.online`** icin Render → **Custom Domains** → `ucuzbilet.online` + `www.ucuzbilet.online` ekleyin.
+6. Domain saglayicinizda Render'in gosterdigi kayitlari girin (servis adi dogruysa hedef **`ucuzbilet-online.onrender.com`**):
+   - **CNAME** `www` → `ucuzbilet-online.onrender.com`
+   - **CNAME / ANAME / ALIAS** `@` → ayni hedef (veya Render'in verdigi **A** kaydi `216.24.57.1`)
+   - Cloudflare kullaniyorsaniz proxy kapali (DNS only) olmali.
 
 **Ucretsiz plan sinirlari:**
 - 15 dk kullanilmazsa uyur; ilk acilis 30-60 sn surebilir.
