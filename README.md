@@ -43,8 +43,13 @@ Google Flights resmi API sunmuyor; veriler Google Explore / fast-flights uzerind
 1. Projeyi GitHub'a push edin (`data/places.json`, `regions.json`, `explore_destinations.json` dahil).
 2. [render.com](https://render.com) → **New** → **Blueprint** → repoyu secin (`render.yaml` otomatik algilanir).
    - veya **New Web Service** → Docker → repoyu secin, plan: **Free**.
-3. Deploy bitince adres: `https://ucuzbilet-online.onrender.com`
-4. `ucuzbilet.online` domain'inizi Render panelinden **Custom Domain** ile baglayin.
+3. Deploy bitince gecici adres: `https://ucuzbilet-online.onrender.com`
+4. Asil domain **`ucuzbilet.online.com`** icin Render panelinde:
+   - Servis → **Settings** → **Custom Domains** → `ucuzbilet.online.com` ekleyin
+   - Render'in verdigi **CNAME** kaydini domain saglayicinizda girin (ornek):
+     - **Host / Name:** `ucuzbilet` (veya `@` — saglayiciya gore)
+     - **Hedef / Value:** `ucuzbilet-online.onrender.com` (Render'in gosterdigi tam deger)
+   - DNS yayilimi 5–30 dk surebilir; Render otomatik HTTPS verir.
 
 **Ucretsiz plan sinirlari:**
 - 15 dk kullanilmazsa uyur; ilk acilis 30-60 sn surebilir.
