@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ search.name }} | UcuzBilet Avcisi</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="hero compact">
+    <div>
+      <p class="eyebrow">ucuzbilet.online</p>
+      <h1>{{ search.name }}</h1>
+      {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
+      <p class="subtitle">Avrupa hub{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
+      {% else %}
+      <p class="subtitle">{{ search.origin_label }}{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
+      {% endif %}
+    </div>
+    <div class="actions">
+      {% if is_quick %}
+      <a class="button" href="/search">Duzenle</a>
+      <form method="post" action="/searches/from-quick" class="inline-form">
+        <input type="text" name="name" placeholder="Arama adi" required value="{{ search.name }}">
+        <button class="button" type="submit">Bu aramayi kaydet</button>
+      </form>
+      {% else %}
+      <a class="button" href="/searches/{{ search.id }}/edit">Duzenle</a>
+      <form method="post" action="/searches/{{ search.id }}/run">
+        <button class="button primary" type="submit">Simdi tara</button>
+      </form>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container">
+    {% if is_quick %}
+    <section class="panel banner">
+      <p class="hint">Hizli arama — kayitli listeye eklenmedi. Begendinizse yukaridan kaydedin veya <a href="/search">kriterleri degistirin</a>.</p>
+    </section>
+    {% endif %}
+    <section class="panel">
+      <h2>Kriterler</h2>
+      <ul class="meta">
+        <li>Mod: {{ search.mode.value.replace('_', ' ') }}</li>
+        {% if search.mode.value == 'fixed_trip' %}
+        <li>Tarih: {{ search.date_from or search.departure_date }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% elif search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun{% else %} · {{ search.trip_days }} gun kalis{% endif %}{% if search.flexible_departure_in_range %} (en iyi 3){% endif %}</li>
+        {% elif search.mode.value == 'date_range' %}
+        <li>Tarih: {{ search.date_from }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% endif %}{% if search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun (en iyi 3){% endif %}</li>
+        {% endif %}
+        {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
+        <li>Hub: Avrupa (FRA, AMS, CDG, LHR, MXP, MAD, FCO...)</li>
+        {% if search.destination_label %}<li>Hedef: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
+        <li>Bolge: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} (tum ulkeler){% endif %}</li>{% endif %}
+        {% else %}
+        <li>Kalkis: {{ search.origin_label }}</li>
+        {% if search.destination_label %}<li>Varis: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
+        <li>Bolge: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} (tum ulkeler){% endif %}</li>{% else %}<li>Bolge: Her yer</li>{% endif %}
+        {% endif %}
+        {% if search.prefer_thy %}
+        <li>Havayolu: Turk Hava Yollari (THY)</li>
+        {% elif search.alliance.value != 'any' %}
+        <li>Ittifak: {{ search.alliance.value.replace('_', ' ') }}</li>
+        {% endif %}
+        <li>Yolcu: {{ search.adults }} yetiskin, {{ search.children }} cocuk</li>
+        {% if search.max_price %}<li>Maksimum: {{ search.max_price }} TRY</li>{% endif %}
+        {% if search.direct_only %}<li>Sadece direkt</li>{% endif %}
+      </ul>
+    </section>
+
+    <section class="panel">
+      {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
+      <h2>Hub karsilastirmasi (Avrupa → hedef)</h2>
+      <p class="hint">Her satir farkli bir Avrupa hub'indan hedefe giden rotayi gosterir.</p>
+      {% else %}
+      <h2>En ucuz destinasyonlar</h2>
+      {% endif %}
+      {% if results %}
+        {% for result in results %}
+        <article class="result-block">
+          <div class="card-head">
+            <h3>{{ result.source.replace('_', ' ').title() }}</h3>
+            <span class="badge {{ result.status }}">{{ result.status }}</span>
+          </div>
+          <p class="muted">{{ result.scraped_at }} — {{ result.message }}</p>
+
+          {% if result.offers %}
+          <div class="offers">
+            {% for offer in result.offers %}
+            {% set r = offer|route_display %}
+            <div class="offer">
+              <div class="offer-route">
+                <strong class="route">
+                  <span class="route-end">
+                    {% if r.origin_flag %}<span class="flag" title="{{ r.origin_country or '' }}">{{ r.origin_flag }}</span>{% endif %}
+                    <span class="route-place">
+                      {{ r.origin_city }}
+                      {% if r.origin_country %}<span class="route-country">, {{ r.origin_country }}</span>{% endif %}
+                      {% if r.origin_code %}<span class="iata">({{ r.origin_code }})</span>{% endif %}
+                    </span>
+                  </span>
+                  <span class="route-arrow">→</span>
+                  <span class="route-end">
+                    {% if r.destination_flag %}<span class="flag" title="{{ r.destination_country or '' }}">{{ r.destination_flag }}</span>{% endif %}
+                    <span class="route-place">
+                      {{ r.destination_city }}
+                      {% if r.destination_country %}<span class="route-country">, {{ r.destination_country }}</span>{% endif %}
+                      {% if r.destination_code %}<span class="iata">({{ r.destination_code }})</span>{% endif %}
+                    </span>
+                  </span>
+                </strong>
+                <div class="offer-meta-right">
+                  {% if r.miles_estimate %}<span class="miles-badge">~{{ r.miles_estimate|format_miles }} mil</span>{% endif %}
+                  <span class="price">{{ offer.price_text }}</span>
+                </div>
+              </div>
+              {% if offer.date_summary %}<p class="muted small">{{ offer.date_summary }}</p>{% endif %}
+              {% if offer.duration or offer.stops %}
+              <p class="muted small">{{ offer.duration or '' }}{% if offer.stops %} · {{ offer.stops }}{% endif %}{% if offer.airline %} · {{ offer.airline }}{% endif %}</p>
+              {% endif %}
+              {% if offer.booking_url %}
+              <a href="{{ offer.booking_url }}" target="_blank" rel="noopener">Google'da ac</a>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </article>
+        {% endfor %}
+      {% else %}
+      <p>Henuz tarama yapilmadi.</p>
+      {% endif %}
+    </section>
+
+    <form method="post" action="/searches/{{ search.id }}/delete" onsubmit="return confirm('Silinsin mi?');">
+      <button class="button danger" type="submit">Aramayi sil</button>
+    </form>
+  </main>
+</body>
+</html>

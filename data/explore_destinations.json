@@ -1,0 +1,28 @@
+{
+  "regions": {
+    "europe": ["BCN", "MAD", "FCO", "MXP", "CDG", "AMS", "LHR", "LGW", "FRA", "VCE", "NAP", "LIN", "AGP", "PMI", "VLC"],
+    "americas": ["MIA", "JFK", "LAX", "EWR", "LGA", "ORD", "DFW", "ATL", "BOS", "SFO"],
+    "middle_east": ["DXB", "DOH", "IST", "SAW"],
+    "asia": ["BKK", "SIN", "HND", "NRT", "ICN", "KUL", "DEL", "BOM"]
+  },
+  "destinations": [
+    {"id": "BCN", "name": "Barselona", "country": "Ispanya", "region": "europe"},
+    {"id": "MAD", "name": "Madrid", "country": "Ispanya", "region": "europe"},
+    {"id": "FCO", "name": "Roma", "country": "Italya", "region": "europe"},
+    {"id": "MXP", "name": "Milano", "country": "Italya", "region": "europe"},
+    {"id": "CDG", "name": "Paris", "country": "Fransa", "region": "europe"},
+    {"id": "AMS", "name": "Amsterdam", "country": "Hollanda", "region": "europe"},
+    {"id": "LHR", "name": "Londra", "country": "Ingiltere", "region": "europe"},
+    {"id": "FRA", "name": "Frankfurt", "country": "Almanya", "region": "europe"},
+    {"id": "VCE", "name": "Venedik", "country": "Italya", "region": "europe"},
+    {"id": "NAP", "name": "Napoli", "country": "Italya", "region": "europe"},
+    {"id": "AGP", "name": "Malaga", "country": "Ispanya", "region": "europe"},
+    {"id": "MIA", "name": "Miami", "country": "ABD", "region": "americas"},
+    {"id": "JFK", "name": "New York", "country": "ABD", "region": "americas"},
+    {"id": "LAX", "name": "Los Angeles", "country": "ABD", "region": "americas"},
+    {"id": "DXB", "name": "Dubai", "country": "BAE", "region": "middle_east"},
+    {"id": "DOH", "name": "Doha", "country": "Katar", "region": "middle_east"},
+    {"id": "BKK", "name": "Bangkok", "country": "Tayland", "region": "asia"},
+    {"id": "SIN", "name": "Singapur", "country": "Singapur", "region": "asia"}
+  ]
+}

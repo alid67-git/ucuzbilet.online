@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+data/searches/
+data/results/
+data/*.txt
+playwright-report/
+test-results/
+*.log
+.DS_Store

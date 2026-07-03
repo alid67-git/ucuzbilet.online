@@ -1,0 +1,17 @@
+{
+  "name": "Yaz tatili ornegi",
+  "origin": "IST",
+  "destination": "BCN",
+  "departure_date": "2026-08-10",
+  "return_date": "2026-08-17",
+  "trip_type": "round_trip",
+  "adults": 1,
+  "children": 0,
+  "infants": 0,
+  "airlines": ["Turkish Airlines", "Pegasus"],
+  "max_price_try": 12000,
+  "direct_only": false,
+  "cabin_class": "economy",
+  "source": "both",
+  "headless": true
+}

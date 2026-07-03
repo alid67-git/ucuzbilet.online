@@ -1,0 +1,108 @@
+{
+  "places": [
+    {"id": "IST", "type": "airport", "skyscanner": "ist", "google": "IST", "name": "Istanbul Havalimani", "city": "Istanbul", "country": "Turkiye", "country_code": "TR", "keywords": ["istanbul", "ist"]},
+    {"id": "SAW", "type": "airport", "skyscanner": "saw", "google": "SAW", "name": "Sabiha Gokcen", "city": "Istanbul", "country": "Turkiye", "country_code": "TR", "keywords": ["sabiha", "gokcen"]},
+    {"id": "CITY_IST", "type": "city", "skyscanner": "ist", "google": "Istanbul", "name": "Istanbul (Tum havalimanlari)", "city": "Istanbul", "country": "Turkiye", "country_code": "TR", "airports": ["IST", "SAW"], "keywords": ["istanbul tum"]},
+    {"id": "COUNTRY_TR", "type": "country", "skyscanner": "ist", "google": "Istanbul", "name": "Tum Turkiye", "country": "Turkiye", "country_code": "TR", "airports": ["IST", "SAW", "ESB", "ADB", "AYT", "DLM", "BJV", "GZT", "TZX", "ASR"], "keywords": ["turkiye", "turkey", "tum turkiye"]},
+
+    {"id": "ESB", "type": "airport", "skyscanner": "esb", "google": "ESB", "name": "Esenboga", "city": "Ankara", "country": "Turkiye", "country_code": "TR", "keywords": ["ankara"]},
+    {"id": "ADB", "type": "airport", "skyscanner": "adb", "google": "ADB", "name": "Adnan Menderes", "city": "Izmir", "country": "Turkiye", "country_code": "TR", "keywords": ["izmir"]},
+    {"id": "AYT", "type": "airport", "skyscanner": "ayt", "google": "AYT", "name": "Antalya Havalimani", "city": "Antalya", "country": "Turkiye", "country_code": "TR", "keywords": ["antalya"]},
+    {"id": "DLM", "type": "airport", "skyscanner": "dlm", "google": "DLM", "name": "Dalaman", "city": "Dalaman", "country": "Turkiye", "country_code": "TR", "keywords": ["dalaman", "fethiye", "marmaris"]},
+
+    {"id": "FCO", "type": "airport", "skyscanner": "fco", "google": "FCO", "name": "Roma Fiumicino", "city": "Roma", "country": "Italya", "country_code": "IT", "keywords": ["fiumicino", "rome airport"]},
+    {"id": "CIA", "type": "airport", "skyscanner": "cia", "google": "CIA", "name": "Roma Ciampino", "city": "Roma", "country": "Italya", "country_code": "IT", "keywords": ["ciampino"]},
+    {"id": "CITY_ROM", "type": "city", "skyscanner": "rome", "google": "Rome", "name": "Roma (Tum havalimanlari)", "city": "Roma", "country": "Italya", "country_code": "IT", "airports": ["FCO", "CIA"], "keywords": ["roma", "rome"]},
+    {"id": "COUNTRY_IT", "type": "country", "skyscanner": "rome", "google": "Italy", "name": "Italya", "country": "Italya", "country_code": "IT", "airports": ["FCO", "CIA", "MXP", "LIN", "BGY", "VCE", "NAP", "BLQ", "FLR", "PSA"], "keywords": ["italya", "italy", "tum italya"]},
+
+    {"id": "CITY_FLO", "type": "city", "skyscanner": "flr", "google": "Florence", "name": "Floransa", "city": "Floransa", "country": "Italya", "country_code": "IT", "airports": ["FLR"], "keywords": ["floransa", "florence"]},
+    {"id": "FLR", "type": "airport", "skyscanner": "flr", "google": "FLR", "name": "Floransa Peretola", "city": "Floransa", "country": "Italya", "country_code": "IT", "keywords": ["florence"]},
+
+    {"id": "HUB_EU", "type": "hub", "skyscanner": "fra", "google": "Frankfurt", "name": "Avrupa hub havalimanlari", "country": "Avrupa", "country_code": "EU", "airports": ["FRA", "AMS", "CDG", "LHR", "MXP", "MAD", "FCO", "VIE", "ZRH", "MUC", "BRU"], "keywords": ["avrupa hub", "hub", "european hubs"]},
+    {"id": "MXP", "type": "airport", "skyscanner": "mxp", "google": "MXP", "name": "Milano Malpensa", "city": "Milano", "country": "Italya", "country_code": "IT", "keywords": ["malpensa", "milan"]},
+    {"id": "BGY", "type": "airport", "skyscanner": "bgy", "google": "BGY", "name": "Milano Bergamo", "city": "Milano", "country": "Italya", "country_code": "IT", "keywords": ["bergamo", "orio al serio"]},
+    {"id": "LIN", "type": "airport", "skyscanner": "lin", "google": "LIN", "name": "Milano Linate", "city": "Milano", "country": "Italya", "country_code": "IT", "keywords": ["linate"]},
+    {"id": "CITY_MIL", "type": "city", "skyscanner": "mila", "google": "Milan", "name": "Milano (Tum havalimanlari)", "city": "Milano", "country": "Italya", "country_code": "IT", "airports": ["MXP", "LIN", "BGY"], "keywords": ["milano", "milan"]},
+    {"id": "VCE", "type": "airport", "skyscanner": "vce", "google": "VCE", "name": "Venedik Marco Polo", "city": "Venedik", "country": "Italya", "country_code": "IT", "keywords": ["venedik", "venice"]},
+    {"id": "NAP", "type": "airport", "skyscanner": "nap", "google": "NAP", "name": "Napoli Capodichino", "city": "Napoli", "country": "Italya", "country_code": "IT", "keywords": ["napoli", "naples"]},
+
+    {"id": "MIA", "type": "airport", "skyscanner": "mia", "google": "MIA", "name": "Miami International", "city": "Miami", "country": "ABD", "country_code": "US", "keywords": ["miami"]},
+    {"id": "JFK", "type": "airport", "skyscanner": "jfk", "google": "JFK", "name": "New York JFK", "city": "New York", "country": "ABD", "country_code": "US", "keywords": ["jfk", "new york"]},
+    {"id": "EWR", "type": "airport", "skyscanner": "ewr", "google": "EWR", "name": "New York Newark", "city": "New York", "country": "ABD", "country_code": "US", "keywords": ["newark"]},
+    {"id": "LGA", "type": "airport", "skyscanner": "lga", "google": "LGA", "name": "New York LaGuardia", "city": "New York", "country": "ABD", "country_code": "US", "keywords": ["laguardia"]},
+    {"id": "CITY_NYC", "type": "city", "skyscanner": "nyc", "google": "New York", "name": "New York (Tum havalimanlari)", "city": "New York", "country": "ABD", "country_code": "US", "airports": ["JFK", "EWR", "LGA"], "keywords": ["new york", "nyc", "newyork", "newyorka", "york"]},
+    {"id": "COUNTRY_US", "type": "country", "skyscanner": "nyc", "google": "United States", "name": "Amerika Birlesik Devletleri", "country": "ABD", "country_code": "US", "airports": ["JFK", "EWR", "LGA", "MIA", "LAX", "SFO", "ORD", "DFW", "ATL", "BOS", "MCO", "LAS", "SEA", "DEN", "IAD", "PHX"], "keywords": ["abd", "usa", "amerika", "amerika birlesik devletleri", "tum abd", "united states"]},
+    {"id": "LAX", "type": "airport", "skyscanner": "lax", "google": "LAX", "name": "Los Angeles", "city": "Los Angeles", "country": "ABD", "country_code": "US", "keywords": ["los angeles", "la"]},
+    {"id": "SFO", "type": "airport", "skyscanner": "sfo", "google": "SFO", "name": "San Francisco", "city": "San Francisco", "country": "ABD", "country_code": "US", "keywords": ["san francisco"]},
+    {"id": "ORD", "type": "airport", "skyscanner": "ord", "google": "ORD", "name": "Chicago O'Hare", "city": "Chicago", "country": "ABD", "country_code": "US", "keywords": ["chicago"]},
+    {"id": "DFW", "type": "airport", "skyscanner": "dfw", "google": "DFW", "name": "Dallas Fort Worth", "city": "Dallas", "country": "ABD", "country_code": "US", "keywords": ["dallas"]},
+    {"id": "ATL", "type": "airport", "skyscanner": "atl", "google": "ATL", "name": "Atlanta", "city": "Atlanta", "country": "ABD", "country_code": "US", "keywords": ["atlanta"]},
+    {"id": "BOS", "type": "airport", "skyscanner": "bos", "google": "BOS", "name": "Boston", "city": "Boston", "country": "ABD", "country_code": "US", "keywords": ["boston"]},
+    {"id": "MCO", "type": "airport", "skyscanner": "mco", "google": "MCO", "name": "Orlando", "city": "Orlando", "country": "ABD", "country_code": "US", "keywords": ["orlando", "disney"]},
+    {"id": "CITY_MIA", "type": "city", "skyscanner": "mia", "google": "Miami", "name": "Miami", "city": "Miami", "country": "ABD", "country_code": "US", "airports": ["MIA"], "keywords": ["miami"]},
+    {"id": "CITY_LAX", "type": "city", "skyscanner": "lax", "google": "Los Angeles", "name": "Los Angeles", "city": "Los Angeles", "country": "ABD", "country_code": "US", "airports": ["LAX"], "keywords": ["los angeles"]},
+    {"id": "CITY_CHI", "type": "city", "skyscanner": "ord", "google": "Chicago", "name": "Chicago", "city": "Chicago", "country": "ABD", "country_code": "US", "airports": ["ORD"], "keywords": ["chicago"]},
+    {"id": "LAS", "type": "airport", "skyscanner": "las", "google": "LAS", "name": "Las Vegas", "city": "Las Vegas", "country": "ABD", "country_code": "US", "keywords": ["las vegas"]},
+    {"id": "SEA", "type": "airport", "skyscanner": "sea", "google": "SEA", "name": "Seattle", "city": "Seattle", "country": "ABD", "country_code": "US", "keywords": ["seattle"]},
+    {"id": "DEN", "type": "airport", "skyscanner": "den", "google": "DEN", "name": "Denver", "city": "Denver", "country": "ABD", "country_code": "US", "keywords": ["denver"]},
+    {"id": "IAD", "type": "airport", "skyscanner": "iad", "google": "IAD", "name": "Washington Dulles", "city": "Washington", "country": "ABD", "country_code": "US", "keywords": ["washington", "dc"]},
+    {"id": "PHX", "type": "airport", "skyscanner": "phx", "google": "PHX", "name": "Phoenix", "city": "Phoenix", "country": "ABD", "country_code": "US", "keywords": ["phoenix"]},
+
+    {"id": "COUNTRY_CA", "type": "country", "skyscanner": "yvr", "google": "Canada", "name": "Kanada", "country": "Kanada", "country_code": "CA", "airports": ["YYZ", "YVR", "YUL"], "keywords": ["kanada", "canada"]},
+    {"id": "YYZ", "type": "airport", "skyscanner": "yyz", "google": "YYZ", "name": "Toronto Pearson", "city": "Toronto", "country": "Kanada", "country_code": "CA", "keywords": ["toronto"]},
+    {"id": "YVR", "type": "airport", "skyscanner": "yvr", "google": "YVR", "name": "Vancouver", "city": "Vancouver", "country": "Kanada", "country_code": "CA", "keywords": ["vancouver"]},
+    {"id": "YUL", "type": "airport", "skyscanner": "yul", "google": "YUL", "name": "Montreal", "city": "Montreal", "country": "Kanada", "country_code": "CA", "keywords": ["montreal"]},
+
+    {"id": "COUNTRY_MX", "type": "country", "skyscanner": "mex", "google": "Mexico", "name": "Meksika", "country": "Meksika", "country_code": "MX", "airports": ["MEX", "CUN", "GDL"], "keywords": ["meksika", "mexico"]},
+    {"id": "MEX", "type": "airport", "skyscanner": "mex", "google": "MEX", "name": "Mexico City", "city": "Mexico City", "country": "Meksika", "country_code": "MX", "keywords": ["mexico city"]},
+    {"id": "CUN", "type": "airport", "skyscanner": "cun", "google": "CUN", "name": "Cancun", "city": "Cancun", "country": "Meksika", "country_code": "MX", "keywords": ["cancun", "kankun"]},
+
+    {"id": "COUNTRY_BR", "type": "country", "skyscanner": "gru", "google": "Brazil", "name": "Brezilya", "country": "Brezilya", "country_code": "BR", "airports": ["GRU", "GIG"], "keywords": ["brezilya", "brazil"]},
+    {"id": "GRU", "type": "airport", "skyscanner": "gru", "google": "GRU", "name": "Sao Paulo", "city": "Sao Paulo", "country": "Brezilya", "country_code": "BR", "keywords": ["sao paulo"]},
+    {"id": "GIG", "type": "airport", "skyscanner": "gig", "google": "GIG", "name": "Rio de Janeiro", "city": "Rio de Janeiro", "country": "Brezilya", "country_code": "BR", "keywords": ["rio"]},
+
+    {"id": "LHR", "type": "airport", "skyscanner": "lhr", "google": "LHR", "name": "London Heathrow", "city": "Londra", "country": "Ingiltere", "country_code": "GB", "keywords": ["heathrow", "london"]},
+    {"id": "LGW", "type": "airport", "skyscanner": "lgw", "google": "LGW", "name": "London Gatwick", "city": "Londra", "country": "Ingiltere", "country_code": "GB", "keywords": ["gatwick"]},
+    {"id": "CITY_LON", "type": "city", "skyscanner": "lon", "google": "London", "name": "Londra (Tum havalimanlari)", "city": "Londra", "country": "Ingiltere", "country_code": "GB", "airports": ["LHR", "LGW", "STN", "LTN"], "keywords": ["londra", "london"]},
+    {"id": "COUNTRY_GB", "type": "country", "skyscanner": "lon", "google": "London", "name": "Tum Ingiltere", "country": "Ingiltere", "country_code": "GB", "airports": ["LHR", "LGW", "STN", "LTN", "MAN", "BHX", "EDI"], "keywords": ["ingiltere", "uk", "britain"]},
+
+    {"id": "CDG", "type": "airport", "skyscanner": "cdg", "google": "CDG", "name": "Paris Charles de Gaulle", "city": "Paris", "country": "Fransa", "country_code": "FR", "keywords": ["paris", "cdg"]},
+    {"id": "ORY", "type": "airport", "skyscanner": "ory", "google": "ORY", "name": "Paris Orly", "city": "Paris", "country": "Fransa", "country_code": "FR", "keywords": ["orly"]},
+    {"id": "CITY_PAR", "type": "city", "skyscanner": "pari", "google": "Paris", "name": "Paris (Tum havalimanlari)", "city": "Paris", "country": "Fransa", "country_code": "FR", "airports": ["CDG", "ORY"], "keywords": ["paris"]},
+    {"id": "COUNTRY_FR", "type": "country", "skyscanner": "pari", "google": "Paris", "name": "Tum Fransa", "country": "Fransa", "country_code": "FR", "airports": ["CDG", "ORY", "NCE", "LYS", "MRS"], "keywords": ["fransa", "france"]},
+
+    {"id": "BCN", "type": "airport", "skyscanner": "bcn", "google": "BCN", "name": "Barcelona El Prat", "city": "Barselona", "country": "Ispanya", "country_code": "ES", "keywords": ["barcelona", "barselona"]},
+    {"id": "MAD", "type": "airport", "skyscanner": "mad", "google": "MAD", "name": "Madrid Barajas", "city": "Madrid", "country": "Ispanya", "country_code": "ES", "keywords": ["madrid"]},
+    {"id": "CITY_ES", "type": "city", "skyscanner": "mad", "google": "Madrid", "name": "Ispanya (Madrid/Barcelona)", "city": "Ispanya", "country": "Ispanya", "country_code": "ES", "airports": ["MAD", "BCN"], "keywords": ["ispanya sehir"]},
+    {"id": "COUNTRY_ES", "type": "country", "skyscanner": "mad", "google": "Madrid", "name": "Tum Ispanya", "country": "Ispanya", "country_code": "ES", "airports": ["MAD", "BCN", "AGP", "PMI", "VLC"], "keywords": ["ispanya", "spain"]},
+
+    {"id": "AGP", "type": "airport", "skyscanner": "agp", "google": "AGP", "name": "Malaga", "city": "Malaga", "country": "Ispanya", "country_code": "ES", "keywords": ["malaga"]},
+
+    {"id": "AMS", "type": "airport", "skyscanner": "ams", "google": "AMS", "name": "Amsterdam Schiphol", "city": "Amsterdam", "country": "Hollanda", "country_code": "NL", "keywords": ["amsterdam"]},
+    {"id": "FRA", "type": "airport", "skyscanner": "fra", "google": "FRA", "name": "Frankfurt", "city": "Frankfurt", "country": "Almanya", "country_code": "DE", "keywords": ["frankfurt"]},
+    {"id": "MUC", "type": "airport", "skyscanner": "muc", "google": "MUC", "name": "Munchen", "city": "Munchen", "country": "Almanya", "country_code": "DE", "keywords": ["munich", "munchen"]},
+    {"id": "COUNTRY_DE", "type": "country", "skyscanner": "fra", "google": "Frankfurt", "name": "Tum Almanya", "country": "Almanya", "country_code": "DE", "airports": ["FRA", "MUC", "BER", "DUS", "HAM"], "keywords": ["almanya", "germany"]},
+
+    {"id": "VIE", "type": "airport", "skyscanner": "vie", "google": "VIE", "name": "Vienna", "city": "Viyana", "country": "Avusturya", "country_code": "AT", "keywords": ["vienna", "viyana"]},
+    {"id": "ZRH", "type": "airport", "skyscanner": "zrh", "google": "ZRH", "name": "Zurich", "city": "Zurih", "country": "Isvicre", "country_code": "CH", "keywords": ["zurich", "zurih"]},
+    {"id": "BRU", "type": "airport", "skyscanner": "bru", "google": "BRU", "name": "Brussels", "city": "Brüksel", "country": "Belcika", "country_code": "BE", "keywords": ["brussels", "bruksel"]},
+    {"id": "COUNTRY_NL", "type": "country", "skyscanner": "ams", "google": "Amsterdam", "name": "Hollanda", "country": "Hollanda", "country_code": "NL", "airports": ["AMS"], "keywords": ["hollanda", "netherlands"]},
+    {"id": "COUNTRY_PT", "type": "country", "skyscanner": "lis", "google": "Lisbon", "name": "Portekiz", "country": "Portekiz", "country_code": "PT", "airports": ["LIS", "OPO"], "keywords": ["portekiz", "portugal"]},
+    {"id": "LIS", "type": "airport", "skyscanner": "lis", "google": "LIS", "name": "Lizbon", "city": "Lizbon", "country": "Portekiz", "country_code": "PT", "keywords": ["lisbon", "lizbon"]},
+    {"id": "COUNTRY_GR", "type": "country", "skyscanner": "ath", "google": "Athens", "name": "Yunanistan", "country": "Yunanistan", "country_code": "GR", "airports": ["ATH", "SKG"], "keywords": ["yunanistan", "greece"]},
+    {"id": "ATH", "type": "airport", "skyscanner": "ath", "google": "ATH", "name": "Atina", "city": "Atina", "country": "Yunanistan", "country_code": "GR", "keywords": ["athens", "atina"]},
+
+    {"id": "COUNTRY_AE", "type": "country", "skyscanner": "dxb", "google": "Dubai", "name": "BAE", "country": "BAE", "country_code": "AE", "airports": ["DXB", "AUH"], "keywords": ["bae", "uae", "dubai", "emirlik"]},
+    {"id": "DXB", "type": "airport", "skyscanner": "dxb", "google": "DXB", "name": "Dubai", "city": "Dubai", "country": "BAE", "country_code": "AE", "keywords": ["dubai"]},
+    {"id": "COUNTRY_QA", "type": "country", "skyscanner": "doh", "google": "Qatar", "name": "Katar", "country": "Katar", "country_code": "QA", "airports": ["DOH"], "keywords": ["katar", "qatar"]},
+
+    {"id": "COUNTRY_TH", "type": "country", "skyscanner": "bkk", "google": "Bangkok", "name": "Tayland", "country": "Tayland", "country_code": "TH", "airports": ["BKK", "HKT"], "keywords": ["tayland", "thailand"]},
+    {"id": "BKK", "type": "airport", "skyscanner": "bkk", "google": "BKK", "name": "Bangkok", "city": "Bangkok", "country": "Tayland", "country_code": "TH", "keywords": ["bangkok"]},
+    {"id": "COUNTRY_SG", "type": "country", "skyscanner": "sin", "google": "Singapore", "name": "Singapur", "country": "Singapur", "country_code": "SG", "airports": ["SIN"], "keywords": ["singapur", "singapore"]},
+    {"id": "SIN", "type": "airport", "skyscanner": "sin", "google": "SIN", "name": "Singapur Changi", "city": "Singapur", "country": "Singapur", "country_code": "SG", "keywords": ["singapore"]},
+    {"id": "COUNTRY_JP", "type": "country", "skyscanner": "nrt", "google": "Tokyo", "name": "Japonya", "country": "Japonya", "country_code": "JP", "airports": ["NRT", "HND"], "keywords": ["japonya", "japan"]},
+    {"id": "NRT", "type": "airport", "skyscanner": "nrt", "google": "NRT", "name": "Tokyo Narita", "city": "Tokyo", "country": "Japonya", "country_code": "JP", "keywords": ["tokyo", "narita"]},
+
+    {"id": "DOH", "type": "airport", "skyscanner": "doh", "google": "DOH", "name": "Doha Hamad", "city": "Doha", "country": "Katar", "country_code": "QA", "keywords": ["doha", "katar"]}
+  ]
+}

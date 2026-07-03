@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{{ title }} | UcuzBilet Avcisi</title>
+
+  <link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+  <header class="hero compact">
+
+    <div>
+
+      <p class="eyebrow">ucuzbilet.online · Geliştiren Ali Dinçer</p>
+
+      <h1>{{ title }}</h1>
+
+      <p class="subtitle">En ucuz nereye gidebilirim? — Google Flights kesif</p>
+
+    </div>
+
+    <a class="button" href="/">Geri</a>
+
+  </header>
+
+
+
+  <main class="container">
+
+    <form class="panel form-grid" method="post" action="{{ action }}" id="search-form">
+
+      <label>
+        Arama adi (kaydetmek icin)
+        <input type="text" name="name" value="{{ search.name if search else '' }}" placeholder="Ornek: Miami THY Agustos">
+      </label>
+
+
+
+      <div class="place-field full" id="origin-field">
+        <label for="origin-input">Kalkis (ulke / sehir / havalimani)</label>
+        <input type="text" id="origin-input" autocomplete="off" placeholder="Ornek: Italya, Roma, Istanbul"
+          value="{{ search.origin_label if search else '' }}">
+        <input type="hidden" name="origin_place_id" id="origin-place-id" value="{{ search.origin_place_id if search else '' }}">
+        <div class="place-dropdown" id="origin-dropdown"></div>
+        <p class="hint" id="origin-hint">Italya yazinca "Italya — Tum havalimanlari" secin; altinda Roma, Milano, Venedik listelenir.</p>
+        <p class="hint" id="origin-hub-note" hidden>Avrupa hub'lari otomatik kullanilir (FRA, AMS, CDG, LHR, MXP, MAD, FCO...). Kalkis secmenize gerek yok.</p>
+      </div>
+
+
+
+      <div class="place-field full" id="destination-field">
+        <label for="destination-input" id="destination-label">Varis (ulke / sehir / havalimani) — opsiyonel</label>
+        <div class="place-input-row">
+          <input type="text" id="destination-input" autocomplete="off" placeholder="Ornek: New York, Miami — veya bos birakin"
+            value="{{ search.destination_label if search and search.destination_label else '' }}">
+          <button type="button" class="button" id="clear-destination" hidden>Varisi temizle</button>
+        </div>
+        <input type="hidden" name="destination_place_id" id="destination-place-id" value="{{ search.destination_place_id if search and search.destination_place_id else '' }}">
+        <div class="place-dropdown" id="destination-dropdown"></div>
+        <p class="hint" id="destination-hint">Bos birakirsaniz asagidaki bolge hedefiyle en ucuz destinasyonlar aranir.</p>
+      </div>
+
+      <div id="scope-field" class="full region-panel">
+        <label for="target-continent">Bolge hedefi — ana kita</label>
+        <select name="destination_scope" id="target-continent">
+          <option value="anywhere" {% if not search or search.destination_scope.value == 'anywhere' %}selected{% endif %}>Her yer</option>
+          <option value="americas" {% if search and search.destination_scope.value == 'americas' %}selected{% endif %}>Amerika</option>
+          <option value="europe" {% if search and search.destination_scope.value == 'europe' %}selected{% endif %}>Avrupa</option>
+          <option value="middle_east" {% if search and search.destination_scope.value == 'middle_east' %}selected{% endif %}>Orta Dogu</option>
+          <option value="asia" {% if search and search.destination_scope.value == 'asia' %}selected{% endif %}>Asya</option>
+        </select>
+        <p class="hint">Varis bosken: once kita secin, sonra asagidan ulke(leri) isaretleyin.</p>
+        <div id="country-grid" class="country-grid"></div>
+        <p class="hint" id="country-selection-hint">Hic ulke secilmezse tum kita taranir.</p>
+      </div>
+
+
+
+      <label class="checkbox full" id="hub-checkbox-field">
+        <input type="checkbox" name="use_european_hubs" id="use-european-hubs"
+          {% if search and (search.use_european_hubs or search.mode.value == 'hub_to_country') %}checked{% endif %}>
+        Avrupa hub'larindan tara (FRA, AMS, CDG, LHR, MXP, MAD, FCO...)
+      </label>
+      <p class="hint full" id="hub-hint" hidden>Hub seciliyken kalkis alani kullanilmaz. Tarih modunu asagidan secin.</p>
+
+      <label class="full">
+        Arama modu
+        <select name="mode" id="mode-select">
+          {% set eff_mode = search.mode.value if search else 'fixed_trip' %}
+          {% if eff_mode == 'hub_to_country' %}{% set eff_mode = 'fixed_trip' %}{% endif %}
+          {% if eff_mode == 'date_range' %}{% set eff_mode = 'fixed_trip' %}{% endif %}
+          <option value="fixed_trip" {% if not search or eff_mode != 'flexible' %}selected{% endif %}>Ucus fiyat taramasi</option>
+          <option value="flexible" id="mode-flexible" {% if search and eff_mode == 'flexible' %}selected{% endif %}>Esnek harita (Google deal)</option>
+        </select>
+      </label>
+
+      {% set has_return = search.use_return_date if search else false %}
+      {% if search and search.mode.value == 'date_range' and search.date_to and not search.flexible_departure_in_range %}
+        {% set has_return = true %}
+      {% endif %}
+      {% set trip_dep = search.date_from if search and search.date_from else (search.departure_date if search and search.departure_date else today) %}
+
+      <div id="trip-date-panel" class="mode-panel full">
+        <div class="form-grid nested">
+          <label>
+            Gidis tarihi
+            <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
+          </label>
+          <label id="return-date-field">
+            Donus tarihi
+            <input type="date" name="date_to" id="trip-return"
+              value="{{ search.date_to if search and search.date_to else default_range_end }}"
+              {% if not has_return %}disabled{% endif %}>
+          </label>
+          <label id="trip-days-field">
+            Kalis suresi (gun)
+            <input type="number" min="1" max="30" name="trip_days" id="trip-days"
+              value="{{ search.trip_days if search else 5 }}"
+              {% if has_return %}disabled{% endif %}>
+          </label>
+          <label id="flexibility-days-field">
+            Esneklik (± gun)
+            <input type="number" min="1" max="14" name="flexibility_days" id="flexibility-days"
+              value="{{ search.flexibility_days if search and search.flexibility_days else 3 }}"
+              {% if not search or not search.flexible_departure_in_range %}disabled{% endif %}>
+          </label>
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" name="use_return_date" id="use-return-date" {% if has_return %}checked{% endif %}>
+          Donus tarihi belirle
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="flexible_search" id="flexible-search"
+            {% if search and search.flexible_departure_in_range %}checked{% endif %}>
+          Esnek ara (en ucuz 3 sonuc — gidis ±N gun)
+        </label>
+        <p class="hint" id="trip-date-hint">Donus secilmezse kalis suresi kullanilir.</p>
+      </div>
+
+
+
+      <label id="alliance-field">
+        Havayolu ittifaki
+        <select name="alliance">
+
+          <option value="any" {% if not search or search.alliance.value == 'any' %}selected{% endif %}>Fark etmez</option>
+
+          <option value="STAR_ALLIANCE" {% if search and search.alliance.value == 'STAR_ALLIANCE' %}selected{% endif %}>Star Alliance</option>
+
+          <option value="ONEWORLD" {% if search and search.alliance.value == 'ONEWORLD' %}selected{% endif %}>Oneworld</option>
+
+          <option value="SKYTEAM" {% if search and search.alliance.value == 'SKYTEAM' %}selected{% endif %}>SkyTeam</option>
+
+        </select>
+
+      </label>
+
+
+
+      <label>
+
+        Max aktarma
+
+        <select name="max_stops">
+
+          <option value="" {% if not search or search.max_stops is none %}selected{% endif %}>Sinirsiz</option>
+
+          <option value="0" {% if search and search.max_stops == 0 %}selected{% endif %}>0 (direkt)</option>
+
+          <option value="1" {% if search and search.max_stops == 1 %}selected{% endif %}>En fazla 1</option>
+
+          <option value="2" {% if search and search.max_stops == 2 %}selected{% endif %}>En fazla 2</option>
+
+        </select>
+
+      </label>
+
+
+
+      <label>
+
+        Maksimum fiyat (TRY)
+
+        <input type="number" min="0" name="max_price" value="{{ search.max_price if search and search.max_price else '' }}">
+
+      </label>
+
+
+
+      <label>
+
+        Yetiskin
+
+        <input type="number" min="1" max="9" name="adults" value="{{ search.adults if search else 1 }}">
+
+      </label>
+
+
+
+      <label>
+
+        Cocuk
+
+        <input type="number" min="0" max="9" name="children" value="{{ search.children if search else 0 }}">
+
+      </label>
+
+
+
+      <label>
+
+        Kabin
+
+        <select name="cabin_class">
+
+          {% for cabin in ['economy', 'premium-economy', 'business', 'first'] %}
+
+          <option value="{{ cabin }}" {% if search and search.cabin_class == cabin %}selected{% elif not search and cabin == 'economy' %}selected{% endif %}>{{ cabin }}</option>
+
+          {% endfor %}
+
+        </select>
+
+      </label>
+
+
+
+      <label class="checkbox">
+
+        <input type="checkbox" name="prefer_thy" {% if search and search.prefer_thy %}checked{% endif %}>
+
+        Yalnizca Turk Hava Yollari (THY)
+
+      </label>
+
+
+
+      <label class="checkbox">
+
+        <input type="checkbox" name="direct_only" {% if search and search.direct_only %}checked{% endif %}>
+
+        Yalnizca direkt ucus
+
+      </label>
+
+
+
+      <label class="checkbox">
+
+        <input type="checkbox" name="headless" value="off" {% if search and not search.headless %}checked{% endif %}>
+
+        Tarayiciyi gorunur ac (debug)
+
+      </label>
+
+
+
+      <div class="full actions">
+        <button class="button primary" type="submit" formaction="{{ run_action or '/search/run' }}">Ara</button>
+        <button class="button" type="submit" formaction="{{ action }}">Kaydet</button>
+        <p class="hint">Ara: kaydetmeden tara. Kaydet: listeye ekle (taramaz).</p>
+      </div>
+
+    </form>
+
+  </main>
+
+  <script>
+      {% if search and search.target_country_ids %}
+      window.__savedTargetCountries = {{ search.target_country_ids|tojson }};
+      {% else %}
+      window.__savedTargetCountries = [];
+      {% endif %}
+  </script>
+  <script src="/static/airport-picker.js"></script>
+  <script src="/static/region-picker.js"></script>
+  <script src="/static/explore-form.js"></script>
+</body>
+
+</html>
+

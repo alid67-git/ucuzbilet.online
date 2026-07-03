@@ -1,0 +1,46 @@
+{
+  "continents": [
+    {
+      "id": "americas",
+      "name": "Amerika",
+      "countries": [
+        {"id": "COUNTRY_US", "name": "ABD", "country_code": "US"},
+        {"id": "COUNTRY_CA", "name": "Kanada", "country_code": "CA"},
+        {"id": "COUNTRY_MX", "name": "Meksika", "country_code": "MX"},
+        {"id": "COUNTRY_BR", "name": "Brezilya", "country_code": "BR"}
+      ]
+    },
+    {
+      "id": "europe",
+      "name": "Avrupa",
+      "countries": [
+        {"id": "COUNTRY_IT", "name": "Italya", "country_code": "IT"},
+        {"id": "COUNTRY_ES", "name": "Ispanya", "country_code": "ES"},
+        {"id": "COUNTRY_FR", "name": "Fransa", "country_code": "FR"},
+        {"id": "COUNTRY_GB", "name": "Ingiltere", "country_code": "GB"},
+        {"id": "COUNTRY_DE", "name": "Almanya", "country_code": "DE"},
+        {"id": "COUNTRY_NL", "name": "Hollanda", "country_code": "NL"},
+        {"id": "COUNTRY_PT", "name": "Portekiz", "country_code": "PT"},
+        {"id": "COUNTRY_GR", "name": "Yunanistan", "country_code": "GR"}
+      ]
+    },
+    {
+      "id": "middle_east",
+      "name": "Orta Dogu",
+      "countries": [
+        {"id": "COUNTRY_TR", "name": "Turkiye", "country_code": "TR"},
+        {"id": "COUNTRY_AE", "name": "BAE", "country_code": "AE"},
+        {"id": "COUNTRY_QA", "name": "Katar", "country_code": "QA"}
+      ]
+    },
+    {
+      "id": "asia",
+      "name": "Asya",
+      "countries": [
+        {"id": "COUNTRY_TH", "name": "Tayland", "country_code": "TH"},
+        {"id": "COUNTRY_SG", "name": "Singapur", "country_code": "SG"},
+        {"id": "COUNTRY_JP", "name": "Japonya", "country_code": "JP"}
+      ]
+    }
+  ]
+}
