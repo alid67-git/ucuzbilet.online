@@ -43,7 +43,7 @@ Google Flights resmi API sunmuyor; veriler Google Explore / fast-flights uzerind
 1. Projeyi GitHub'a push edin (`data/places.json`, `regions.json`, `explore_destinations.json` dahil).
 2. [render.com](https://render.com) → **New** → **Blueprint** → repoyu secin (`render.yaml` otomatik algilanir).
    - veya **New Web Service** → Docker → repoyu secin, plan: **Free**.
-3. Deploy bitince `https://ucuzbilet.onrender.com` gibi bir adres verilir.
+3. Deploy bitince adres: `https://ucuzbilet-online.onrender.com`
 4. `ucuzbilet.online` domain'inizi Render panelinden **Custom Domain** ile baglayin.
 
 **Ucretsiz plan sinirlari:**

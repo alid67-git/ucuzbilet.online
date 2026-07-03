@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ucuzbilet
+    name: ucuzbilet-online
     runtime: docker
     plan: free
     healthCheckPath: /
