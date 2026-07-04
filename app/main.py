@@ -13,7 +13,7 @@ from app.offer_display import format_miles, route_display
 from app.regions import country_labels, load_continents, scope_label
 from app.models import AllianceFilter, DestinationScope, ExploreMode, ExploreSearchRequest
 from app.version import APP_VERSION, BETA_BUILD, BETA_MAJOR
-from app.places import place_children, place_label, resolve_place, search_places
+from app.places import get_place, place_children, place_label, resolve_place, search_places
 from app.runner import run_search
 from app.storage import (
     delete_search,
@@ -94,6 +94,15 @@ async def api_resolve_place(q: str = Query(..., min_length=1)):
 @app.get("/api/regions")
 async def api_regions():
     return JSONResponse(load_continents())
+
+
+@app.get("/api/places/{place_id}/children")
+async def api_place_children(place_id: str):
+    place = get_place(place_id)
+    if not place:
+        raise HTTPException(status_code=404, detail="Yer bulunamadi.")
+    children = place_children(place, limit=300)
+    return JSONResponse([_place_payload(child) for child in children])
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -186,6 +195,7 @@ def _parse_search_form(
     flexibility_days: int,
     destination_scope: str,
     target_countries: list[str],
+    target_airports: list[str],
     alliance: str,
     prefer_thy: str | None,
     max_stops: str,
@@ -260,6 +270,7 @@ def _parse_search_form(
             flexible_top_n=3,
             destination_scope=DestinationScope(destination_scope),
             target_country_ids=[c for c in target_countries if c.strip()],
+            target_airport_ids=[c for c in target_airports if c.strip()],
             alliance=AllianceFilter(alliance),
             prefer_thy=prefer_thy == "on",
             max_stops=parsed_max_stops,
@@ -296,6 +307,7 @@ async def quick_search_run(
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
     target_countries: list[str] = Form(default=[]),
+    target_airports: list[str] = Form(default=[]),
     alliance: str = Form("any"),
     prefer_thy: str | None = Form(None),
     max_stops: str = Form(""),
@@ -318,6 +330,7 @@ async def quick_search_run(
         flexibility_days,
         destination_scope,
         target_countries,
+        target_airports,
         alliance,
         prefer_thy,
         max_stops,
@@ -346,6 +359,7 @@ async def create_search(
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
     target_countries: list[str] = Form(default=[]),
+    target_airports: list[str] = Form(default=[]),
     alliance: str = Form("any"),
     prefer_thy: str | None = Form(None),
     max_stops: str = Form(""),
@@ -368,6 +382,7 @@ async def create_search(
         flexibility_days,
         destination_scope,
         target_countries,
+        target_airports,
         alliance,
         prefer_thy,
         max_stops,
@@ -408,6 +423,7 @@ async def update_search_route(
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
     target_countries: list[str] = Form(default=[]),
+    target_airports: list[str] = Form(default=[]),
     alliance: str = Form("any"),
     prefer_thy: str | None = Form(None),
     max_stops: str = Form(""),
@@ -430,6 +446,7 @@ async def update_search_route(
         flexibility_days,
         destination_scope,
         target_countries,
+        target_airports,
         alliance,
         prefer_thy,
         max_stops,

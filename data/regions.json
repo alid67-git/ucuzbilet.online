@@ -4,42 +4,1196 @@
       "id": "americas",
       "name": "Amerika",
       "countries": [
-        {"id": "COUNTRY_US", "name": "ABD", "country_code": "US"},
-        {"id": "COUNTRY_CA", "name": "Kanada", "country_code": "CA"},
-        {"id": "COUNTRY_MX", "name": "Meksika", "country_code": "MX"},
-        {"id": "COUNTRY_BR", "name": "Brezilya", "country_code": "BR"}
+        {
+          "id": "COUNTRY_US",
+          "name": "ABD",
+          "country_code": "US"
+        },
+        {
+          "id": "COUNTRY_CA",
+          "name": "Kanada",
+          "country_code": "CA"
+        },
+        {
+          "id": "COUNTRY_MX",
+          "name": "Meksika",
+          "country_code": "MX"
+        },
+        {
+          "id": "COUNTRY_BR",
+          "name": "Brezilya",
+          "country_code": "BR"
+        },
+        {
+          "id": "COUNTRY_AG",
+          "name": "Antigua ve Barbuda",
+          "country_code": "AG"
+        },
+        {
+          "id": "COUNTRY_AI",
+          "name": "Anguilla",
+          "country_code": "AI"
+        },
+        {
+          "id": "COUNTRY_AR",
+          "name": "Arjantin",
+          "country_code": "AR"
+        },
+        {
+          "id": "COUNTRY_AW",
+          "name": "Aruba",
+          "country_code": "AW"
+        },
+        {
+          "id": "COUNTRY_BB",
+          "name": "Barbados",
+          "country_code": "BB"
+        },
+        {
+          "id": "COUNTRY_BL",
+          "name": "Saint Barthelemy",
+          "country_code": "BL"
+        },
+        {
+          "id": "COUNTRY_BM",
+          "name": "Bermuda",
+          "country_code": "BM"
+        },
+        {
+          "id": "COUNTRY_BO",
+          "name": "Bolivya",
+          "country_code": "BO"
+        },
+        {
+          "id": "COUNTRY_BQ",
+          "name": "Karayip Hollandası",
+          "country_code": "BQ"
+        },
+        {
+          "id": "COUNTRY_BS",
+          "name": "Bahamalar",
+          "country_code": "BS"
+        },
+        {
+          "id": "COUNTRY_BZ",
+          "name": "Belize",
+          "country_code": "BZ"
+        },
+        {
+          "id": "COUNTRY_CL",
+          "name": "Şili",
+          "country_code": "CL"
+        },
+        {
+          "id": "COUNTRY_CO",
+          "name": "Kolombiya",
+          "country_code": "CO"
+        },
+        {
+          "id": "COUNTRY_CR",
+          "name": "Kosta Rika",
+          "country_code": "CR"
+        },
+        {
+          "id": "COUNTRY_CU",
+          "name": "Küba",
+          "country_code": "CU"
+        },
+        {
+          "id": "COUNTRY_CW",
+          "name": "Curaçao",
+          "country_code": "CW"
+        },
+        {
+          "id": "COUNTRY_DM",
+          "name": "Dominika",
+          "country_code": "DM"
+        },
+        {
+          "id": "COUNTRY_DO",
+          "name": "Dominik Cumhuriyeti",
+          "country_code": "DO"
+        },
+        {
+          "id": "COUNTRY_EC",
+          "name": "Ekvador",
+          "country_code": "EC"
+        },
+        {
+          "id": "COUNTRY_FK",
+          "name": "Falkland Adaları",
+          "country_code": "FK"
+        },
+        {
+          "id": "COUNTRY_GD",
+          "name": "Grenada",
+          "country_code": "GD"
+        },
+        {
+          "id": "COUNTRY_GF",
+          "name": "Fransız Guyanası",
+          "country_code": "GF"
+        },
+        {
+          "id": "COUNTRY_GL",
+          "name": "Grönland",
+          "country_code": "GL"
+        },
+        {
+          "id": "COUNTRY_GP",
+          "name": "Guadeloupe",
+          "country_code": "GP"
+        },
+        {
+          "id": "COUNTRY_GT",
+          "name": "Guatemala",
+          "country_code": "GT"
+        },
+        {
+          "id": "COUNTRY_GY",
+          "name": "Guyana",
+          "country_code": "GY"
+        },
+        {
+          "id": "COUNTRY_HN",
+          "name": "Honduras",
+          "country_code": "HN"
+        },
+        {
+          "id": "COUNTRY_HT",
+          "name": "Haiti",
+          "country_code": "HT"
+        },
+        {
+          "id": "COUNTRY_JM",
+          "name": "Jamaika",
+          "country_code": "JM"
+        },
+        {
+          "id": "COUNTRY_KN",
+          "name": "Saint Kitts ve Nevis",
+          "country_code": "KN"
+        },
+        {
+          "id": "COUNTRY_KY",
+          "name": "Cayman Adaları",
+          "country_code": "KY"
+        },
+        {
+          "id": "COUNTRY_LC",
+          "name": "Saint Lucia",
+          "country_code": "LC"
+        },
+        {
+          "id": "COUNTRY_MF",
+          "name": "Saint Martin",
+          "country_code": "MF"
+        },
+        {
+          "id": "COUNTRY_MQ",
+          "name": "Martinik",
+          "country_code": "MQ"
+        },
+        {
+          "id": "COUNTRY_MS",
+          "name": "Montserrat",
+          "country_code": "MS"
+        },
+        {
+          "id": "COUNTRY_NI",
+          "name": "Nikaragua",
+          "country_code": "NI"
+        },
+        {
+          "id": "COUNTRY_PA",
+          "name": "Panama",
+          "country_code": "PA"
+        },
+        {
+          "id": "COUNTRY_PE",
+          "name": "Peru",
+          "country_code": "PE"
+        },
+        {
+          "id": "COUNTRY_PM",
+          "name": "Saint Pierre ve Miquelon",
+          "country_code": "PM"
+        },
+        {
+          "id": "COUNTRY_PY",
+          "name": "Paraguay",
+          "country_code": "PY"
+        },
+        {
+          "id": "COUNTRY_SR",
+          "name": "Surinam",
+          "country_code": "SR"
+        },
+        {
+          "id": "COUNTRY_SV",
+          "name": "El Salvador",
+          "country_code": "SV"
+        },
+        {
+          "id": "COUNTRY_SX",
+          "name": "Sint Maarten",
+          "country_code": "SX"
+        },
+        {
+          "id": "COUNTRY_TC",
+          "name": "Turks ve Caicos Adaları",
+          "country_code": "TC"
+        },
+        {
+          "id": "COUNTRY_TT",
+          "name": "Trinidad ve Tobago",
+          "country_code": "TT"
+        },
+        {
+          "id": "COUNTRY_UY",
+          "name": "Uruguay",
+          "country_code": "UY"
+        },
+        {
+          "id": "COUNTRY_VC",
+          "name": "Saint Vincent ve Grenadinler",
+          "country_code": "VC"
+        },
+        {
+          "id": "COUNTRY_VE",
+          "name": "Venezuela",
+          "country_code": "VE"
+        },
+        {
+          "id": "COUNTRY_VG",
+          "name": "Britanya Virjin Adaları",
+          "country_code": "VG"
+        }
       ]
     },
     {
       "id": "europe",
       "name": "Avrupa",
       "countries": [
-        {"id": "COUNTRY_IT", "name": "Italya", "country_code": "IT"},
-        {"id": "COUNTRY_ES", "name": "Ispanya", "country_code": "ES"},
-        {"id": "COUNTRY_FR", "name": "Fransa", "country_code": "FR"},
-        {"id": "COUNTRY_GB", "name": "Ingiltere", "country_code": "GB"},
-        {"id": "COUNTRY_DE", "name": "Almanya", "country_code": "DE"},
-        {"id": "COUNTRY_NL", "name": "Hollanda", "country_code": "NL"},
-        {"id": "COUNTRY_PT", "name": "Portekiz", "country_code": "PT"},
-        {"id": "COUNTRY_GR", "name": "Yunanistan", "country_code": "GR"}
+        {
+          "id": "COUNTRY_IT",
+          "name": "Italya",
+          "country_code": "IT"
+        },
+        {
+          "id": "COUNTRY_ES",
+          "name": "Ispanya",
+          "country_code": "ES"
+        },
+        {
+          "id": "COUNTRY_FR",
+          "name": "Fransa",
+          "country_code": "FR"
+        },
+        {
+          "id": "COUNTRY_GB",
+          "name": "Ingiltere",
+          "country_code": "GB"
+        },
+        {
+          "id": "COUNTRY_DE",
+          "name": "Almanya",
+          "country_code": "DE"
+        },
+        {
+          "id": "COUNTRY_NL",
+          "name": "Hollanda",
+          "country_code": "NL"
+        },
+        {
+          "id": "COUNTRY_PT",
+          "name": "Portekiz",
+          "country_code": "PT"
+        },
+        {
+          "id": "COUNTRY_GR",
+          "name": "Yunanistan",
+          "country_code": "GR"
+        },
+        {
+          "id": "COUNTRY_AL",
+          "name": "Arnavutluk",
+          "country_code": "AL"
+        },
+        {
+          "id": "COUNTRY_AT",
+          "name": "Avusturya",
+          "country_code": "AT"
+        },
+        {
+          "id": "COUNTRY_BA",
+          "name": "Bosna-Hersek",
+          "country_code": "BA"
+        },
+        {
+          "id": "COUNTRY_BE",
+          "name": "Belçika",
+          "country_code": "BE"
+        },
+        {
+          "id": "COUNTRY_BG",
+          "name": "Bulgaristan",
+          "country_code": "BG"
+        },
+        {
+          "id": "COUNTRY_BY",
+          "name": "Belarus",
+          "country_code": "BY"
+        },
+        {
+          "id": "COUNTRY_CH",
+          "name": "İsviçre",
+          "country_code": "CH"
+        },
+        {
+          "id": "COUNTRY_CY",
+          "name": "Kıbrıs",
+          "country_code": "CY"
+        },
+        {
+          "id": "COUNTRY_CZ",
+          "name": "Çekya",
+          "country_code": "CZ"
+        },
+        {
+          "id": "COUNTRY_DK",
+          "name": "Danimarka",
+          "country_code": "DK"
+        },
+        {
+          "id": "COUNTRY_EE",
+          "name": "Estonya",
+          "country_code": "EE"
+        },
+        {
+          "id": "COUNTRY_FI",
+          "name": "Finlandiya",
+          "country_code": "FI"
+        },
+        {
+          "id": "COUNTRY_FO",
+          "name": "Faroe Adaları",
+          "country_code": "FO"
+        },
+        {
+          "id": "COUNTRY_GG",
+          "name": "Guernsey",
+          "country_code": "GG"
+        },
+        {
+          "id": "COUNTRY_GI",
+          "name": "Cebelitarık",
+          "country_code": "GI"
+        },
+        {
+          "id": "COUNTRY_HR",
+          "name": "Hırvatistan",
+          "country_code": "HR"
+        },
+        {
+          "id": "COUNTRY_HU",
+          "name": "Macaristan",
+          "country_code": "HU"
+        },
+        {
+          "id": "COUNTRY_IE",
+          "name": "İrlanda",
+          "country_code": "IE"
+        },
+        {
+          "id": "COUNTRY_IM",
+          "name": "Man Adası",
+          "country_code": "IM"
+        },
+        {
+          "id": "COUNTRY_IS",
+          "name": "İzlanda",
+          "country_code": "IS"
+        },
+        {
+          "id": "COUNTRY_JE",
+          "name": "Jersey",
+          "country_code": "JE"
+        },
+        {
+          "id": "COUNTRY_LT",
+          "name": "Litvanya",
+          "country_code": "LT"
+        },
+        {
+          "id": "COUNTRY_LU",
+          "name": "Lüksemburg",
+          "country_code": "LU"
+        },
+        {
+          "id": "COUNTRY_LV",
+          "name": "Letonya",
+          "country_code": "LV"
+        },
+        {
+          "id": "COUNTRY_MD",
+          "name": "Moldova",
+          "country_code": "MD"
+        },
+        {
+          "id": "COUNTRY_ME",
+          "name": "Karadağ",
+          "country_code": "ME"
+        },
+        {
+          "id": "COUNTRY_MK",
+          "name": "Kuzey Makedonya",
+          "country_code": "MK"
+        },
+        {
+          "id": "COUNTRY_MT",
+          "name": "Malta",
+          "country_code": "MT"
+        },
+        {
+          "id": "COUNTRY_NO",
+          "name": "Norveç",
+          "country_code": "NO"
+        },
+        {
+          "id": "COUNTRY_PL",
+          "name": "Polonya",
+          "country_code": "PL"
+        },
+        {
+          "id": "COUNTRY_RO",
+          "name": "Romanya",
+          "country_code": "RO"
+        },
+        {
+          "id": "COUNTRY_RS",
+          "name": "Sırbistan",
+          "country_code": "RS"
+        },
+        {
+          "id": "COUNTRY_RU",
+          "name": "Rusya",
+          "country_code": "RU"
+        },
+        {
+          "id": "COUNTRY_SE",
+          "name": "İsveç",
+          "country_code": "SE"
+        },
+        {
+          "id": "COUNTRY_SI",
+          "name": "Slovenya",
+          "country_code": "SI"
+        },
+        {
+          "id": "COUNTRY_SK",
+          "name": "Slovakya",
+          "country_code": "SK"
+        },
+        {
+          "id": "COUNTRY_UA",
+          "name": "Ukrayna",
+          "country_code": "UA"
+        },
+        {
+          "id": "COUNTRY_XK",
+          "name": "Kosova",
+          "country_code": "XK"
+        }
       ]
     },
     {
       "id": "middle_east",
       "name": "Orta Dogu",
       "countries": [
-        {"id": "COUNTRY_TR", "name": "Turkiye", "country_code": "TR"},
-        {"id": "COUNTRY_AE", "name": "BAE", "country_code": "AE"},
-        {"id": "COUNTRY_QA", "name": "Katar", "country_code": "QA"}
+        {
+          "id": "COUNTRY_TR",
+          "name": "Turkiye",
+          "country_code": "TR"
+        },
+        {
+          "id": "COUNTRY_AE",
+          "name": "BAE",
+          "country_code": "AE"
+        },
+        {
+          "id": "COUNTRY_QA",
+          "name": "Katar",
+          "country_code": "QA"
+        },
+        {
+          "id": "COUNTRY_BH",
+          "name": "Bahreyn",
+          "country_code": "BH"
+        },
+        {
+          "id": "COUNTRY_IL",
+          "name": "İsrail",
+          "country_code": "IL"
+        },
+        {
+          "id": "COUNTRY_IQ",
+          "name": "Irak",
+          "country_code": "IQ"
+        },
+        {
+          "id": "COUNTRY_JO",
+          "name": "Ürdün",
+          "country_code": "JO"
+        },
+        {
+          "id": "COUNTRY_KW",
+          "name": "Kuveyt",
+          "country_code": "KW"
+        },
+        {
+          "id": "COUNTRY_LB",
+          "name": "Lübnan",
+          "country_code": "LB"
+        },
+        {
+          "id": "COUNTRY_OM",
+          "name": "Umman",
+          "country_code": "OM"
+        },
+        {
+          "id": "COUNTRY_SA",
+          "name": "Suudi Arabistan",
+          "country_code": "SA"
+        },
+        {
+          "id": "COUNTRY_SY",
+          "name": "Suriye",
+          "country_code": "SY"
+        },
+        {
+          "id": "COUNTRY_YE",
+          "name": "Yemen",
+          "country_code": "YE"
+        }
       ]
     },
     {
       "id": "asia",
       "name": "Asya",
       "countries": [
-        {"id": "COUNTRY_TH", "name": "Tayland", "country_code": "TH"},
-        {"id": "COUNTRY_SG", "name": "Singapur", "country_code": "SG"},
-        {"id": "COUNTRY_JP", "name": "Japonya", "country_code": "JP"}
+        {
+          "id": "COUNTRY_TH",
+          "name": "Tayland",
+          "country_code": "TH"
+        },
+        {
+          "id": "COUNTRY_SG",
+          "name": "Singapur",
+          "country_code": "SG"
+        },
+        {
+          "id": "COUNTRY_JP",
+          "name": "Japonya",
+          "country_code": "JP"
+        },
+        {
+          "id": "COUNTRY_AF",
+          "name": "Afganistan",
+          "country_code": "AF"
+        },
+        {
+          "id": "COUNTRY_AM",
+          "name": "Ermenistan",
+          "country_code": "AM"
+        },
+        {
+          "id": "COUNTRY_AZ",
+          "name": "Azerbaycan",
+          "country_code": "AZ"
+        },
+        {
+          "id": "COUNTRY_BD",
+          "name": "Bangladeş",
+          "country_code": "BD"
+        },
+        {
+          "id": "COUNTRY_BN",
+          "name": "Brunei",
+          "country_code": "BN"
+        },
+        {
+          "id": "COUNTRY_BT",
+          "name": "Butan",
+          "country_code": "BT"
+        },
+        {
+          "id": "COUNTRY_CC",
+          "name": "Cocos (Keeling) Adaları",
+          "country_code": "CC"
+        },
+        {
+          "id": "COUNTRY_CN",
+          "name": "Çin",
+          "country_code": "CN"
+        },
+        {
+          "id": "COUNTRY_CX",
+          "name": "Christmas Adası",
+          "country_code": "CX"
+        },
+        {
+          "id": "COUNTRY_GE",
+          "name": "Gürcistan",
+          "country_code": "GE"
+        },
+        {
+          "id": "COUNTRY_HK",
+          "name": "Çin Hong Kong ÖİB",
+          "country_code": "HK"
+        },
+        {
+          "id": "COUNTRY_ID",
+          "name": "Endonezya",
+          "country_code": "ID"
+        },
+        {
+          "id": "COUNTRY_IN",
+          "name": "Hindistan",
+          "country_code": "IN"
+        },
+        {
+          "id": "COUNTRY_IR",
+          "name": "İran",
+          "country_code": "IR"
+        },
+        {
+          "id": "COUNTRY_KG",
+          "name": "Kırgızistan",
+          "country_code": "KG"
+        },
+        {
+          "id": "COUNTRY_KH",
+          "name": "Kamboçya",
+          "country_code": "KH"
+        },
+        {
+          "id": "COUNTRY_KP",
+          "name": "Kuzey Kore",
+          "country_code": "KP"
+        },
+        {
+          "id": "COUNTRY_KR",
+          "name": "Güney Kore",
+          "country_code": "KR"
+        },
+        {
+          "id": "COUNTRY_KZ",
+          "name": "Kazakistan",
+          "country_code": "KZ"
+        },
+        {
+          "id": "COUNTRY_LA",
+          "name": "Laos",
+          "country_code": "LA"
+        },
+        {
+          "id": "COUNTRY_LK",
+          "name": "Sri Lanka",
+          "country_code": "LK"
+        },
+        {
+          "id": "COUNTRY_MM",
+          "name": "Myanmar (Burma)",
+          "country_code": "MM"
+        },
+        {
+          "id": "COUNTRY_MN",
+          "name": "Moğolistan",
+          "country_code": "MN"
+        },
+        {
+          "id": "COUNTRY_MO",
+          "name": "Çin Makao ÖİB",
+          "country_code": "MO"
+        },
+        {
+          "id": "COUNTRY_MV",
+          "name": "Maldivler",
+          "country_code": "MV"
+        },
+        {
+          "id": "COUNTRY_MY",
+          "name": "Malezya",
+          "country_code": "MY"
+        },
+        {
+          "id": "COUNTRY_NP",
+          "name": "Nepal",
+          "country_code": "NP"
+        },
+        {
+          "id": "COUNTRY_PH",
+          "name": "Filipinler",
+          "country_code": "PH"
+        },
+        {
+          "id": "COUNTRY_PK",
+          "name": "Pakistan",
+          "country_code": "PK"
+        },
+        {
+          "id": "COUNTRY_TJ",
+          "name": "Tacikistan",
+          "country_code": "TJ"
+        },
+        {
+          "id": "COUNTRY_TL",
+          "name": "Timor-Leste",
+          "country_code": "TL"
+        },
+        {
+          "id": "COUNTRY_TM",
+          "name": "Türkmenistan",
+          "country_code": "TM"
+        },
+        {
+          "id": "COUNTRY_TW",
+          "name": "Tayvan",
+          "country_code": "TW"
+        },
+        {
+          "id": "COUNTRY_UZ",
+          "name": "Özbekistan",
+          "country_code": "UZ"
+        },
+        {
+          "id": "COUNTRY_VN",
+          "name": "Vietnam",
+          "country_code": "VN"
+        }
+      ]
+    },
+    {
+      "id": "africa",
+      "name": "Afrika",
+      "countries": [
+        {
+          "id": "COUNTRY_AO",
+          "name": "Angola",
+          "country_code": "AO"
+        },
+        {
+          "id": "COUNTRY_BF",
+          "name": "Burkina Faso",
+          "country_code": "BF"
+        },
+        {
+          "id": "COUNTRY_BI",
+          "name": "Burundi",
+          "country_code": "BI"
+        },
+        {
+          "id": "COUNTRY_BJ",
+          "name": "Benin",
+          "country_code": "BJ"
+        },
+        {
+          "id": "COUNTRY_BW",
+          "name": "Botsvana",
+          "country_code": "BW"
+        },
+        {
+          "id": "COUNTRY_CD",
+          "name": "Kongo - Kinşasa",
+          "country_code": "CD"
+        },
+        {
+          "id": "COUNTRY_CF",
+          "name": "Orta Afrika Cumhuriyeti",
+          "country_code": "CF"
+        },
+        {
+          "id": "COUNTRY_CG",
+          "name": "Kongo - Brazavil",
+          "country_code": "CG"
+        },
+        {
+          "id": "COUNTRY_CI",
+          "name": "Côte d’Ivoire",
+          "country_code": "CI"
+        },
+        {
+          "id": "COUNTRY_CM",
+          "name": "Kamerun",
+          "country_code": "CM"
+        },
+        {
+          "id": "COUNTRY_CV",
+          "name": "Cabo Verde",
+          "country_code": "CV"
+        },
+        {
+          "id": "COUNTRY_DJ",
+          "name": "Cibuti",
+          "country_code": "DJ"
+        },
+        {
+          "id": "COUNTRY_DZ",
+          "name": "Cezayir",
+          "country_code": "DZ"
+        },
+        {
+          "id": "COUNTRY_EG",
+          "name": "Mısır",
+          "country_code": "EG"
+        },
+        {
+          "id": "COUNTRY_EH",
+          "name": "Batı Sahra",
+          "country_code": "EH"
+        },
+        {
+          "id": "COUNTRY_ER",
+          "name": "Eritre",
+          "country_code": "ER"
+        },
+        {
+          "id": "COUNTRY_ET",
+          "name": "Etiyopya",
+          "country_code": "ET"
+        },
+        {
+          "id": "COUNTRY_GA",
+          "name": "Gabon",
+          "country_code": "GA"
+        },
+        {
+          "id": "COUNTRY_GH",
+          "name": "Gana",
+          "country_code": "GH"
+        },
+        {
+          "id": "COUNTRY_GM",
+          "name": "Gambiya",
+          "country_code": "GM"
+        },
+        {
+          "id": "COUNTRY_GN",
+          "name": "Gine",
+          "country_code": "GN"
+        },
+        {
+          "id": "COUNTRY_GQ",
+          "name": "Ekvator Ginesi",
+          "country_code": "GQ"
+        },
+        {
+          "id": "COUNTRY_GW",
+          "name": "Gine-Bissau",
+          "country_code": "GW"
+        },
+        {
+          "id": "COUNTRY_KE",
+          "name": "Kenya",
+          "country_code": "KE"
+        },
+        {
+          "id": "COUNTRY_KM",
+          "name": "Komorlar",
+          "country_code": "KM"
+        },
+        {
+          "id": "COUNTRY_LR",
+          "name": "Liberya",
+          "country_code": "LR"
+        },
+        {
+          "id": "COUNTRY_LS",
+          "name": "Lesotho",
+          "country_code": "LS"
+        },
+        {
+          "id": "COUNTRY_LY",
+          "name": "Libya",
+          "country_code": "LY"
+        },
+        {
+          "id": "COUNTRY_MA",
+          "name": "Fas",
+          "country_code": "MA"
+        },
+        {
+          "id": "COUNTRY_MG",
+          "name": "Madagaskar",
+          "country_code": "MG"
+        },
+        {
+          "id": "COUNTRY_ML",
+          "name": "Mali",
+          "country_code": "ML"
+        },
+        {
+          "id": "COUNTRY_MR",
+          "name": "Moritanya",
+          "country_code": "MR"
+        },
+        {
+          "id": "COUNTRY_MU",
+          "name": "Mauritius",
+          "country_code": "MU"
+        },
+        {
+          "id": "COUNTRY_MW",
+          "name": "Malavi",
+          "country_code": "MW"
+        },
+        {
+          "id": "COUNTRY_MZ",
+          "name": "Mozambik",
+          "country_code": "MZ"
+        },
+        {
+          "id": "COUNTRY_NA",
+          "name": "Namibya",
+          "country_code": "NA"
+        },
+        {
+          "id": "COUNTRY_NE",
+          "name": "Nijer",
+          "country_code": "NE"
+        },
+        {
+          "id": "COUNTRY_NG",
+          "name": "Nijerya",
+          "country_code": "NG"
+        },
+        {
+          "id": "COUNTRY_RE",
+          "name": "Reunion",
+          "country_code": "RE"
+        },
+        {
+          "id": "COUNTRY_RW",
+          "name": "Ruanda",
+          "country_code": "RW"
+        },
+        {
+          "id": "COUNTRY_SC",
+          "name": "Seyşeller",
+          "country_code": "SC"
+        },
+        {
+          "id": "COUNTRY_SD",
+          "name": "Sudan",
+          "country_code": "SD"
+        },
+        {
+          "id": "COUNTRY_SH",
+          "name": "Saint Helena",
+          "country_code": "SH"
+        },
+        {
+          "id": "COUNTRY_SL",
+          "name": "Sierra Leone",
+          "country_code": "SL"
+        },
+        {
+          "id": "COUNTRY_SN",
+          "name": "Senegal",
+          "country_code": "SN"
+        },
+        {
+          "id": "COUNTRY_SO",
+          "name": "Somali",
+          "country_code": "SO"
+        },
+        {
+          "id": "COUNTRY_SS",
+          "name": "Güney Sudan",
+          "country_code": "SS"
+        },
+        {
+          "id": "COUNTRY_ST",
+          "name": "Sao Tome ve Principe",
+          "country_code": "ST"
+        },
+        {
+          "id": "COUNTRY_SZ",
+          "name": "Esvatini",
+          "country_code": "SZ"
+        },
+        {
+          "id": "COUNTRY_TD",
+          "name": "Çad",
+          "country_code": "TD"
+        },
+        {
+          "id": "COUNTRY_TG",
+          "name": "Togo",
+          "country_code": "TG"
+        },
+        {
+          "id": "COUNTRY_TN",
+          "name": "Tunus",
+          "country_code": "TN"
+        },
+        {
+          "id": "COUNTRY_TZ",
+          "name": "Tanzanya",
+          "country_code": "TZ"
+        },
+        {
+          "id": "COUNTRY_UG",
+          "name": "Uganda",
+          "country_code": "UG"
+        },
+        {
+          "id": "COUNTRY_YT",
+          "name": "Mayotte",
+          "country_code": "YT"
+        },
+        {
+          "id": "COUNTRY_ZA",
+          "name": "Güney Afrika",
+          "country_code": "ZA"
+        },
+        {
+          "id": "COUNTRY_ZM",
+          "name": "Zambiya",
+          "country_code": "ZM"
+        },
+        {
+          "id": "COUNTRY_ZW",
+          "name": "Zimbabve",
+          "country_code": "ZW"
+        }
+      ]
+    },
+    {
+      "id": "oceania",
+      "name": "Okyanusya",
+      "countries": [
+        {
+          "id": "COUNTRY_AS",
+          "name": "Amerikan Samoası",
+          "country_code": "AS"
+        },
+        {
+          "id": "COUNTRY_AU",
+          "name": "Avustralya",
+          "country_code": "AU"
+        },
+        {
+          "id": "COUNTRY_CK",
+          "name": "Cook Adaları",
+          "country_code": "CK"
+        },
+        {
+          "id": "COUNTRY_FJ",
+          "name": "Fiji",
+          "country_code": "FJ"
+        },
+        {
+          "id": "COUNTRY_FM",
+          "name": "Mikronezya",
+          "country_code": "FM"
+        },
+        {
+          "id": "COUNTRY_GU",
+          "name": "Guam",
+          "country_code": "GU"
+        },
+        {
+          "id": "COUNTRY_KI",
+          "name": "Kiribati",
+          "country_code": "KI"
+        },
+        {
+          "id": "COUNTRY_MH",
+          "name": "Marshall Adaları",
+          "country_code": "MH"
+        },
+        {
+          "id": "COUNTRY_MP",
+          "name": "Kuzey Mariana Adaları",
+          "country_code": "MP"
+        },
+        {
+          "id": "COUNTRY_NC",
+          "name": "Yeni Kaledonya",
+          "country_code": "NC"
+        },
+        {
+          "id": "COUNTRY_NF",
+          "name": "Norfolk Adası",
+          "country_code": "NF"
+        },
+        {
+          "id": "COUNTRY_NR",
+          "name": "Nauru",
+          "country_code": "NR"
+        },
+        {
+          "id": "COUNTRY_NU",
+          "name": "Niue",
+          "country_code": "NU"
+        },
+        {
+          "id": "COUNTRY_NZ",
+          "name": "Yeni Zelanda",
+          "country_code": "NZ"
+        },
+        {
+          "id": "COUNTRY_PF",
+          "name": "Fransız Polinezyası",
+          "country_code": "PF"
+        },
+        {
+          "id": "COUNTRY_PG",
+          "name": "Papua Yeni Gine",
+          "country_code": "PG"
+        },
+        {
+          "id": "COUNTRY_PW",
+          "name": "Palau",
+          "country_code": "PW"
+        },
+        {
+          "id": "COUNTRY_SB",
+          "name": "Solomon Adaları",
+          "country_code": "SB"
+        },
+        {
+          "id": "COUNTRY_TO",
+          "name": "Tonga",
+          "country_code": "TO"
+        },
+        {
+          "id": "COUNTRY_TV",
+          "name": "Tuvalu",
+          "country_code": "TV"
+        },
+        {
+          "id": "COUNTRY_UM",
+          "name": "ABD Küçük Harici Adaları",
+          "country_code": "UM"
+        },
+        {
+          "id": "COUNTRY_VU",
+          "name": "Vanuatu",
+          "country_code": "VU"
+        },
+        {
+          "id": "COUNTRY_WF",
+          "name": "Wallis ve Futuna",
+          "country_code": "WF"
+        },
+        {
+          "id": "COUNTRY_WS",
+          "name": "Samoa",
+          "country_code": "WS"
+        }
       ]
     }
   ]

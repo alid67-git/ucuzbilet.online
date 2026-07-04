@@ -169,6 +169,7 @@ class GoogleBatchScraper:
             search.destination_scope.value,
             search.target_country_ids or None,
             max_codes=10,
+            target_airport_ids=search.target_airport_ids or None,
         )
 
         departure_dates = self._build_departure_dates(search)

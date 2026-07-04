@@ -19,13 +19,29 @@ def list_destinations(scope: str = "anywhere") -> list[dict]:
     return [item for item in items if item["region"] == scope]
 
 
+def _expand_target_airport_ids(target_airport_ids: list[str], max_codes: int = 40) -> list[str]:
+    codes: list[str] = []
+    for place_id in target_airport_ids:
+        place = get_place(place_id)
+        if not place:
+            continue
+        for code in expand_to_airport_codes(place, max_airports=max_codes):
+            if code not in codes:
+                codes.append(code)
+    return codes[:max_codes]
+
+
 def destination_codes_for_search(
     destination: Place | None,
     scope: str = "anywhere",
     max_codes: int = 8,
+    target_airport_ids: list[str] | None = None,
 ) -> list[dict]:
     if destination:
-        codes = expand_to_airport_codes(destination, max_airports=max_codes)
+        if target_airport_ids and destination.type == "country":
+            codes = _expand_target_airport_ids(target_airport_ids)
+        else:
+            codes = expand_to_airport_codes(destination, max_airports=max_codes)
         results: list[dict] = []
         for code in codes:
             place = get_place(code)
@@ -66,9 +82,12 @@ def destinations_for_search(
     scope: str,
     target_country_ids: list[str] | None = None,
     max_codes: int = 8,
+    target_airport_ids: list[str] | None = None,
 ) -> list[dict]:
     if destination:
-        return destination_codes_for_search(destination, scope, max_codes=max_codes)
+        return destination_codes_for_search(
+            destination, scope, max_codes=max_codes, target_airport_ids=target_airport_ids
+        )
     if target_country_ids:
         expanded = destinations_from_countries(target_country_ids, max_per_country=max_codes)
         if expanded:

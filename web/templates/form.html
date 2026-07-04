@@ -79,6 +79,12 @@
         <p class="hint" id="destination-hint">Bos birakirsaniz asagidaki bolge hedefiyle en ucuz destinasyonlar aranir.</p>
       </div>
 
+      <div id="destination-airports-field" class="full region-panel" hidden>
+        <span class="filter-label">Varis ulkesinden spesifik sehir/havalimani secin — opsiyonel</span>
+        <div id="destination-airport-grid" class="country-grid"></div>
+        <p class="hint" id="destination-airport-hint">Hicbiri isaretlenmezse tum ulke taranir.</p>
+      </div>
+
       <div id="scope-field" class="full region-panel">
         <label for="target-continent">Bolge hedefi — ana kita</label>
         <select name="destination_scope" id="target-continent">
@@ -87,6 +93,8 @@
           <option value="europe" {% if search and search.destination_scope.value == 'europe' %}selected{% endif %}>Avrupa</option>
           <option value="middle_east" {% if search and search.destination_scope.value == 'middle_east' %}selected{% endif %}>Orta Dogu</option>
           <option value="asia" {% if search and search.destination_scope.value == 'asia' %}selected{% endif %}>Asya</option>
+          <option value="africa" {% if search and search.destination_scope.value == 'africa' %}selected{% endif %}>Afrika</option>
+          <option value="oceania" {% if search and search.destination_scope.value == 'oceania' %}selected{% endif %}>Okyanusya</option>
         </select>
         <p class="hint">Varis bosken: once kita secin, sonra asagidan ulke(leri) isaretleyin.</p>
         <div id="country-grid" class="country-grid"></div>
@@ -199,9 +207,15 @@
       {% else %}
       window.__savedTargetCountries = [];
       {% endif %}
+      {% if search and search.target_airport_ids %}
+      window.__savedTargetAirports = {{ search.target_airport_ids|tojson }};
+      {% else %}
+      window.__savedTargetAirports = [];
+      {% endif %}
   </script>
   <script src="/static/airport-picker.js"></script>
   <script src="/static/region-picker.js"></script>
+  <script src="/static/destination-picker.js"></script>
   <script src="/static/explore-form.js"></script>
   <button type="button" id="scroll-top-btn" class="scroll-top-btn" aria-label="Yukari cik" hidden>↑</button>
   <script src="/static/scroll-top.js"></script>

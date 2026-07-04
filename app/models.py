@@ -27,6 +27,8 @@ class DestinationScope(str, Enum):
     AMERICAS = "americas"
     MIDDLE_EAST = "middle_east"
     ASIA = "asia"
+    AFRICA = "africa"
+    OCEANIA = "oceania"
 
 
 class ExploreSearchRequest(BaseModel):
@@ -48,6 +50,7 @@ class ExploreSearchRequest(BaseModel):
     flexible_top_n: int = Field(default=3, ge=1, le=10)
     destination_scope: DestinationScope = DestinationScope.ANYWHERE
     target_country_ids: list[str] = Field(default_factory=list)
+    target_airport_ids: list[str] = Field(default_factory=list)
     alliance: AllianceFilter = AllianceFilter.ANY
     prefer_thy: bool = False
     max_stops: int | None = Field(default=None, ge=0, le=2)
@@ -101,6 +104,10 @@ class ExploreSearchRequest(BaseModel):
                 self.destination_label = place_label(dest)
             self.destination_scope = DestinationScope.ANYWHERE
             self.target_country_ids = []
+            if not dest or dest.type != "country":
+                self.target_airport_ids = []
+        else:
+            self.target_airport_ids = []
 
         if self.mode == ExploreMode.FIXED_TRIP:
             if not self.departure_date and not self.date_from:
