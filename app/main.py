@@ -12,7 +12,7 @@ from app.flags import country_flag
 from app.offer_display import format_miles, route_display
 from app.regions import country_labels, load_continents, scope_label
 from app.models import AllianceFilter, DestinationScope, ExploreMode, ExploreSearchRequest
-from app.version import APP_VERSION, BETA_BUILD
+from app.version import APP_VERSION, BETA_BUILD, BETA_MAJOR
 from app.places import place_children, place_label, resolve_place, search_places
 from app.runner import run_search
 from app.storage import (
@@ -40,7 +40,7 @@ app = FastAPI(title="UcuzBilet Avcisi", version=APP_VERSION)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "web" / "static")), name="static")
 templates.env.globals["app_version"] = APP_VERSION
 templates.env.globals["beta_build"] = BETA_BUILD
-templates.env.globals["beta_label"] = f"beta.{BETA_BUILD}"
+templates.env.globals["beta_label"] = f"beta {BETA_MAJOR}.{BETA_BUILD:02d}"
 
 
 def _default_dates() -> tuple[str, str, str]:

@@ -4,7 +4,7 @@ Google Flights uzerinden **en ucuz nereye gidebilirim** sorusuna cevap arayan ye
 
 Konum: `Documents/ucuzbilet.online`
 
-Surum: `app/version.py` icindeki `BETA_BUILD` — her canliya cikista +1 artirin (ornek: beta.1, beta.2).
+Surum: `app/version.py` icindeki `BETA_BUILD` — her canliya cikista +1 artirin (ornek: beta 1.03, beta 1.04, ... beta 1.10, beta 1.11).
 
 ## Ozellikler
 
