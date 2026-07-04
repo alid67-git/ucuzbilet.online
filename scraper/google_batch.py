@@ -160,7 +160,8 @@ class GoogleBatchScraper:
         search: ExploreSearchRequest,
     ) -> list[ExploreOffer]:
         origin = search.origin_place()
-        origin_codes = origin_codes_for_search(origin, max_codes=11 if search.use_european_hubs else 4)
+        max_origin = len(origin.airports) if search.use_european_hubs else 4
+        origin_codes = origin_codes_for_search(origin, max_codes=max_origin)
         destinations = destinations_for_search(
             search.destination_place(),
             search.destination_scope.value,

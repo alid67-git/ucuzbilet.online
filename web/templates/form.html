@@ -52,7 +52,7 @@
         <input type="hidden" name="origin_place_id" id="origin-place-id" value="{{ search.origin_place_id if search else '' }}">
         <div class="place-dropdown" id="origin-dropdown"></div>
         <p class="hint" id="origin-hint">Italya yazinca "Italya — Tum havalimanlari" secin; altinda Roma, Milano, Venedik listelenir.</p>
-        <p class="hint" id="origin-hub-note" hidden>Avrupa hub'lari otomatik kullanilir (FRA, AMS, CDG, LHR, MXP, MAD, FCO...). Kalkis secmenize gerek yok.</p>
+        <p class="hint" id="origin-hub-note" hidden>Avrupa hub'lari otomatik kullanilir (IST, SAW, AMS, CDG, FRA, MUC, MAD, BCN, MXP...). Kalkis secmenize gerek yok.</p>
       </div>
 
 
@@ -88,7 +88,7 @@
       <label class="checkbox full" id="hub-checkbox-field">
         <input type="checkbox" name="use_european_hubs" id="use-european-hubs"
           {% if search and (search.use_european_hubs or search.mode.value == 'hub_to_country') %}checked{% endif %}>
-        Avrupa hub'larindan tara (FRA, AMS, CDG, LHR, MXP, MAD, FCO...)
+        Avrupa hub'larindan tara (26 hub: IST, SAW, AMS, CDG, FRA, MUC, MAD, BCN, MXP...)
       </label>
       <p class="hint full" id="hub-hint" hidden>Hub: kalkis Avrupa hub'larindan olur. Bolge hedefi bagimsizdir — varis ulkelerini asagidan secebilirsiniz.</p>
 
