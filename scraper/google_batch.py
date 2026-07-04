@@ -51,36 +51,49 @@ def _search_sync(
     origin_code: str,
     dest_code: str,
     departure: date,
-    return_date: date,
+    return_date: date | None,
     search: ExploreSearchRequest,
 ) -> ExploreOffer | None:
     airlines = _airline_filter(search)
     max_stops = 0 if search.direct_only else search.max_stops
+    one_way = search.one_way and not search.use_return_date and return_date is None
 
     try:
-        query = create_query(
-            flights=[
-                FlightQuery(
-                    date=departure.isoformat(),
-                    from_airport=origin_code,
-                    to_airport=dest_code,
-                    max_stops=max_stops,
-                    airlines=airlines,
-                ),
-                FlightQuery(
-                    date=return_date.isoformat(),
-                    from_airport=dest_code,
-                    to_airport=origin_code,
-                    max_stops=max_stops,
-                    airlines=airlines,
-                ),
-            ],
-            trip="round-trip",
-            passengers=Passengers(adults=search.adults, children=search.children),
-            seat=search.cabin_class,
-            currency=search.currency,
-            language="tr",
+        outbound = FlightQuery(
+            date=departure.isoformat(),
+            from_airport=origin_code,
+            to_airport=dest_code,
+            max_stops=max_stops,
+            airlines=airlines,
         )
+        if one_way:
+            query = create_query(
+                flights=[outbound],
+                trip="one-way",
+                passengers=Passengers(adults=search.adults, children=search.children),
+                seat=search.cabin_class,
+                currency=search.currency,
+                language="tr",
+            )
+        else:
+            assert return_date is not None
+            query = create_query(
+                flights=[
+                    outbound,
+                    FlightQuery(
+                        date=return_date.isoformat(),
+                        from_airport=dest_code,
+                        to_airport=origin_code,
+                        max_stops=max_stops,
+                        airlines=airlines,
+                    ),
+                ],
+                trip="round-trip",
+                passengers=Passengers(adults=search.adults, children=search.children),
+                seat=search.cabin_class,
+                currency=search.currency,
+                language="tr",
+            )
         results = get_flights(query)
         if not results:
             return None
@@ -106,6 +119,9 @@ def _search_sync(
         miles = estimate_flight_miles(origin_code, dest_code, segment_codes or None)
         origin_place = get_place(origin_code)
         dest_place = get_place(dest_code)
+        dep_text = departure.isoformat()
+        ret_text = return_date.isoformat() if return_date else None
+        date_summary = dep_text if one_way else f"{dep_text} - {ret_text}"
 
         return ExploreOffer(
             destination=dest_place.city or dest_place.name if dest_place else dest_code,
@@ -122,9 +138,9 @@ def _search_sync(
             price_amount=amount,
             currency=currency,
             miles_estimate=miles,
-            date_summary=f"{departure.isoformat()} - {return_date.isoformat()}",
-            departure_date=departure.isoformat(),
-            return_date=return_date.isoformat(),
+            date_summary=date_summary,
+            departure_date=dep_text,
+            return_date=ret_text,
             duration=f"{total_minutes // 60} sa {total_minutes % 60} dk",
             stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
             airline=", ".join(best.airlines[:2]) if best.airlines else None,
@@ -157,7 +173,9 @@ class GoogleBatchScraper:
         semaphore = asyncio.Semaphore(4)
 
         async def run_one(origin_code: str, dest: dict, dep: date) -> ExploreOffer | None:
-            if search.use_return_date and search.date_to and not search.flexible_departure_in_range:
+            if search.one_way and not search.use_return_date:
+                ret = None
+            elif search.use_return_date and search.date_to and not search.flexible_departure_in_range:
                 ret = search.date_to
             elif search.use_return_date and search.date_to and search.flexible_departure_in_range:
                 ret = search.date_to

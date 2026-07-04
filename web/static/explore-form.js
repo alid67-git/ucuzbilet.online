@@ -18,6 +18,7 @@
   const flexibleOption = document.getElementById("mode-flexible");
   const clearDestBtn = document.getElementById("clear-destination");
   const useReturnCheckbox = document.getElementById("use-return-date");
+  const oneWayCheckbox = document.getElementById("one-way-trip");
   const flexibleSearchCheckbox = document.getElementById("flexible-search");
   const tripDeparture = document.getElementById("trip-departure");
   const tripReturn = document.getElementById("trip-return");
@@ -57,16 +58,17 @@
     if (isFlexibleMode) return;
 
     const useReturn = Boolean(useReturnCheckbox?.checked);
+    const oneWay = Boolean(oneWayCheckbox?.checked);
     const flexSearch = Boolean(flexibleSearchCheckbox?.checked);
 
     if (tripReturn) {
-      tripReturn.disabled = !useReturn;
-      if (!useReturn) {
+      tripReturn.disabled = !useReturn || oneWay;
+      if (!useReturn || oneWay) {
         tripReturn.removeAttribute("required");
       }
     }
     if (tripDaysInput) {
-      tripDaysInput.disabled = useReturn;
+      tripDaysInput.disabled = useReturn || oneWay;
     }
     if (flexibilityDaysInput) {
       flexibilityDaysInput.disabled = !flexSearch;
@@ -104,12 +106,14 @@
       }
     } else if (useReturn && dep && ret && span) {
       tripDateHint.textContent =
-        "Sabit: " + formatDateTr(dep) + " gidis → " + formatDateTr(ret) + " donus (" + span + " gun).";
+        "Gidis-donus: " + formatDateTr(dep) + " gidis → " + formatDateTr(ret) + " donus (" + span + " gun).";
+    } else if (oneWay && dep) {
+      tripDateHint.textContent = "Tek gidiş: " + formatDateTr(dep) + " — sadece gidiş fiyati aranir.";
     } else if (dep) {
       tripDateHint.textContent =
-        "Sabit: " + formatDateTr(dep) + " gidis, " + days + " gun kalis (donus otomatik hesaplanir).";
+        "Gidis-donus: " + formatDateTr(dep) + " gidis, " + days + " gun kalis (donus otomatik hesaplanir).";
     } else {
-      tripDateHint.textContent = "Gidis tarihi secin. Donus yoksa kalis suresi yazin.";
+      tripDateHint.textContent = "Gidis tarihi secin. Tek gidiş, donus tarihi veya kalis suresi seceneklerinden birini kullanin.";
     }
   }
 
@@ -220,7 +224,18 @@
   }
 
   modeSelect?.addEventListener("change", syncModePanels);
-  useReturnCheckbox?.addEventListener("change", syncTripDatePanel);
+  useReturnCheckbox?.addEventListener("change", () => {
+    if (useReturnCheckbox.checked && oneWayCheckbox) {
+      oneWayCheckbox.checked = false;
+    }
+    syncTripDatePanel();
+  });
+  oneWayCheckbox?.addEventListener("change", () => {
+    if (oneWayCheckbox.checked) {
+      if (useReturnCheckbox) useReturnCheckbox.checked = false;
+    }
+    syncTripDatePanel();
+  });
   flexibleSearchCheckbox?.addEventListener("change", syncTripDatePanel);
   tripDeparture?.addEventListener("change", syncTripDatePanel);
   tripReturn?.addEventListener("change", syncTripDatePanel);

@@ -44,6 +44,7 @@ class ExploreSearchRequest(BaseModel):
     flexible_departure_in_range: bool = False
     flexibility_days: int = Field(default=3, ge=0, le=14)
     use_return_date: bool = False
+    one_way: bool = False
     flexible_top_n: int = Field(default=3, ge=1, le=10)
     destination_scope: DestinationScope = DestinationScope.ANYWHERE
     target_country_ids: list[str] = Field(default_factory=list)
@@ -106,16 +107,20 @@ class ExploreSearchRequest(BaseModel):
                 if not self.date_from:
                     self.date_from = self.departure_date
             if self.use_return_date:
+                self.one_way = False
                 if not self.date_to:
                     raise ValueError("Donus tarihi secildi ama tarih girilmedi.")
                 if self.date_to <= (self.departure_date or self.date_from):
                     raise ValueError("Donus tarihi gidisten sonra olmali.")
                 span = (self.date_to - (self.departure_date or self.date_from)).days
                 self.trip_days = span
+            elif self.one_way:
+                self.date_to = None
         elif self.mode == ExploreMode.DATE_RANGE:
             if not self.date_from:
                 raise ValueError("Gidis tarihi gerekli.")
             if self.use_return_date:
+                self.one_way = False
                 if not self.date_to:
                     raise ValueError("Donus tarihi gerekli.")
                 if self.date_to <= self.date_from:
@@ -125,8 +130,12 @@ class ExploreSearchRequest(BaseModel):
                     if span > 30:
                         raise ValueError("Seyahat suresi en fazla 30 gun olabilir.")
                     self.trip_days = span
+            elif not self.flexible_departure_in_range and not self.one_way:
+                pass
+            elif not self.flexible_departure_in_range and self.one_way:
+                self.date_to = None
             elif not self.flexible_departure_in_range:
-                raise ValueError("Donus tarihi secin veya kalis suresi ile esnek arama kullanin.")
+                raise ValueError("Donus tarihi secin, tek gidiş secin veya kalis suresi ile gidiş-donuş kullanin.")
             if self.flexible_departure_in_range and self.flexibility_days <= 0:
                 self.flexibility_days = 3
             if self.flexible_departure_in_range and not self.use_return_date:

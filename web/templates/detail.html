@@ -44,7 +44,7 @@
       <ul class="meta">
         <li>Mod: {{ search.mode.value.replace('_', ' ') }}</li>
         {% if search.mode.value == 'fixed_trip' %}
-        <li>Tarih: {{ search.date_from or search.departure_date }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% elif search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun{% else %} · {{ search.trip_days }} gun kalis{% endif %}{% if search.flexible_departure_in_range %} (en iyi 3){% endif %}</li>
+        <li>Tarih: {{ search.date_from or search.departure_date }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% elif search.one_way %} · tek gidiş{% elif search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun{% else %} · {{ search.trip_days }} gun kalis (gidiş-donuş){% endif %}{% if search.flexible_departure_in_range %} (en iyi 3){% endif %}</li>
         {% elif search.mode.value == 'date_range' %}
         <li>Tarih: {{ search.date_from }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% endif %}{% if search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun (en iyi 3){% endif %}</li>
         {% endif %}

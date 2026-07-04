@@ -182,6 +182,7 @@ def _parse_search_form(
     date_to: str,
     trip_days: int,
     use_return_date: str | None,
+    one_way: str | None,
     flexible_search: str | None,
     flexibility_days: int,
     destination_scope: str,
@@ -229,6 +230,7 @@ def _parse_search_form(
     parsed_max_price = int(max_price) if max_price.strip() else None
 
     use_return = use_return_date == "on"
+    one_way_trip = one_way == "on" and not use_return
     flex = flexible_search == "on"
     explore_mode = ExploreMode(mode)
 
@@ -255,6 +257,7 @@ def _parse_search_form(
             date_to=parsed_to if use_return else None,
             trip_days=trip_days,
             use_return_date=use_return,
+            one_way=one_way_trip,
             flexible_departure_in_range=flex,
             flexibility_days=max(0, flexibility_days) if flex else 0,
             flexible_top_n=3,
@@ -292,6 +295,7 @@ async def quick_search_run(
     date_to: str = Form(""),
     trip_days: int = Form(5),
     use_return_date: str | None = Form(None),
+    one_way: str | None = Form(None),
     flexible_search: str | None = Form(None),
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
@@ -316,6 +320,7 @@ async def quick_search_run(
         date_to,
         trip_days,
         use_return_date,
+        one_way,
         flexible_search,
         flexibility_days,
         destination_scope,
@@ -346,6 +351,7 @@ async def create_search(
     date_to: str = Form(""),
     trip_days: int = Form(5),
     use_return_date: str | None = Form(None),
+    one_way: str | None = Form(None),
     flexible_search: str | None = Form(None),
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
@@ -370,6 +376,7 @@ async def create_search(
         date_to,
         trip_days,
         use_return_date,
+        one_way,
         flexible_search,
         flexibility_days,
         destination_scope,
@@ -412,6 +419,7 @@ async def update_search_route(
     date_to: str = Form(""),
     trip_days: int = Form(5),
     use_return_date: str | None = Form(None),
+    one_way: str | None = Form(None),
     flexible_search: str | None = Form(None),
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
@@ -436,6 +444,7 @@ async def update_search_route(
         date_to,
         trip_days,
         use_return_date,
+        one_way,
         flexible_search,
         flexibility_days,
         destination_scope,

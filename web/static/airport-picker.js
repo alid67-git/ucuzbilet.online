@@ -147,6 +147,7 @@
   function syncFormFieldsBeforeSubmit() {
     const mode = modeSelect?.value;
     const useReturn = document.getElementById("use-return-date");
+    const oneWay = document.getElementById("one-way-trip");
     const flexSearch = document.getElementById("flexible-search");
     const tripReturn = document.getElementById("trip-return");
     const tripDays = document.getElementById("trip-days");
@@ -160,6 +161,7 @@
       });
     }
     if (useReturn) useReturn.disabled = false;
+    if (oneWay) oneWay.disabled = false;
     if (flexSearch) flexSearch.disabled = false;
 
     if (mode === "flexible" && tripDatePanel) {
@@ -182,6 +184,12 @@
           tripDays.value = String(span);
         }
       }
+    } else if (oneWay?.checked) {
+      if (tripReturn) {
+        tripReturn.value = "";
+        tripReturn.disabled = true;
+      }
+      if (tripDays) tripDays.disabled = true;
     } else {
       if (tripReturn) {
         tripReturn.value = "";
