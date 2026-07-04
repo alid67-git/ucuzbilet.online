@@ -772,6 +772,7 @@ input, select {
   flex: 1;
   text-align: center;
   min-width: 120px;
+  display: none;
 }
 
 .top-brand {
@@ -925,4 +926,184 @@ input, select {
 @media (max-width: 720px) {
   .top-bar-center { display: none; }
   .top-bar { padding: 0.55rem 0.75rem; }
+}
+
+/* --- Form duzeni --- */
+.container-narrow {
+  max-width: 720px;
+}
+
+.search-form {
+  padding: 0;
+  overflow: hidden;
+}
+
+.form-page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #fff9f3 0%, #f0faf9 100%);
+}
+
+.form-page-head h1 {
+  font-size: 1.35rem;
+  margin: 0 0 0.25rem;
+  background: none;
+  -webkit-text-fill-color: initial;
+  color: var(--text);
+}
+
+.form-page-head .subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.form-section {
+  padding: 1.15rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-section:last-child {
+  border-bottom: 0;
+}
+
+.form-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary-dark);
+}
+
+.form-route-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.swap-button-center {
+  margin-bottom: 0.35rem;
+}
+
+.hub-inline {
+  margin-top: 0.85rem;
+  flex-direction: row;
+  align-items: center;
+  font-size: 0.92rem;
+}
+
+.label-optional {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.compact-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.center-hint {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.full-width-select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.country-grid-compact {
+  margin-top: 0.65rem;
+}
+
+.date-range-row-clean {
+  margin-bottom: 0.75rem;
+}
+
+.date-range-row-clean .date-arrow {
+  display: none;
+}
+
+.form-inline-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.flex-days-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.flex-days-field input {
+  width: 4rem;
+}
+
+.form-passengers {
+  margin-bottom: 0.75rem;
+}
+
+.form-section-actions {
+  background: #fafcff;
+}
+
+.save-name-label {
+  margin-bottom: 1rem;
+}
+
+.form-submit-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.button-lg {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.top-brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.top-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.top-developer {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-style: italic;
+  padding-left: 1.65rem;
+}
+
+@media (max-width: 720px) {
+  .form-route-grid {
+    grid-template-columns: 1fr;
+  }
+  .swap-button-center {
+    justify-self: center;
+    margin: 0;
+    transform: rotate(90deg);
+  }
+  .form-page-head {
+    flex-direction: column;
+  }
+  .top-developer {
+    padding-left: 0;
+  }
 }

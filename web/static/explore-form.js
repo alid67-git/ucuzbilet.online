@@ -177,8 +177,7 @@
       if (originField) originField.classList.remove("field-passive");
       if (originHint) {
         originHint.hidden = false;
-        originHint.textContent =
-          'Italya yazinca "Italya — Tum havalimanlari" secin; altinda Roma, Milano, Venedik listelenir.';
+        originHint.textContent = "Ülke yazınca «tüm havalimanları» seçeneğini işaretleyin.";
       }
       if (originHubNote) originHubNote.hidden = true;
     }
@@ -199,24 +198,19 @@
     const hasDest = hasResolvedDestination();
     if (hubHint) hubHint.hidden = !hub;
     if (clearDestBtn) clearDestBtn.hidden = !hasDest;
-    if (destinationLabel) {
-      destinationLabel.textContent = "Varis (ulke / sehir / havalimani) — opsiyonel";
-    }
     if (destinationHint) {
+      destinationHint.hidden = false;
       if (hub && hasDest) {
-        destinationHint.textContent =
-          "Hub + belirli varis: Avrupa hub'larindan secilen varise gidilir.";
+        destinationHint.textContent = "Hub + belirli varış: seçilen hedefe hub'lardan gidilir.";
       } else if (hub) {
-        destinationHint.textContent =
-          "Hub secili: Avrupa hub'larindan taranir. Asagidaki bolge hedefi varis ulkelerini belirler.";
+        destinationHint.textContent = "Hub seçili — bölge hedefi varış ülkelerini belirler.";
       } else if (hasDest) {
-        destinationHint.textContent =
-          "Belirli varis secildi. Bolge hedefi devre disi — temizlemek icin 'Varisi temizle'.";
+        destinationHint.textContent = "Belirli varış seçildi. Bölge hedefi kapalı.";
       } else {
-        destinationHint.textContent =
-          "Bos birakirsaniz asagidaki bolge hedefiyle en ucuz destinasyonlar aranir.";
+        destinationHint.textContent = "Boş bırakırsanız aşağıdaki bölge hedefi kullanılır.";
       }
     }
+    if (tripDateHint) tripDateHint.hidden = false;
   }
 
   function clearDestination() {

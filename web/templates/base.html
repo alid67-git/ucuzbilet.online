@@ -10,14 +10,16 @@
 <body>
   <nav class="top-bar" id="top-bar">
     <div class="top-bar-left">
-      <a href="/" class="top-brand">
-        <span class="top-brand-icon" aria-hidden="true">✈</span>
-        <span>{{ t.site_name }}</span>
-      </a>
-      <span class="beta-badge top-beta">{{ beta_label }}</span>
-    </div>
-    <div class="top-bar-center">
-      <span class="top-developer">{{ t.developer }}</span>
+      <div class="top-brand-block">
+        <div class="top-brand-row">
+          <a href="/" class="top-brand">
+            <span class="top-brand-icon" aria-hidden="true">✈</span>
+            <span>{{ t.site_name }}</span>
+          </a>
+          <span class="beta-badge top-beta">{{ beta_label }}</span>
+        </div>
+        <span class="top-developer">{{ t.developer }}</span>
+      </div>
     </div>
     <div class="top-bar-right">
       <div class="lang-switch" role="group" aria-label="{{ t.language }}">
