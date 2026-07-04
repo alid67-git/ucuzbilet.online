@@ -3,6 +3,14 @@ from functools import lru_cache
 from pathlib import Path
 
 from app.places import Place, expand_search_origins, expand_to_airport_codes, get_place, google_query, place_label
+from app.regions import country_name_by_code
+
+
+def canonical_country(airport_id: str, fallback: str | None = None) -> str | None:
+    place = get_place(airport_id)
+    if place and place.country_code:
+        return country_name_by_code(place.country_code) or place.country
+    return fallback
 
 DATA_FILE = Path(__file__).resolve().parent.parent / "data" / "explore_destinations.json"
 
@@ -52,7 +60,7 @@ def destination_codes_for_search(
                 {
                     "id": code,
                     "name": place_label(place),
-                    "country": place.country,
+                    "country": canonical_country(code, meta["country"] if meta else place.country),
                     "region": meta["region"] if meta else None,
                 }
             )

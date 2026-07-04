@@ -501,7 +501,7 @@
       tierTabs.forEach((t) => t.classList.toggle("active", t.dataset.tier === "all"));
       durationInput.value = String(durationMax);
       updateDurationLabel();
-      if (sortSelect) sortSelect.value = "price";
+      if (sortSelect) sortSelect.value = "country";
       if (pageSizeInput) pageSizeInput.value = "20";
       currentPage = 1;
       refreshCountryPriceLabels();

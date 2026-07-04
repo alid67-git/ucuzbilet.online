@@ -3,7 +3,7 @@ from urllib.parse import quote
 
 from playwright.async_api import Page
 
-from app.explore_data import list_destinations, origin_codes_for_search
+from app.explore_data import canonical_country, list_destinations, origin_codes_for_search
 from app.models import AllianceFilter, ExploreOffer, ExploreSearchRequest
 from app.places import google_query
 from scraper.base import ScraperSession
@@ -135,7 +135,11 @@ class GoogleExploreScraper:
                 ExploreOffer(
                     destination=city,
                     destination_code=dest_meta["id"] if dest_meta else None,
-                    country=dest_meta["country"] if dest_meta else None,
+                    country=canonical_country(
+                        dest_meta["id"], dest_meta["country"] if dest_meta else None
+                    )
+                    if dest_meta
+                    else None,
                     region=dest_meta["region"] if dest_meta else None,
                     price_text=price_line,
                     price_amount=amount,

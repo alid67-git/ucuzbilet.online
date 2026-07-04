@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from fast_flights import FlightQuery, Passengers, create_query, get_flights
 
-from app.explore_data import alliance_airlines, destination_codes_for_search, destinations_for_search, origin_codes_for_search
+from app.explore_data import alliance_airlines, canonical_country, destination_codes_for_search, destinations_for_search, origin_codes_for_search
 from app.miles import estimate_flight_miles
 from app.models import ExploreMode, ExploreOffer, ExploreSearchRequest
 from app.places import get_place
@@ -133,7 +133,9 @@ def _search_sync(
         dest_cc = dest_place.country_code if dest_place else None
         origin_cc = origin_place.country_code if origin_place else None
         dest_country = country_name_by_code(dest_cc) or (
-            dest_place.country if dest_place else (dest["country"] if dest else None)
+            canonical_country(dest_code, dest["country"] if dest else None)
+            if not dest_place
+            else (country_name_by_code(dest_cc) or dest_place.country)
         )
         origin_country = country_name_by_code(origin_cc) or (
             origin_place.country if origin_place else None
