@@ -97,6 +97,32 @@
       });
   }
 
+  function snapshotCountryChecks(className) {
+    const checks = new Map();
+    document.querySelectorAll("." + className).forEach((cb) => checks.set(cb.value, cb.checked));
+    return checks;
+  }
+
+  function restoreCountryChecks(className, previous) {
+    if (!previous.size) return;
+    const allChecked = Array.from(previous.values()).every(Boolean);
+    document.querySelectorAll("." + className).forEach((cb) => {
+      if (allChecked) {
+        cb.checked = true;
+      } else if (previous.has(cb.value)) {
+        cb.checked = previous.get(cb.value);
+      } else {
+        cb.checked = true;
+      }
+    });
+  }
+
+  function rebuildCountryChipRow(container, cards, datasetKey, className) {
+    const previous = snapshotCountryChecks(className);
+    buildCountryChipRow(container, cards, datasetKey, className);
+    restoreCountryChecks(className, previous);
+  }
+
   const AIRLINE_GROUPS = {
     thy: ["turkish airlines"],
     star_alliance: [
@@ -117,16 +143,26 @@
       "czech airlines", "garuda indonesia", "kenya airways", "korean air", "middle east airlines",
       "saudia", "tarom", "vietnam airlines", "xiamen airlines", "ita airways",
     ],
-    budget: [
-      "pegasus", "ryanair", "easyjet", "wizz air", "airasia", "vueling", "eurowings",
-      "scoot", "spirit airlines", "frontier", "norwegian", "condor", "bangkok airways",
-      "flydubai", "air arabia", "indigo", "volotea", "transavia", "jetstar",
+    ulcc: [
+      "ryanair", "wizz air", "spirit airlines", "frontier", "indigo",
+    ],
+    lcc: [
+      "pegasus", "easyjet", "wizz air", "vueling", "eurowings", "flydubai", "air arabia",
+      "norwegian", "condor", "transavia", "volotea", "scoot", "jetstar", "bangkok airways",
+      "airasia", "sunexpress",
     ],
   };
 
   function airlineComboMatchesGroup(comboValue, groupNames) {
     const lower = comboValue.toLowerCase();
     return groupNames.some((name) => lower.includes(name));
+  }
+
+  function matchesLowCostModel(comboValue) {
+    return (
+      airlineComboMatchesGroup(comboValue, AIRLINE_GROUPS.lcc) ||
+      airlineComboMatchesGroup(comboValue, AIRLINE_GROUPS.ulcc)
+    );
   }
 
   const airlines = uniqueSorted(offerCards.map((c) => c.dataset.airline));
@@ -196,6 +232,35 @@
     originalOrder.forEach(({ el, parent }) => parent.appendChild(el));
   }
 
+  function cardsForCountryPricing() {
+    const activeStops = activeValues(".filter-stops");
+    const activeAirlines = activeValues(".filter-airline");
+    const maxDuration = Number(durationInput.value);
+
+    return offerCards.filter((card) => {
+      const stopsCount = numAttr(card, "stops");
+      const airline = card.dataset.airline;
+      const duration = numAttr(card, "duration");
+      const stopsOk = stopsMatches(stopsCount, activeStops);
+      const airlineOk = !airline || activeAirlines.includes(airline);
+      const durationOk = duration === null || duration <= maxDuration;
+      return stopsOk && airlineOk && durationOk;
+    });
+  }
+
+  function refreshCountryPriceLabels() {
+    const pricingCards = cardsForCountryPricing();
+    rebuildCountryChipRow(originCountriesContainer, pricingCards, "originCountry", "filter-origin-country");
+    rebuildCountryChipRow(countriesContainer, pricingCards, "country", "filter-country");
+
+    const tierPrices = pricingCards.map((c) => numAttr(c, "price")).filter((v) => v !== null);
+    if (priceRangeHighlight) {
+      priceRangeHighlight.textContent = tierPrices.length
+        ? "Fiyat araligi: " + formatPrice(Math.min(...tierPrices)) + " - " + formatPrice(Math.max(...tierPrices))
+        : "";
+    }
+  }
+
   function computeRecommendationScores(cards) {
     const scores = new Map();
     if (!cards.length) return scores;
@@ -213,9 +278,6 @@
       const p = numAttr(c, "price");
       const d = numAttr(c, "duration");
       const s = numAttr(c, "stops");
-      // "En iyiyi oner": fiyata %50, sureye %30, aktarmaya %20 agirlik.
-      // Dusuk skor = daha iyi oneri. Gorunen (filtrelenmis) sonuclar
-      // uzerinden min-max normalize edilir.
       const score = 0.5 * norm(p, pMin, pMax) + 0.3 * norm(d, dMin, dMax) + 0.2 * norm(s, sMin, sMax);
       scores.set(c, score);
     });
@@ -326,6 +388,25 @@
     }
   }
 
+  function applyAirlineTier(tier) {
+    const allAirlineCheckboxes = Array.from(document.querySelectorAll(".filter-airline"));
+    if (tier === "lcc") {
+      allAirlineCheckboxes.forEach((cb) => {
+        cb.checked = airlineComboMatchesGroup(cb.value, AIRLINE_GROUPS.lcc);
+      });
+    } else if (tier === "ulcc") {
+      allAirlineCheckboxes.forEach((cb) => {
+        cb.checked = airlineComboMatchesGroup(cb.value, AIRLINE_GROUPS.ulcc);
+      });
+    } else if (tier === "fsc") {
+      allAirlineCheckboxes.forEach((cb) => {
+        cb.checked = !matchesLowCostModel(cb.value);
+      });
+    } else {
+      allAirlineCheckboxes.forEach((cb) => (cb.checked = true));
+    }
+  }
+
   const groupButtons = Array.from(document.querySelectorAll("[data-airline-group]"));
   groupButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -344,6 +425,7 @@
         btn.classList.add("active");
       }
       currentPage = 1;
+      refreshCountryPriceLabels();
       refresh();
     });
   });
@@ -351,19 +433,9 @@
   function setTier(tier) {
     tierTabs.forEach((t) => t.classList.toggle("active", t.dataset.tier === tier));
     groupButtons.forEach((b) => b.classList.remove("active"));
-    const allAirlineCheckboxes = Array.from(document.querySelectorAll(".filter-airline"));
-    if (tier === "budget") {
-      allAirlineCheckboxes.forEach((cb) => {
-        cb.checked = airlineComboMatchesGroup(cb.value, AIRLINE_GROUPS.budget);
-      });
-    } else if (tier === "premium") {
-      allAirlineCheckboxes.forEach((cb) => {
-        cb.checked = !airlineComboMatchesGroup(cb.value, AIRLINE_GROUPS.budget);
-      });
-    } else {
-      allAirlineCheckboxes.forEach((cb) => (cb.checked = true));
-    }
+    applyAirlineTier(tier);
     currentPage = 1;
+    refreshCountryPriceLabels();
     refresh();
   }
   tierTabs.forEach((tab) => tab.addEventListener("click", () => setTier(tab.dataset.tier)));
@@ -371,11 +443,13 @@
   stopsCheckboxes.forEach((cb) =>
     cb.addEventListener("change", () => {
       currentPage = 1;
+      refreshCountryPriceLabels();
       refresh();
     })
   );
   airlinesContainer.addEventListener("change", () => {
     currentPage = 1;
+    refreshCountryPriceLabels();
     refresh();
   });
   countriesContainer.addEventListener("change", () => {
@@ -389,6 +463,7 @@
   durationInput.addEventListener("input", () => {
     updateDurationLabel();
     currentPage = 1;
+    refreshCountryPriceLabels();
     refresh();
   });
   if (sortSelect) {
@@ -398,7 +473,7 @@
     });
   }
   if (pageSizeInput) {
-    pageSizeInput.addEventListener("input", () => {
+    pageSizeInput.addEventListener("change", () => {
       currentPage = 1;
       refresh();
     });
@@ -429,6 +504,7 @@
       if (sortSelect) sortSelect.value = "price";
       if (pageSizeInput) pageSizeInput.value = "20";
       currentPage = 1;
+      refreshCountryPriceLabels();
       refresh();
     });
   }

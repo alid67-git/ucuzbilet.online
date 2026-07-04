@@ -48,6 +48,17 @@ def scope_label(scope_id: str) -> str:
     return scope_id.replace("_", " ").title()
 
 
+def country_name_by_code(country_code: str | None) -> str | None:
+    if not country_code or len(country_code) != 2:
+        return None
+    code = country_code.upper()
+    for continent in load_continents():
+        for country in continent["countries"]:
+            if country["country_code"] == code:
+                return country["name"]
+    return None
+
+
 def country_labels(country_ids: list[str]) -> list[dict]:
     labels: list[dict] = []
     for continent in load_continents():

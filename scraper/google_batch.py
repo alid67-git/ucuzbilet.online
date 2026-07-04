@@ -7,6 +7,7 @@ from app.explore_data import alliance_airlines, destination_codes_for_search, de
 from app.miles import estimate_flight_miles
 from app.models import ExploreMode, ExploreOffer, ExploreSearchRequest
 from app.places import get_place
+from app.regions import country_name_by_code
 
 
 def _parse_price_amount(price: int | str | None) -> tuple[float | None, str]:
@@ -129,6 +130,15 @@ def _search_sync(
         ret_text = return_date.isoformat() if return_date else None
         date_summary = dep_text if one_way else f"{dep_text} - {ret_text}"
 
+        dest_cc = dest_place.country_code if dest_place else None
+        origin_cc = origin_place.country_code if origin_place else None
+        dest_country = country_name_by_code(dest_cc) or (
+            dest_place.country if dest_place else (dest["country"] if dest else None)
+        )
+        origin_country = country_name_by_code(origin_cc) or (
+            origin_place.country if origin_place else None
+        )
+
         offers = []
         for flight in chosen:
             amount, currency = _parse_price_amount(flight.price)
@@ -145,12 +155,12 @@ def _search_sync(
                     destination=dest_place.city or dest_place.name if dest_place else dest_code,
                     destination_code=dest_code,
                     destination_city=(dest_place.city or dest_place.name) if dest_place else None,
-                    country=dest_place.country if dest_place else (dest["country"] if dest else None),
-                    destination_country_code=dest_place.country_code if dest_place else None,
+                    country=dest_country,
+                    destination_country_code=dest_cc,
                     origin_code=origin_code,
                     origin_city=(origin_place.city or origin_place.name) if origin_place else None,
-                    origin_country=origin_place.country if origin_place else None,
-                    origin_country_code=origin_place.country_code if origin_place else None,
+                    origin_country=origin_country,
+                    origin_country_code=origin_cc,
                     region=dest["region"] if dest else None,
                     price_text=f"₺{flight.price:,}".replace(",", ".") if flight.price else "?",
                     price_amount=amount,
