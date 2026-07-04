@@ -560,11 +560,12 @@ input, select {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  max-width: 320px;
+  max-width: 100%;
 }
 
 .filter-chip {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.35rem;
   padding: 0.3rem 0.6rem;
@@ -573,6 +574,7 @@ input, select {
   background: white;
   font-size: 0.85rem;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .filter-range {
