@@ -9,7 +9,7 @@
 <body>
   <header class="hero compact">
     <div>
-      <p class="eyebrow">ucuzbilet.online · <span class="beta-badge">{{ beta_label }}</span></p>
+      <p class="eyebrow"><a class="brand-link" href="/">ucuzbilet.online</a> · <span class="beta-badge">{{ beta_label }}</span></p>
       <h1>{{ search.name }}</h1>
       {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
       <p class="subtitle">Avrupa hub{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
@@ -177,6 +177,8 @@
       <button class="button danger" type="submit">Aramayi sil</button>
     </form>
   </main>
+  <button type="button" id="scroll-top-btn" class="scroll-top-btn" aria-label="Yukari cik" hidden>↑</button>
   <script src="/static/results-filter.js"></script>
+  <script src="/static/scroll-top.js"></script>
 </body>
 </html>
