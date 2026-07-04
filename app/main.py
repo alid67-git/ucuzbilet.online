@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from app.flags import country_flag
 from app.offer_display import format_miles, route_display
 from app.regions import country_labels, load_continents, scope_label
+from app.models import AllianceFilter, DestinationScope, ExploreMode, ExploreSearchRequest
 from app.version import APP_VERSION, BETA_BUILD
 from app.places import place_children, place_label, resolve_place, search_places
 from app.runner import run_search
