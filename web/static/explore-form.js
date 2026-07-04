@@ -51,8 +51,27 @@
     return diff > 0 ? diff : null;
   }
 
+  function syncReturnDateMinimum() {
+    if (!tripDeparture || !tripReturn) return;
+    const dep = tripDeparture.value;
+    if (!dep) return;
+    tripReturn.min = dep;
+    if (!tripReturn.value || tripReturn.value < dep) {
+      tripReturn.value = dep;
+    }
+  }
+
+  function resetReturnDateToDeparture() {
+    if (!tripDeparture || !tripReturn) return;
+    const dep = tripDeparture.value;
+    if (!dep) return;
+    tripReturn.min = dep;
+    tripReturn.value = dep;
+  }
+
   function syncTripDatePanel() {
     syncTripTypeTabs();
+    syncReturnDateMinimum();
     const isFlexibleMode = modeSelect?.value === "flexible";
     if (tripDatePanel) {
       tripDatePanel.hidden = isFlexibleMode;
@@ -249,7 +268,10 @@
   modeSelect?.addEventListener("change", syncModePanels);
   useReturnCheckbox?.addEventListener("change", syncTripDatePanel);
   flexibleSearchCheckbox?.addEventListener("change", syncTripDatePanel);
-  tripDeparture?.addEventListener("change", syncTripDatePanel);
+  tripDeparture?.addEventListener("change", () => {
+    resetReturnDateToDeparture();
+    syncTripDatePanel();
+  });
   tripReturn?.addEventListener("change", syncTripDatePanel);
   flexibilityDaysInput?.addEventListener("input", syncTripDatePanel);
 
