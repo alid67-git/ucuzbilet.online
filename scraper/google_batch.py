@@ -47,7 +47,7 @@ def _validate_flight_route(
     return True
 
 
-MAX_AIRLINE_VARIANTS_PER_ROUTE = 3
+MAX_AIRLINE_VARIANTS_PER_ROUTE = 6
 
 
 def _search_sync(
@@ -262,7 +262,7 @@ class GoogleBatchScraper:
                 if len(seen_airlines) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
                     break
 
-        return sorted(multi_offers, key=price_key)[:60]
+        return sorted(multi_offers, key=price_key)[:120]
 
     def _anchor_departure(self, search: ExploreSearchRequest) -> date:
         if search.date_from:

@@ -51,6 +51,37 @@
     });
   }
 
+  const AIRLINE_GROUPS = {
+    star_alliance: [
+      "turkish airlines", "lufthansa", "austrian", "swiss", "united", "air canada",
+      "singapore airlines", "thai", "air china", "ana", "asiana airlines", "avianca",
+      "brussels airlines", "copa airlines", "croatia airlines", "egyptair",
+      "ethiopian airlines", "eva air", "lot polish airlines", "scandinavian airlines", "sas",
+      "shenzhen airlines", "south african airways", "tap air portugal", "air india",
+    ],
+    oneworld: [
+      "american airlines", "british airways", "cathay pacific", "finnair", "iberia",
+      "japan airlines", "malaysia airlines", "qantas", "qatar airways",
+      "royal air maroc", "royal jordanian", "srilankan airlines", "fiji airways", "alaska airlines",
+    ],
+    skyteam: [
+      "air france", "klm", "delta", "aeroflot", "aerolineas argentinas",
+      "aeromexico", "air europa", "china airlines", "china eastern", "china southern",
+      "czech airlines", "garuda indonesia", "kenya airways", "korean air", "middle east airlines",
+      "saudia", "tarom", "vietnam airlines", "xiamen airlines", "ita airways",
+    ],
+    budget: [
+      "pegasus", "ryanair", "easyjet", "wizz air", "airasia", "vueling", "eurowings",
+      "scoot", "spirit airlines", "frontier", "norwegian", "condor", "bangkok airways",
+      "flydubai", "air arabia", "indigo", "volotea", "transavia", "jetstar",
+    ],
+  };
+
+  function airlineComboMatchesGroup(comboValue, groupNames) {
+    const lower = comboValue.toLowerCase();
+    return groupNames.some((name) => lower.includes(name));
+  }
+
   const airlines = uniqueSorted(offerCards.map((c) => c.dataset.airline));
   buildChipRow(airlinesContainer, airlines, "filter-airline");
 
@@ -137,6 +168,26 @@
     }
   }
 
+  const groupButtons = Array.from(document.querySelectorAll("[data-airline-group]"));
+  groupButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const wasActive = btn.classList.contains("active");
+      groupButtons.forEach((b) => b.classList.remove("active"));
+      const allAirlineCheckboxes = Array.from(document.querySelectorAll(".filter-airline"));
+
+      if (wasActive) {
+        allAirlineCheckboxes.forEach((cb) => (cb.checked = true));
+      } else {
+        const groupNames = AIRLINE_GROUPS[btn.dataset.airlineGroup] || [];
+        allAirlineCheckboxes.forEach((cb) => {
+          cb.checked = airlineComboMatchesGroup(cb.value, groupNames);
+        });
+        btn.classList.add("active");
+      }
+      applyFilters();
+    });
+  });
+
   stopsCheckboxes.forEach((cb) => cb.addEventListener("change", applyFilters));
   airlinesContainer.addEventListener("change", applyFilters);
   countriesContainer.addEventListener("change", applyFilters);
@@ -153,6 +204,7 @@
     resetBtn.addEventListener("click", () => {
       stopsCheckboxes.forEach((cb) => (cb.checked = true));
       document.querySelectorAll(".filter-airline, .filter-country").forEach((cb) => (cb.checked = true));
+      groupButtons.forEach((btn) => btn.classList.remove("active"));
       priceInput.value = String(priceMax);
       durationInput.value = String(durationMax);
       updatePriceLabel();
