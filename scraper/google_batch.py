@@ -51,6 +51,14 @@ def _validate_flight_route(
 MAX_AIRLINE_VARIANTS_PER_ROUTE = 6
 
 
+def _is_thy_flight(flight) -> bool:
+    return any("turkish airlines" in (a or "").lower() for a in (flight.airlines or []))
+
+
+def _is_thy_offer(offer: ExploreOffer) -> bool:
+    return bool(offer.airline) and "turkish airlines" in offer.airline.lower()
+
+
 def _search_sync(
     origin_code: str,
     dest_code: str,
@@ -117,6 +125,13 @@ def _search_sync(
             chosen.append(flight)
             if len(chosen) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
                 break
+
+        # THY bu rotayi ucuyorsa "Sadece THY" filtresinde her zaman gorunsun --
+        # en ucuz N farkli havayolu arasina girmese bile en ucuz THY secenegini ekle.
+        if not any(_is_thy_flight(f) for f in chosen):
+            cheapest_thy = next((f for f in valid if _is_thy_flight(f)), None)
+            if cheapest_thy is not None:
+                chosen.append(cheapest_thy)
 
         destinations = destinations_for_search(
             search.destination_place(),
@@ -265,14 +280,23 @@ class GoogleBatchScraper:
         multi_offers: list[ExploreOffer] = []
         for group in grouped.values():
             seen_airlines: set[str] = set()
+            group_chosen: list[ExploreOffer] = []
             for offer in group:
                 airline_key = offer.airline or ""
                 if airline_key in seen_airlines:
                     continue
                 seen_airlines.add(airline_key)
-                multi_offers.append(offer)
+                group_chosen.append(offer)
                 if len(seen_airlines) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
                     break
+
+            # THY bu rotayi ucuyorsa "Sadece THY" filtresinde her zaman gorunsun.
+            if not any(_is_thy_offer(o) for o in group_chosen):
+                cheapest_thy = next((o for o in group if _is_thy_offer(o)), None)
+                if cheapest_thy is not None:
+                    group_chosen.append(cheapest_thy)
+
+            multi_offers.extend(group_chosen)
 
         return sorted(multi_offers, key=price_key)[:120]
 
