@@ -12,6 +12,8 @@
   const airlinesSummary = document.getElementById("filter-airlines-summary");
   const countriesContainer = document.getElementById("filter-countries");
   const countriesSummary = document.getElementById("filter-countries-summary");
+  const originCountriesContainer = document.getElementById("filter-origin-countries");
+  const originCountriesSummary = document.getElementById("filter-origin-countries-summary");
   const durationInput = document.getElementById("filter-duration");
   const durationValue = document.getElementById("filter-duration-value");
   const resetBtn = document.getElementById("filter-reset");
@@ -64,11 +66,11 @@
     });
   }
 
-  function buildCountryChipRow(container, cards) {
+  function buildCountryChipRow(container, cards, datasetKey, className) {
     container.innerHTML = "";
     const byCountry = new Map();
     cards.forEach((c) => {
-      const country = c.dataset.country;
+      const country = c.dataset[datasetKey];
       if (!country) return;
       const price = numAttr(c, "price");
       if (!byCountry.has(country)) byCountry.set(country, []);
@@ -82,7 +84,7 @@
         label.className = "filter-chip";
         const input = document.createElement("input");
         input.type = "checkbox";
-        input.className = "filter-country";
+        input.className = className;
         input.value = country;
         input.checked = true;
         label.appendChild(input);
@@ -96,6 +98,7 @@
   }
 
   const AIRLINE_GROUPS = {
+    thy: ["turkish airlines"],
     star_alliance: [
       "turkish airlines", "lufthansa", "austrian", "swiss", "united", "air canada",
       "singapore airlines", "thai", "air china", "ana", "asiana airlines", "avianca",
@@ -128,7 +131,8 @@
 
   const airlines = uniqueSorted(offerCards.map((c) => c.dataset.airline));
   buildChipRow(airlinesContainer, airlines, "filter-airline");
-  buildCountryChipRow(countriesContainer, offerCards);
+  buildCountryChipRow(countriesContainer, offerCards, "country", "filter-country");
+  buildCountryChipRow(originCountriesContainer, offerCards, "originCountry", "filter-origin-country");
 
   const prices = offerCards.map((c) => numAttr(c, "price")).filter((v) => v !== null);
   const durations = offerCards.map((c) => numAttr(c, "duration")).filter((v) => v !== null);
@@ -178,7 +182,14 @@
     if (!countriesSummary) return;
     const total = document.querySelectorAll(".filter-country").length;
     const checked = document.querySelectorAll(".filter-country:checked").length;
-    countriesSummary.textContent = "Bolge / Ulke (" + checked + "/" + total + " secili)";
+    countriesSummary.textContent = "Varis Bolgesi / Ulke (" + checked + "/" + total + " secili)";
+  }
+
+  function updateOriginCountrySummary() {
+    if (!originCountriesSummary) return;
+    const total = document.querySelectorAll(".filter-origin-country").length;
+    const checked = document.querySelectorAll(".filter-origin-country:checked").length;
+    originCountriesSummary.textContent = "Kalkis Ulkesi (" + checked + "/" + total + " secili)";
   }
 
   function restoreGroupedView() {
@@ -237,6 +248,7 @@
     const activeStops = activeValues(".filter-stops");
     const activeAirlines = activeValues(".filter-airline");
     const activeCountries = activeValues(".filter-country");
+    const activeOriginCountries = activeValues(".filter-origin-country");
     const maxDuration = Number(durationInput.value);
 
     const passing = [];
@@ -244,14 +256,16 @@
       const stopsCount = numAttr(card, "stops");
       const airline = card.dataset.airline;
       const country = card.dataset.country;
+      const originCountry = card.dataset.originCountry;
       const duration = numAttr(card, "duration");
 
       const stopsOk = stopsMatches(stopsCount, activeStops);
       const airlineOk = !airline || activeAirlines.includes(airline);
       const countryOk = !country || activeCountries.includes(country);
+      const originCountryOk = !originCountry || activeOriginCountries.includes(originCountry);
       const durationOk = duration === null || duration <= maxDuration;
 
-      const ok = stopsOk && airlineOk && countryOk && durationOk;
+      const ok = stopsOk && airlineOk && countryOk && originCountryOk && durationOk;
       if (ok) {
         passing.push(card);
       } else {
@@ -261,6 +275,7 @@
 
     updateAirlineSummary();
     updateCountrySummary();
+    updateOriginCountrySummary();
 
     const sortMode = sortSelect ? sortSelect.value : "country";
 
@@ -367,6 +382,10 @@
     currentPage = 1;
     refresh();
   });
+  originCountriesContainer.addEventListener("change", () => {
+    currentPage = 1;
+    refresh();
+  });
   durationInput.addEventListener("input", () => {
     updateDurationLabel();
     currentPage = 1;
@@ -400,7 +419,9 @@
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
       stopsCheckboxes.forEach((cb) => (cb.checked = true));
-      document.querySelectorAll(".filter-airline, .filter-country").forEach((cb) => (cb.checked = true));
+      document
+        .querySelectorAll(".filter-airline, .filter-country, .filter-origin-country")
+        .forEach((cb) => (cb.checked = true));
       groupButtons.forEach((btn) => btn.classList.remove("active"));
       tierTabs.forEach((t) => t.classList.toggle("active", t.dataset.tier === "all"));
       durationInput.value = String(durationMax);

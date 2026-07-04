@@ -109,6 +109,7 @@
             <div class="filter-group">
               <span class="filter-label">Ittifak</span>
               <div id="filter-airline-groups" class="filter-chip-row">
+                <button type="button" class="button small" data-airline-group="thy">Sadece THY</button>
                 <button type="button" class="button small" data-airline-group="star_alliance">Star Alliance</button>
                 <button type="button" class="button small" data-airline-group="oneworld">Oneworld</button>
                 <button type="button" class="button small" data-airline-group="skyteam">SkyTeam</button>
@@ -121,7 +122,12 @@
             </details>
 
             <details class="filter-details">
-              <summary id="filter-countries-summary">Bolge / Ulke</summary>
+              <summary id="filter-origin-countries-summary">Kalkis Ulkesi</summary>
+              <div id="filter-origin-countries" class="filter-chip-row"></div>
+            </details>
+
+            <details class="filter-details">
+              <summary id="filter-countries-summary">Varis Bolgesi / Ulke</summary>
               <div id="filter-countries" class="filter-chip-row"></div>
             </details>
 
@@ -165,6 +171,7 @@
               {% set r = offer|route_display %}
               <div class="offer"
                 data-country="{{ country or 'Diger' }}"
+                data-origin-country="{{ offer.origin_country or r.origin_country or 'Diger' }}"
                 data-airline="{{ offer.airline or '' }}"
                 data-stops="{{ offer.stops_count if offer.stops_count is not none else '' }}"
                 data-price="{{ offer.price_amount if offer.price_amount is not none else '' }}"
