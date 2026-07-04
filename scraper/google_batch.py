@@ -47,13 +47,16 @@ def _validate_flight_route(
     return True
 
 
+MAX_AIRLINE_VARIANTS_PER_ROUTE = 3
+
+
 def _search_sync(
     origin_code: str,
     dest_code: str,
     departure: date,
     return_date: date | None,
     search: ExploreSearchRequest,
-) -> ExploreOffer | None:
+) -> list[ExploreOffer]:
     airlines = _airline_filter(search)
     max_stops = 0 if search.direct_only else search.max_stops
     one_way = search.one_way and not search.use_return_date and return_date is None
@@ -96,62 +99,79 @@ def _search_sync(
             )
         results = get_flights(query)
         if not results:
-            return None
+            return []
 
-        best = min(results, key=lambda f: f.price or float("inf"))
-        if not _validate_flight_route(origin_code, dest_code, best.flights):
-            return None
+        valid = [f for f in results if _validate_flight_route(origin_code, dest_code, f.flights)]
+        if not valid:
+            return []
+        valid.sort(key=lambda f: f.price or float("inf"))
 
-        amount, currency = _parse_price_amount(best.price)
+        chosen = []
+        seen_airlines: set[str] = set()
+        for flight in valid:
+            airline_key = ", ".join(flight.airlines[:2]) if flight.airlines else ""
+            if airline_key in seen_airlines:
+                continue
+            seen_airlines.add(airline_key)
+            chosen.append(flight)
+            if len(chosen) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
+                break
+
         destinations = destinations_for_search(
             search.destination_place(),
             search.destination_scope.value,
             search.target_country_ids or None,
         )
         dest = next((d for d in destinations if d["id"] == dest_code), None)
-        stops_count = max(0, len(best.flights) - 1)
-        total_minutes = sum(seg.duration for seg in best.flights)
-        segment_codes = [
-            (seg.from_airport.code, seg.to_airport.code)
-            for seg in best.flights
-            if seg.from_airport.code and seg.to_airport.code
-        ]
-        miles = estimate_flight_miles(origin_code, dest_code, segment_codes or None)
         origin_place = get_place(origin_code)
         dest_place = get_place(dest_code)
         dep_text = departure.isoformat()
         ret_text = return_date.isoformat() if return_date else None
         date_summary = dep_text if one_way else f"{dep_text} - {ret_text}"
 
-        return ExploreOffer(
-            destination=dest_place.city or dest_place.name if dest_place else dest_code,
-            destination_code=dest_code,
-            destination_city=(dest_place.city or dest_place.name) if dest_place else None,
-            country=dest_place.country if dest_place else (dest["country"] if dest else None),
-            destination_country_code=dest_place.country_code if dest_place else None,
-            origin_code=origin_code,
-            origin_city=(origin_place.city or origin_place.name) if origin_place else None,
-            origin_country=origin_place.country if origin_place else None,
-            origin_country_code=origin_place.country_code if origin_place else None,
-            region=dest["region"] if dest else None,
-            price_text=f"₺{best.price:,}".replace(",", ".") if best.price else "?",
-            price_amount=amount,
-            currency=currency,
-            miles_estimate=miles,
-            date_summary=date_summary,
-            departure_date=dep_text,
-            return_date=ret_text,
-            duration=f"{total_minutes // 60} sa {total_minutes % 60} dk",
-            duration_minutes=total_minutes,
-            stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
-            stops_count=stops_count,
-            airline=", ".join(best.airlines[:2]) if best.airlines else None,
-            summary=f"{origin_code} → {dest_code}",
-            booking_url=query.url(),
-            origin_note=origin_code,
-        )
+        offers = []
+        for flight in chosen:
+            amount, currency = _parse_price_amount(flight.price)
+            stops_count = max(0, len(flight.flights) - 1)
+            total_minutes = sum(seg.duration for seg in flight.flights)
+            segment_codes = [
+                (seg.from_airport.code, seg.to_airport.code)
+                for seg in flight.flights
+                if seg.from_airport.code and seg.to_airport.code
+            ]
+            miles = estimate_flight_miles(origin_code, dest_code, segment_codes or None)
+            offers.append(
+                ExploreOffer(
+                    destination=dest_place.city or dest_place.name if dest_place else dest_code,
+                    destination_code=dest_code,
+                    destination_city=(dest_place.city or dest_place.name) if dest_place else None,
+                    country=dest_place.country if dest_place else (dest["country"] if dest else None),
+                    destination_country_code=dest_place.country_code if dest_place else None,
+                    origin_code=origin_code,
+                    origin_city=(origin_place.city or origin_place.name) if origin_place else None,
+                    origin_country=origin_place.country if origin_place else None,
+                    origin_country_code=origin_place.country_code if origin_place else None,
+                    region=dest["region"] if dest else None,
+                    price_text=f"₺{flight.price:,}".replace(",", ".") if flight.price else "?",
+                    price_amount=amount,
+                    currency=currency,
+                    miles_estimate=miles,
+                    date_summary=date_summary,
+                    departure_date=dep_text,
+                    return_date=ret_text,
+                    duration=f"{total_minutes // 60} sa {total_minutes % 60} dk",
+                    duration_minutes=total_minutes,
+                    stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
+                    stops_count=stops_count,
+                    airline=", ".join(flight.airlines[:2]) if flight.airlines else None,
+                    summary=f"{origin_code} → {dest_code}",
+                    booking_url=query.url(),
+                    origin_note=origin_code,
+                )
+            )
+        return offers
     except Exception:
-        return None
+        return []
 
 
 class GoogleBatchScraper:
@@ -176,7 +196,7 @@ class GoogleBatchScraper:
         tasks = []
         semaphore = asyncio.Semaphore(4)
 
-        async def run_one(origin_code: str, dest: dict, dep: date) -> ExploreOffer | None:
+        async def run_one(origin_code: str, dest: dict, dep: date) -> list[ExploreOffer]:
             if search.one_way and not search.use_return_date:
                 ret = None
             elif search.use_return_date and search.date_to and not search.flexible_departure_in_range:
@@ -205,7 +225,7 @@ class GoogleBatchScraper:
                     tasks.append(run_one(origin_code, dest, dep))
 
         results = await asyncio.gather(*tasks)
-        offers = [offer for offer in results if offer is not None]
+        offers = [offer for sublist in results for offer in sublist]
 
         if search.max_price is not None:
             offers = [
@@ -214,24 +234,35 @@ class GoogleBatchScraper:
                 if o.price_amount is None or o.price_amount <= search.max_price
             ]
 
-        best_by_dest: dict[str, ExploreOffer] = {}
+        def price_key(o: ExploreOffer) -> float:
+            return o.price_amount if o.price_amount is not None else float("inf")
+
+        grouped: dict[str, list[ExploreOffer]] = {}
         for offer in offers:
             hub_key = offer.origin_code or offer.origin_note or "?"
             dest_key = offer.destination_code or offer.destination or "?"
             key = f"{hub_key}:{dest_key}"
-            existing = best_by_dest.get(key)
-            if not existing or (offer.price_amount or float("inf")) < (existing.price_amount or float("inf")):
-                best_by_dest[key] = offer
-
-        sorted_offers = sorted(
-            best_by_dest.values(),
-            key=lambda o: o.price_amount if o.price_amount is not None else float("inf"),
-        )
+            grouped.setdefault(key, []).append(offer)
+        for group in grouped.values():
+            group.sort(key=price_key)
 
         if search.flexible_departure_in_range:
-            return sorted_offers[: search.flexible_top_n]
+            single_best = [group[0] for group in grouped.values()]
+            return sorted(single_best, key=price_key)[: search.flexible_top_n]
 
-        return sorted_offers[:30]
+        multi_offers: list[ExploreOffer] = []
+        for group in grouped.values():
+            seen_airlines: set[str] = set()
+            for offer in group:
+                airline_key = offer.airline or ""
+                if airline_key in seen_airlines:
+                    continue
+                seen_airlines.add(airline_key)
+                multi_offers.append(offer)
+                if len(seen_airlines) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
+                    break
+
+        return sorted(multi_offers, key=price_key)[:60]
 
     def _anchor_departure(self, search: ExploreSearchRequest) -> date:
         if search.date_from:
