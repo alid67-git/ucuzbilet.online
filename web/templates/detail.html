@@ -44,7 +44,7 @@
       <ul class="meta">
         <li>Mod: {{ search.mode.value.replace('_', ' ') }}</li>
         {% if search.mode.value == 'fixed_trip' %}
-        <li>Tarih: {{ search.date_from or search.departure_date }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% elif search.one_way %} · tek gidiş{% elif search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun{% else %} · {{ search.trip_days }} gun kalis (gidiş-donuş){% endif %}{% if search.flexible_departure_in_range %} (en iyi 3){% endif %}</li>
+        <li>Tarih: {{ search.date_from or search.departure_date }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% elif search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun{% else %} · tek gidiş{% endif %}{% if search.flexible_departure_in_range %} (en iyi 3){% endif %}</li>
         {% elif search.mode.value == 'date_range' %}
         <li>Tarih: {{ search.date_from }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% endif %}{% if search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun (en iyi 3){% endif %}</li>
         {% endif %}
@@ -64,7 +64,7 @@
         {% endif %}
         <li>Yolcu: {{ search.adults }} yetiskin, {{ search.children }} cocuk</li>
         {% if search.max_price %}<li>Maksimum: {{ search.max_price }} TRY</li>{% endif %}
-        {% if search.direct_only %}<li>Sadece direkt</li>{% endif %}
+        {% if search.max_stops == 0 %}<li>Sadece direkt</li>{% elif search.max_stops is not none %}<li>Max aktarma: {{ search.max_stops }}</li>{% endif %}
       </ul>
     </section>
 

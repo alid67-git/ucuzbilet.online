@@ -67,6 +67,12 @@ class ExploreSearchRequest(BaseModel):
         if self.prefer_thy:
             self.alliance = AllianceFilter.ANY
 
+        if not self.use_return_date:
+            self.one_way = True
+            self.date_to = None
+        else:
+            self.one_way = False
+
         if self.mode == ExploreMode.HUB_TO_COUNTRY:
             self.use_european_hubs = True
             if self.date_from and self.date_to:

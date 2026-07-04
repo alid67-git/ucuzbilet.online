@@ -18,7 +18,6 @@
   const flexibleOption = document.getElementById("mode-flexible");
   const clearDestBtn = document.getElementById("clear-destination");
   const useReturnCheckbox = document.getElementById("use-return-date");
-  const oneWayCheckbox = document.getElementById("one-way-trip");
   const flexibleSearchCheckbox = document.getElementById("flexible-search");
   const tripDeparture = document.getElementById("trip-departure");
   const tripReturn = document.getElementById("trip-return");
@@ -58,17 +57,13 @@
     if (isFlexibleMode) return;
 
     const useReturn = Boolean(useReturnCheckbox?.checked);
-    const oneWay = Boolean(oneWayCheckbox?.checked);
     const flexSearch = Boolean(flexibleSearchCheckbox?.checked);
 
     if (tripReturn) {
-      tripReturn.disabled = !useReturn || oneWay;
-      if (!useReturn || oneWay) {
+      tripReturn.disabled = !useReturn;
+      if (!useReturn) {
         tripReturn.removeAttribute("required");
       }
-    }
-    if (tripDaysInput) {
-      tripDaysInput.disabled = useReturn || oneWay;
     }
     if (flexibilityDaysInput) {
       flexibilityDaysInput.disabled = !flexSearch;
@@ -76,44 +71,38 @@
 
     const dep = tripDeparture?.value;
     const ret = tripReturn?.value;
-    const days = parseInt(tripDaysInput?.value || "5", 10) || 5;
     const flexDays = parseInt(flexibilityDaysInput?.value || "3", 10) || 3;
     const span = daysBetween(dep, ret);
+
+    if (useReturn && dep && ret && span && tripDaysInput) {
+      tripDaysInput.value = String(span);
+    }
 
     if (!tripDateHint) return;
 
     if (flexSearch) {
       if (useReturn && dep && ret && span) {
         tripDateHint.textContent =
-          "Esnek: " +
+          "Esnek gidiş-donus: " +
           formatDateTr(dep) +
           " ±" +
           flexDays +
-          " gun icinde en ucuz gidis aranir; donus " +
+          " gun; donus " +
           formatDateTr(ret) +
-          " (en iyi 3 sonuc).";
+          " (en iyi 3).";
       } else if (dep) {
         tripDateHint.textContent =
-          "Esnek: " +
-          formatDateTr(dep) +
-          " ±" +
-          flexDays +
-          " gun icinde en ucuz gidis; " +
-          days +
-          " gun kalis (en iyi 3 sonuc).";
+          "Esnek tek gidiş: " + formatDateTr(dep) + " ±" + flexDays + " gun (en iyi 3).";
       } else {
-        tripDateHint.textContent = "Esnek arama: gidis ±N gun, en ucuz 3 sonuc listelenir.";
+        tripDateHint.textContent = "Esnek arama: gidis ±N gun, en ucuz 3 sonuc.";
       }
     } else if (useReturn && dep && ret && span) {
       tripDateHint.textContent =
-        "Gidis-donus: " + formatDateTr(dep) + " gidis → " + formatDateTr(ret) + " donus (" + span + " gun).";
-    } else if (oneWay && dep) {
-      tripDateHint.textContent = "Tek gidiş: " + formatDateTr(dep) + " — sadece gidiş fiyati aranir.";
+        "Gidis-donus: " + formatDateTr(dep) + " → " + formatDateTr(ret) + " (" + span + " gun).";
     } else if (dep) {
-      tripDateHint.textContent =
-        "Gidis-donus: " + formatDateTr(dep) + " gidis, " + days + " gun kalis (donus otomatik hesaplanir).";
+      tripDateHint.textContent = "Tek gidiş: " + formatDateTr(dep) + " — donus aranmaz.";
     } else {
-      tripDateHint.textContent = "Gidis tarihi secin. Tek gidiş, donus tarihi veya kalis suresi seceneklerinden birini kullanin.";
+      tripDateHint.textContent = "Gidis tarihi secin. Donus icin 'Donus tarihi belirle' isaretleyin.";
     }
   }
 
@@ -224,22 +213,10 @@
   }
 
   modeSelect?.addEventListener("change", syncModePanels);
-  useReturnCheckbox?.addEventListener("change", () => {
-    if (useReturnCheckbox.checked && oneWayCheckbox) {
-      oneWayCheckbox.checked = false;
-    }
-    syncTripDatePanel();
-  });
-  oneWayCheckbox?.addEventListener("change", () => {
-    if (oneWayCheckbox.checked) {
-      if (useReturnCheckbox) useReturnCheckbox.checked = false;
-    }
-    syncTripDatePanel();
-  });
+  useReturnCheckbox?.addEventListener("change", syncTripDatePanel);
   flexibleSearchCheckbox?.addEventListener("change", syncTripDatePanel);
   tripDeparture?.addEventListener("change", syncTripDatePanel);
   tripReturn?.addEventListener("change", syncTripDatePanel);
-  tripDaysInput?.addEventListener("input", syncTripDatePanel);
   flexibilityDaysInput?.addEventListener("input", syncTripDatePanel);
 
   if (hubCheckbox) hubCheckbox.addEventListener("change", syncModePanels);

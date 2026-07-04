@@ -147,7 +147,6 @@
   function syncFormFieldsBeforeSubmit() {
     const mode = modeSelect?.value;
     const useReturn = document.getElementById("use-return-date");
-    const oneWay = document.getElementById("one-way-trip");
     const flexSearch = document.getElementById("flexible-search");
     const tripReturn = document.getElementById("trip-return");
     const tripDays = document.getElementById("trip-days");
@@ -161,7 +160,6 @@
       });
     }
     if (useReturn) useReturn.disabled = false;
-    if (oneWay) oneWay.disabled = false;
     if (flexSearch) flexSearch.disabled = false;
 
     if (mode === "flexible" && tripDatePanel) {
@@ -175,26 +173,18 @@
 
     if (useReturn?.checked) {
       if (tripReturn) tripReturn.disabled = false;
-      if (tripDays) tripDays.disabled = true;
-      if (tripReturn?.value && tripDeparture?.value) {
+      if (tripReturn?.value && tripDeparture?.value && tripDays) {
         const from = new Date(tripDeparture.value + "T00:00:00");
         const to = new Date(tripReturn.value + "T00:00:00");
         const span = Math.round((to - from) / (1000 * 60 * 60 * 24));
-        if (span > 0 && tripDays) {
+        if (span > 0) {
           tripDays.value = String(span);
         }
       }
-    } else if (oneWay?.checked) {
-      if (tripReturn) {
-        tripReturn.value = "";
-        tripReturn.disabled = true;
-      }
-      if (tripDays) tripDays.disabled = true;
     } else {
       if (tripReturn) {
         tripReturn.value = "";
       }
-      if (tripDays) tripDays.disabled = false;
     }
 
     if (!flexSearch?.checked && flexibilityDaysInput) {

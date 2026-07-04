@@ -109,9 +109,6 @@
       {% endif %}
       {% set trip_dep = search.date_from if search and search.date_from else (search.departure_date if search and search.departure_date else today) %}
 
-      {% set one_way_trip = search.one_way if search else true %}
-      {% if search and search.use_return_date %}{% set one_way_trip = false %}{% endif %}
-
       <div id="trip-date-panel" class="mode-panel full">
         <div class="form-grid nested">
           <label>
@@ -124,12 +121,6 @@
               value="{{ search.date_to if search and search.date_to else default_range_end }}"
               {% if not has_return %}disabled{% endif %}>
           </label>
-          <label id="trip-days-field">
-            Kalis suresi (gun) — gidiş-donuş
-            <input type="number" min="1" max="30" name="trip_days" id="trip-days"
-              value="{{ search.trip_days if search else 5 }}"
-              {% if has_return or one_way_trip %}disabled{% endif %}>
-          </label>
           <label id="flexibility-days-field">
             Esneklik (± gun)
             <input type="number" min="1" max="14" name="flexibility_days" id="flexibility-days"
@@ -137,20 +128,17 @@
               {% if not search or not search.flexible_departure_in_range %}disabled{% endif %}>
           </label>
         </div>
-        <label class="checkbox">
-          <input type="checkbox" name="one_way" id="one-way-trip" value="on" {% if one_way_trip %}checked{% endif %}>
-          Tek gidiş (dönüş yok)
-        </label>
+        <input type="hidden" name="trip_days" id="trip-days" value="{{ search.trip_days if search else 5 }}">
         <label class="checkbox">
           <input type="checkbox" name="use_return_date" id="use-return-date" {% if has_return %}checked{% endif %}>
-          Donus tarihi belirle
+          Donus tarihi belirle (isaretlenmezse tek gidiş)
         </label>
         <label class="checkbox">
           <input type="checkbox" name="flexible_search" id="flexible-search"
             {% if search and search.flexible_departure_in_range %}checked{% endif %}>
           Esnek ara (en ucuz 3 sonuc — gidis ±N gun)
         </label>
-        <p class="hint" id="trip-date-hint">Tek gidiş: sadece gidiş fiyatı aranır.</p>
+        <p class="hint" id="trip-date-hint">Donus secilmezse tek gidiş fiyati aranir.</p>
       </div>
 
 
@@ -246,26 +234,6 @@
         <input type="checkbox" name="prefer_thy" {% if search and search.prefer_thy %}checked{% endif %}>
 
         Yalnizca Turk Hava Yollari (THY)
-
-      </label>
-
-
-
-      <label class="checkbox">
-
-        <input type="checkbox" name="direct_only" {% if search and search.direct_only %}checked{% endif %}>
-
-        Yalnizca direkt ucus
-
-      </label>
-
-
-
-      <label class="checkbox">
-
-        <input type="checkbox" name="headless" value="off" {% if search and not search.headless %}checked{% endif %}>
-
-        Tarayiciyi gorunur ac (debug)
 
       </label>
 

@@ -182,7 +182,6 @@ def _parse_search_form(
     date_to: str,
     trip_days: int,
     use_return_date: str | None,
-    one_way: str | None,
     flexible_search: str | None,
     flexibility_days: int,
     destination_scope: str,
@@ -190,12 +189,10 @@ def _parse_search_form(
     alliance: str,
     prefer_thy: str | None,
     max_stops: str,
-    direct_only: str | None,
     adults: int,
     children: int,
     max_price: str,
     cabin_class: str,
-    headless: str | None,
 ) -> ExploreSearchRequest:
     hub = use_european_hubs == "on" or mode == "hub_to_country"
     if mode == "hub_to_country":
@@ -230,7 +227,7 @@ def _parse_search_form(
     parsed_max_price = int(max_price) if max_price.strip() else None
 
     use_return = use_return_date == "on"
-    one_way_trip = one_way == "on" and not use_return
+    one_way_trip = not use_return
     flex = flexible_search == "on"
     explore_mode = ExploreMode(mode)
 
@@ -266,12 +263,12 @@ def _parse_search_form(
             alliance=AllianceFilter(alliance),
             prefer_thy=prefer_thy == "on",
             max_stops=parsed_max_stops,
-            direct_only=direct_only == "on",
+            direct_only=False,
             adults=adults,
             children=children,
             max_price=parsed_max_price,
             cabin_class=cabin_class,  # type: ignore[arg-type]
-            headless=headless != "off",
+            headless=True,
         )
     except ValidationError as exc:
         msg = exc.errors()[0].get("msg", "Gecersiz arama kriterleri.")
@@ -295,7 +292,6 @@ async def quick_search_run(
     date_to: str = Form(""),
     trip_days: int = Form(5),
     use_return_date: str | None = Form(None),
-    one_way: str | None = Form(None),
     flexible_search: str | None = Form(None),
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
@@ -303,12 +299,10 @@ async def quick_search_run(
     alliance: str = Form("any"),
     prefer_thy: str | None = Form(None),
     max_stops: str = Form(""),
-    direct_only: str | None = Form(None),
     adults: int = Form(1),
     children: int = Form(0),
     max_price: str = Form(""),
     cabin_class: str = Form("economy"),
-    headless: str | None = Form(None),
 ):
     payload = _parse_search_form(
         name or f"Hizli arama {date.today().isoformat()}",
@@ -320,7 +314,6 @@ async def quick_search_run(
         date_to,
         trip_days,
         use_return_date,
-        one_way,
         flexible_search,
         flexibility_days,
         destination_scope,
@@ -328,12 +321,10 @@ async def quick_search_run(
         alliance,
         prefer_thy,
         max_stops,
-        direct_only,
         adults,
         children,
         max_price,
         cabin_class,
-        headless,
     )
     saved = save_quick_search(payload)
     await _run_search_and_save(saved)
@@ -351,7 +342,6 @@ async def create_search(
     date_to: str = Form(""),
     trip_days: int = Form(5),
     use_return_date: str | None = Form(None),
-    one_way: str | None = Form(None),
     flexible_search: str | None = Form(None),
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
@@ -359,12 +349,10 @@ async def create_search(
     alliance: str = Form("any"),
     prefer_thy: str | None = Form(None),
     max_stops: str = Form(""),
-    direct_only: str | None = Form(None),
     adults: int = Form(1),
     children: int = Form(0),
     max_price: str = Form(""),
     cabin_class: str = Form("economy"),
-    headless: str | None = Form(None),
 ):
     payload = _parse_search_form(
         name.strip() or f"Arama {date.today().isoformat()}",
@@ -376,7 +364,6 @@ async def create_search(
         date_to,
         trip_days,
         use_return_date,
-        one_way,
         flexible_search,
         flexibility_days,
         destination_scope,
@@ -384,12 +371,10 @@ async def create_search(
         alliance,
         prefer_thy,
         max_stops,
-        direct_only,
         adults,
         children,
         max_price,
         cabin_class,
-        headless,
     )
     saved = save_search(payload)
     return RedirectResponse(url=f"/searches/{saved.id}", status_code=303)
@@ -419,7 +404,6 @@ async def update_search_route(
     date_to: str = Form(""),
     trip_days: int = Form(5),
     use_return_date: str | None = Form(None),
-    one_way: str | None = Form(None),
     flexible_search: str | None = Form(None),
     flexibility_days: int = Form(3),
     destination_scope: str = Form("anywhere"),
@@ -427,12 +411,10 @@ async def update_search_route(
     alliance: str = Form("any"),
     prefer_thy: str | None = Form(None),
     max_stops: str = Form(""),
-    direct_only: str | None = Form(None),
     adults: int = Form(1),
     children: int = Form(0),
     max_price: str = Form(""),
     cabin_class: str = Form("economy"),
-    headless: str | None = Form(None),
 ):
     payload = _parse_search_form(
         name,
@@ -444,7 +426,6 @@ async def update_search_route(
         date_to,
         trip_days,
         use_return_date,
-        one_way,
         flexible_search,
         flexibility_days,
         destination_scope,
@@ -452,12 +433,10 @@ async def update_search_route(
         alliance,
         prefer_thy,
         max_stops,
-        direct_only,
         adults,
         children,
         max_price,
         cabin_class,
-        headless,
     )
     updated = update_search(search_id, payload)
     if not updated:
