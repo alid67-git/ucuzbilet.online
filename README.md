@@ -54,4 +54,5 @@ Google Flights resmi API sunmuyor; veriler Google Explore / fast-flights uzerind
 **Ucretsiz plan sinirlari:**
 - 15 dk kullanilmazsa uyur; ilk acilis 30-60 sn surebilir.
 - Kayitli aramalar restart'ta silinir (kalici disk yok).
-- Uzun taramalar timeout verebilir; **Ucus fiyat taramasi** modu genelde calisir, **Esnek harita** modu bellek yetmeyebilir.
+- **Ucus fiyat taramasi** modu calisir; **Esnek harita** Render'da kapali (bellek).
+- Deploy hatasi olursa Render **Logs** sekmesine bakin; son commit'i **Manual Deploy** ile cekin.

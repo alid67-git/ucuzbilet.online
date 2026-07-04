@@ -1,9 +1,7 @@
 from datetime import UTC, datetime
 
 from app.models import ExploreMode, ExploreSearchRequest, SavedSearch, SearchRunResult
-from scraper.base import ScraperSession
 from scraper.google_batch import GoogleBatchScraper
-from scraper.google_explore import GoogleExploreScraper
 from scraper.exceptions import BotBlockedError
 
 
@@ -15,6 +13,21 @@ async def run_search(saved: SavedSearch) -> list[SearchRunResult]:
 
     try:
         if request.mode == ExploreMode.FLEXIBLE and not request.use_european_hubs:
+            try:
+                from scraper.base import ScraperSession
+                from scraper.google_explore import GoogleExploreScraper
+            except ImportError:
+                return [
+                    SearchRunResult(
+                        search_id=saved.id,
+                        search_name=saved.name,
+                        source="google_explore",
+                        status="failed",
+                        message="Esnek harita modu bu sunucuda desteklenmiyor (Playwright yok). Ucus fiyat taramasi kullanin.",
+                        offers=[],
+                        scraped_at=scraped_at,
+                    )
+                ]
             session = ScraperSession(headless=request.headless)
             await session.start()
             try:
