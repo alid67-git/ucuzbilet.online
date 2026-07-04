@@ -24,6 +24,9 @@
   const tripDaysInput = document.getElementById("trip-days");
   const flexibilityDaysInput = document.getElementById("flexibility-days");
   const tripDateHint = document.getElementById("trip-date-hint");
+  const swapButton = document.getElementById("swap-places");
+  const tabOneWay = document.getElementById("tab-one-way");
+  const tabRoundTrip = document.getElementById("tab-round-trip");
 
   function hasResolvedDestination() {
     return Boolean(destHidden?.value);
@@ -49,6 +52,7 @@
   }
 
   function syncTripDatePanel() {
+    syncTripTypeTabs();
     const isFlexibleMode = modeSelect?.value === "flexible";
     if (tripDatePanel) {
       tripDatePanel.hidden = isFlexibleMode;
@@ -203,6 +207,36 @@
     syncHints();
   }
 
+  function swapPlaces() {
+    if (isHubMode() || !originInput || !destInput) return;
+    const originText = originInput.value;
+    const originId = originHidden ? originHidden.value : "";
+    const destText = destInput.value;
+    const destId = destHidden ? destHidden.value : "";
+
+    originInput.value = destText;
+    if (originHidden) originHidden.value = destId;
+    destInput.value = originText;
+    if (destHidden) destHidden.value = originId;
+
+    originInput.dispatchEvent(new Event("place-selected"));
+    destInput.dispatchEvent(new Event("input"));
+    destInput.dispatchEvent(new Event("place-selected"));
+  }
+
+  function syncTripTypeTabs() {
+    const useReturn = Boolean(useReturnCheckbox?.checked);
+    if (tabOneWay) tabOneWay.classList.toggle("active", !useReturn);
+    if (tabRoundTrip) tabRoundTrip.classList.toggle("active", useReturn);
+  }
+
+  function setTripType(useReturn) {
+    if (!useReturnCheckbox) return;
+    useReturnCheckbox.checked = useReturn;
+    useReturnCheckbox.dispatchEvent(new Event("change"));
+    syncTripTypeTabs();
+  }
+
   function syncModePanels() {
     syncFlexibleOption();
     syncOriginField();
@@ -241,6 +275,24 @@
   }
   if (originInput) {
     originInput.addEventListener("place-selected", () => syncOriginField());
+  }
+  if (swapButton) {
+    swapButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      swapPlaces();
+    });
+  }
+  if (tabOneWay) {
+    tabOneWay.addEventListener("click", (event) => {
+      event.preventDefault();
+      setTripType(false);
+    });
+  }
+  if (tabRoundTrip) {
+    tabRoundTrip.addEventListener("click", (event) => {
+      event.preventDefault();
+      setTripType(true);
+    });
   }
 
   syncModePanels();

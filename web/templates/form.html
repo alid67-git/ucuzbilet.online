@@ -46,7 +46,10 @@
 
 
       <div class="place-field full" id="origin-field">
-        <label for="origin-input">Kalkis (ulke / sehir / havalimani)</label>
+        <div class="place-field-head">
+          <label for="origin-input">Kalkis (ulke / sehir / havalimani)</label>
+          <button type="button" class="swap-button" id="swap-places" title="Kalkis ve varisi yer degistir" aria-label="Kalkis ve varisi yer degistir">⇄</button>
+        </div>
         <input type="text" id="origin-input" autocomplete="off" placeholder="Ornek: Italya, Roma, Istanbul"
           value="{{ search.origin_label if search else '' }}">
         <input type="hidden" name="origin_place_id" id="origin-place-id" value="{{ search.origin_place_id if search else '' }}">
@@ -109,29 +112,32 @@
       {% set trip_dep = search.date_from if search and search.date_from else (search.departure_date if search and search.departure_date else today) %}
 
       <div id="trip-date-panel" class="mode-panel full">
-        <div class="form-grid nested">
+        <div class="trip-type-tabs" id="trip-type-tabs" role="tablist">
+          <button type="button" class="trip-type-tab" id="tab-one-way" data-return="0">Tek yon</button>
+          <button type="button" class="trip-type-tab" id="tab-round-trip" data-return="1">Gidiş-donuş</button>
+        </div>
+        <input type="checkbox" name="use_return_date" id="use-return-date" class="visually-hidden" {% if has_return %}checked{% endif %}>
+
+        <div class="date-range-row">
           <label>
             Gidis tarihi
             <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
           </label>
+          <span class="date-arrow">→</span>
           <label id="return-date-field">
             Donus tarihi
             <input type="date" name="date_to" id="trip-return"
               value="{{ search.date_to if search and search.date_to else default_range_end }}"
               {% if not has_return %}disabled{% endif %}>
           </label>
-          <label id="flexibility-days-field">
-            Esneklik (± gun)
-            <input type="number" min="1" max="14" name="flexibility_days" id="flexibility-days"
-              value="{{ search.flexibility_days if search and search.flexibility_days else 3 }}"
-              {% if not search or not search.flexible_departure_in_range %}disabled{% endif %}>
-          </label>
         </div>
-        <input type="hidden" name="trip_days" id="trip-days" value="{{ search.trip_days if search else 5 }}">
-        <label class="checkbox">
-          <input type="checkbox" name="use_return_date" id="use-return-date" {% if has_return %}checked{% endif %}>
-          Donus tarihi belirle (isaretlenmezse tek gidiş)
+        <label id="flexibility-days-field">
+          Esneklik (± gun)
+          <input type="number" min="1" max="14" name="flexibility_days" id="flexibility-days"
+            value="{{ search.flexibility_days if search and search.flexibility_days else 3 }}"
+            {% if not search or not search.flexible_departure_in_range %}disabled{% endif %}>
         </label>
+        <input type="hidden" name="trip_days" id="trip-days" value="{{ search.trip_days if search else 5 }}">
         <label class="checkbox">
           <input type="checkbox" name="flexible_search" id="flexible-search"
             {% if search and search.flexible_departure_in_range %}checked{% endif %}>
@@ -142,89 +148,28 @@
 
 
 
-      <label id="alliance-field">
-        Havayolu ittifaki
-        <select name="alliance">
+      <p class="hint full">Havayolu ittifaki, aktarma sayisi ve maksimum fiyat artik sonuc sayfasindaki filtrelerden ayarlanir.</p>
 
-          <option value="any" {% if not search or search.alliance.value == 'any' %}selected{% endif %}>Fark etmez</option>
+      <div class="full form-grid nested cols-3">
+        <label>
+          Yetiskin
+          <input type="number" min="1" max="9" name="adults" value="{{ search.adults if search else 1 }}">
+        </label>
 
-          <option value="STAR_ALLIANCE" {% if search and search.alliance.value == 'STAR_ALLIANCE' %}selected{% endif %}>Star Alliance</option>
+        <label>
+          Cocuk
+          <input type="number" min="0" max="9" name="children" value="{{ search.children if search else 0 }}">
+        </label>
 
-          <option value="ONEWORLD" {% if search and search.alliance.value == 'ONEWORLD' %}selected{% endif %}>Oneworld</option>
-
-          <option value="SKYTEAM" {% if search and search.alliance.value == 'SKYTEAM' %}selected{% endif %}>SkyTeam</option>
-
-        </select>
-
-      </label>
-
-
-
-      <label>
-
-        Max aktarma
-
-        <select name="max_stops">
-
-          <option value="" {% if not search or search.max_stops is none %}selected{% endif %}>Sinirsiz</option>
-
-          <option value="0" {% if search and search.max_stops == 0 %}selected{% endif %}>0 (direkt)</option>
-
-          <option value="1" {% if search and search.max_stops == 1 %}selected{% endif %}>En fazla 1</option>
-
-          <option value="2" {% if search and search.max_stops == 2 %}selected{% endif %}>En fazla 2</option>
-
-        </select>
-
-      </label>
-
-
-
-      <label>
-
-        Maksimum fiyat (TRY)
-
-        <input type="number" min="0" name="max_price" value="{{ search.max_price if search and search.max_price else '' }}">
-
-      </label>
-
-
-
-      <label>
-
-        Yetiskin
-
-        <input type="number" min="1" max="9" name="adults" value="{{ search.adults if search else 1 }}">
-
-      </label>
-
-
-
-      <label>
-
-        Cocuk
-
-        <input type="number" min="0" max="9" name="children" value="{{ search.children if search else 0 }}">
-
-      </label>
-
-
-
-      <label>
-
-        Kabin
-
-        <select name="cabin_class">
-
-          {% for cabin in ['economy', 'premium-economy', 'business', 'first'] %}
-
-          <option value="{{ cabin }}" {% if search and search.cabin_class == cabin %}selected{% elif not search and cabin == 'economy' %}selected{% endif %}>{{ cabin }}</option>
-
-          {% endfor %}
-
-        </select>
-
-      </label>
+        <label>
+          Kabin
+          <select name="cabin_class">
+            {% for cabin in ['economy', 'premium-economy', 'business', 'first'] %}
+            <option value="{{ cabin }}" {% if search and search.cabin_class == cabin %}selected{% elif not search and cabin == 'economy' %}selected{% endif %}>{{ cabin }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
 
 
 

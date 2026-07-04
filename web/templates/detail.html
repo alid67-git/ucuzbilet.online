@@ -85,45 +85,84 @@
           <p class="muted">{{ result.scraped_at }} — {{ result.message }}</p>
 
           {% if result.offers %}
-          <div class="offers">
-            {% for offer in result.offers %}
-            {% set r = offer|route_display %}
-            <div class="offer">
-              <div class="offer-route">
-                <strong class="route">
-                  <span class="route-end">
-                    {% if r.origin_flag %}<span class="flag" title="{{ r.origin_country or '' }}">{{ r.origin_flag }}</span>{% endif %}
-                    <span class="route-place">
-                      {{ r.origin_city }}
-                      {% if r.origin_country %}<span class="route-country">, {{ r.origin_country }}</span>{% endif %}
-                      {% if r.origin_code %}<span class="iata">({{ r.origin_code }})</span>{% endif %}
-                    </span>
-                  </span>
-                  <span class="route-arrow">→</span>
-                  <span class="route-end">
-                    {% if r.destination_flag %}<span class="flag" title="{{ r.destination_country or '' }}">{{ r.destination_flag }}</span>{% endif %}
-                    <span class="route-place">
-                      {{ r.destination_city }}
-                      {% if r.destination_country %}<span class="route-country">, {{ r.destination_country }}</span>{% endif %}
-                      {% if r.destination_code %}<span class="iata">({{ r.destination_code }})</span>{% endif %}
-                    </span>
-                  </span>
-                </strong>
-                <div class="offer-meta-right">
-                  {% if r.miles_estimate %}<span class="miles-badge">~{{ r.miles_estimate|format_miles }} mil</span>{% endif %}
-                  <span class="price">{{ offer.price_text }}</span>
-                </div>
-              </div>
-              {% if offer.date_summary %}<p class="muted small">{{ offer.date_summary }}</p>{% endif %}
-              {% if offer.duration or offer.stops %}
-              <p class="muted small">{{ offer.duration or '' }}{% if offer.stops %} · {{ offer.stops }}{% endif %}{% if offer.airline %} · {{ offer.airline }}{% endif %}</p>
-              {% endif %}
-              {% if offer.booking_url %}
-              <a href="{{ offer.booking_url }}" target="_blank" rel="noopener">Google'da ac</a>
-              {% endif %}
+          <div class="filters-panel" id="results-filters">
+            <div class="filter-group">
+              <span class="filter-label">Aktarma</span>
+              <label class="filter-chip"><input type="checkbox" class="filter-stops" value="0" checked> Direkt</label>
+              <label class="filter-chip"><input type="checkbox" class="filter-stops" value="1" checked> 1 aktarma</label>
+              <label class="filter-chip"><input type="checkbox" class="filter-stops" value="2plus" checked> 2+ aktarma</label>
             </div>
-            {% endfor %}
+            <div class="filter-group">
+              <span class="filter-label">Havayolu</span>
+              <div id="filter-airlines" class="filter-chip-row"></div>
+            </div>
+            <div class="filter-group">
+              <span class="filter-label">Bolge / Ulke</span>
+              <div id="filter-countries" class="filter-chip-row"></div>
+            </div>
+            <div class="filter-group">
+              <span class="filter-label">Maks. fiyat: <span id="filter-price-value">-</span></span>
+              <input type="range" id="filter-price" class="filter-range">
+            </div>
+            <div class="filter-group">
+              <span class="filter-label">Maks. sure: <span id="filter-duration-value">-</span></span>
+              <input type="range" id="filter-duration" class="filter-range">
+            </div>
+            <div class="filter-group actions">
+              <button type="button" class="button" id="filter-reset">Filtreleri sifirla</button>
+              <p class="hint" id="filter-summary"></p>
+            </div>
           </div>
+
+          {% for country, country_offers in result.offers|groupby('country') %}
+          <div class="country-group" data-country-group="{{ country or 'Diger' }}">
+            <h3 class="country-group-title">{{ country or 'Diger' }} <span class="muted">— {{ country_offers|length }} sonuc</span></h3>
+            <div class="offers">
+              {% for offer in country_offers %}
+              {% set r = offer|route_display %}
+              <div class="offer"
+                data-country="{{ country or 'Diger' }}"
+                data-airline="{{ offer.airline or '' }}"
+                data-stops="{{ offer.stops_count if offer.stops_count is not none else '' }}"
+                data-price="{{ offer.price_amount if offer.price_amount is not none else '' }}"
+                data-duration="{{ offer.duration_minutes if offer.duration_minutes is not none else '' }}">
+                <div class="offer-route">
+                  <strong class="route">
+                    <span class="route-end">
+                      {% if r.origin_flag %}<span class="flag" title="{{ r.origin_country or '' }}">{{ r.origin_flag }}</span>{% endif %}
+                      <span class="route-place">
+                        {{ r.origin_city }}
+                        {% if r.origin_country %}<span class="route-country">, {{ r.origin_country }}</span>{% endif %}
+                        {% if r.origin_code %}<span class="iata">({{ r.origin_code }})</span>{% endif %}
+                      </span>
+                    </span>
+                    <span class="route-arrow">→</span>
+                    <span class="route-end">
+                      {% if r.destination_flag %}<span class="flag" title="{{ r.destination_country or '' }}">{{ r.destination_flag }}</span>{% endif %}
+                      <span class="route-place">
+                        {{ r.destination_city }}
+                        {% if r.destination_country %}<span class="route-country">, {{ r.destination_country }}</span>{% endif %}
+                        {% if r.destination_code %}<span class="iata">({{ r.destination_code }})</span>{% endif %}
+                      </span>
+                    </span>
+                  </strong>
+                  <div class="offer-meta-right">
+                    {% if r.miles_estimate %}<span class="miles-badge">~{{ r.miles_estimate|format_miles }} mil</span>{% endif %}
+                    <span class="price">{{ offer.price_text }}</span>
+                  </div>
+                </div>
+                {% if offer.date_summary %}<p class="muted small">{{ offer.date_summary }}</p>{% endif %}
+                {% if offer.duration or offer.stops %}
+                <p class="muted small">{{ offer.duration or '' }}{% if offer.stops %} · {{ offer.stops }}{% endif %}{% if offer.airline %} · {{ offer.airline }}{% endif %}</p>
+                {% endif %}
+                {% if offer.booking_url %}
+                <a href="{{ offer.booking_url }}" target="_blank" rel="noopener">Ucuslari gor</a>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
           {% endif %}
         </article>
         {% endfor %}
@@ -136,5 +175,6 @@
       <button class="button danger" type="submit">Aramayi sil</button>
     </form>
   </main>
+  <script src="/static/results-filter.js"></script>
 </body>
 </html>

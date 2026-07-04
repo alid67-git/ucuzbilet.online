@@ -183,7 +183,9 @@ class ExploreOffer(BaseModel):
     departure_date: str | None = None
     return_date: str | None = None
     duration: str | None = None
+    duration_minutes: int | None = None
     stops: str | None = None
+    stops_count: int | None = None
     airline: str | None = None
     summary: str | None = None
     booking_url: str | None = None

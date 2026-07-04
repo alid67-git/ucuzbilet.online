@@ -143,7 +143,9 @@ class GoogleExploreScraper:
                     miles_estimate=self._estimate_miles(search, dest_meta["id"] if dest_meta else None),
                     date_summary=date_summary,
                     duration=duration,
+                    duration_minutes=_parse_duration_minutes(duration),
                     stops=stops,
+                    stops_count=_parse_stops_count(stops),
                     summary=" | ".join(context + [price_line]),
                     booking_url=url,
                     origin_note=f"Kalkis: {origin_name}",
@@ -207,6 +209,27 @@ class GoogleExploreScraper:
         if len(origin_code) != 3:
             return None
         return estimate_flight_miles(origin_code, dest_code)
+
+
+def _parse_duration_minutes(text: str | None) -> int | None:
+    if not text:
+        return None
+    hours = re.search(r"(\d+)\s?(?:hr|sa)", text, re.I)
+    minutes = re.search(r"(\d+)\s?(?:min|dk)", text, re.I)
+    if not hours and not minutes:
+        return None
+    return (int(hours.group(1)) * 60 if hours else 0) + (int(minutes.group(1)) if minutes else 0)
+
+
+def _parse_stops_count(text: str | None) -> int | None:
+    if not text:
+        return None
+    if re.search(r"nonstop|direkt", text, re.I):
+        return 0
+    match = re.search(r"(\d+)\s?(?:stop|aktarma)", text, re.I)
+    if match:
+        return int(match.group(1))
+    return None
 
 
 def _parse_price(text: str) -> tuple[float | None, str | None]:
