@@ -37,7 +37,19 @@
   }
 
   function formatPrice(v) {
+    if (window.SiteLocale && window.SiteLocale.formatFromTry) {
+      return window.SiteLocale.formatFromTry(v);
+    }
     return Math.round(v).toLocaleString("tr-TR") + " TRY";
+  }
+
+  function refreshOfferPrices() {
+    document.querySelectorAll(".price[data-price-try]").forEach((el) => {
+      const raw = el.getAttribute("data-price-try");
+      if (!raw) return;
+      const n = Number(raw);
+      if (Number.isFinite(n)) el.textContent = formatPrice(n);
+    });
   }
 
   function formatDuration(mins) {
@@ -218,14 +230,16 @@
     if (!countriesSummary) return;
     const total = document.querySelectorAll(".filter-country").length;
     const checked = document.querySelectorAll(".filter-country:checked").length;
-    countriesSummary.textContent = "Varis Bolgesi / Ulke (" + checked + "/" + total + " secili)";
+    const label = window.SiteLocale ? window.SiteLocale.t("filter_destination_country") : "Gidis ulkesi";
+    countriesSummary.textContent = label + " (" + checked + "/" + total + " secili)";
   }
 
   function updateOriginCountrySummary() {
     if (!originCountriesSummary) return;
     const total = document.querySelectorAll(".filter-origin-country").length;
     const checked = document.querySelectorAll(".filter-origin-country:checked").length;
-    originCountriesSummary.textContent = "Kalkis Ulkesi (" + checked + "/" + total + " secili)";
+    const label = window.SiteLocale ? window.SiteLocale.t("filter_departure_country") : "Cikis ulkesi";
+    originCountriesSummary.textContent = label + " (" + checked + "/" + total + " secili)";
   }
 
   function restoreGroupedView() {
@@ -402,9 +416,30 @@
       allAirlineCheckboxes.forEach((cb) => {
         cb.checked = !matchesLowCostModel(cb.value);
       });
+    } else if (tier === "thy") {
+      allAirlineCheckboxes.forEach((cb) => {
+        cb.checked = airlineComboMatchesGroup(cb.value, AIRLINE_GROUPS.thy);
+      });
     } else {
       allAirlineCheckboxes.forEach((cb) => (cb.checked = true));
     }
+  }
+
+  function applyTierTabLabels() {
+    if (!window.SiteLocale) return;
+    const tips = {
+      lcc: window.SiteLocale.t("tier_lcc_tip"),
+      ulcc: window.SiteLocale.t("tier_ulcc_tip"),
+      fsc: window.SiteLocale.t("tier_fsc_tip"),
+      thy: window.SiteLocale.t("tier_thy_tip"),
+    };
+    tierTabs.forEach((tab) => {
+      const key = "tier_" + tab.dataset.tier;
+      if (tab.dataset.tier !== "all" && window.SiteLocale.t(key)) {
+        tab.title = tips[tab.dataset.tier] || "";
+      }
+      if (window.SiteLocale.t(key)) tab.textContent = window.SiteLocale.t(key);
+    });
   }
 
   const groupButtons = Array.from(document.querySelectorAll("[data-airline-group]"));
@@ -510,4 +545,12 @@
   }
 
   refresh();
+  applyTierTabLabels();
+  refreshOfferPrices();
+  document.addEventListener("localechange", () => {
+    applyTierTabLabels();
+    refreshCountryPriceLabels();
+    refreshOfferPrices();
+    refresh();
+  });
 })();

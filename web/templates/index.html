@@ -1,65 +1,27 @@
-<!DOCTYPE html>
-
-<html lang="tr">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>UcuzBilet Avcisi</title>
-
-  <link rel="stylesheet" href="/static/style.css">
-
-</head>
-
-<body>
-
+{% extends "base.html" %}
+{% block title %}{{ t.site_name }}{% endblock %}
+{% block body %}
   <header class="hero">
-
     <div>
-
-      <p class="eyebrow"><a class="brand-link" href="/">ucuzbilet.online</a> · <span class="beta-badge">{{ beta_label }}</span></p>
-
-      <h1>UcuzBilet Avcisi</h1>
-      <p class="credit">Geliştiren Ali Dinçer</p>
-      <p class="subtitle">Gokyuzune cik, dunyayi kesfet — en ucuz rotalar burada.</p>
-
+      <h1>{{ t.site_name }}</h1>
+      <p class="subtitle" data-i18n="site_tagline">{{ t.site_tagline }}</p>
     </div>
-
-    <a class="button primary" href="/search">Hemen ara</a>
-
+    <a class="button primary" href="/search" data-i18n="search_now">{{ t.search_now }}</a>
   </header>
 
-
-
   <main class="container">
-
     <section class="panel">
-
-      <h2>Kayitli aramalar</h2>
-
+      <h2 data-i18n="saved_searches">{{ t.saved_searches }}</h2>
       {% if searches %}
-
       <div class="cards">
-
         {% for search in searches %}
-
         <article class="card">
-
           <div class="card-head">
-
             <h3>{{ search.name }}</h3>
-
             <span class="badge">{{ search.mode.value.replace('_', ' ') }}</span>
-
           </div>
-
           <p>{% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}Avrupa hub{% else %}{{ search.origin_label }}{% endif %}{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
-
           <p class="muted">
-
             {% if search.use_european_hubs %}hub · {% endif %}
             {% if search.mode.value == 'fixed_trip' or search.mode.value == 'hub_to_country' or search.mode.value == 'date_range' %}
               {% if search.use_return_date and search.date_to %}
@@ -67,83 +29,43 @@
               {% elif search.flexible_departure_in_range %}
               esnek ±{{ search.flexibility_days }}g
               {% else %}
-              {{ search.date_from or search.departure_date }} · {{ search.trip_days }} gun
+              {{ search.date_from or search.departure_date }}
               {% endif %}
             {% else %}
-
               Esnek deal taramasi
-
             {% endif %}
-
             {% if search.prefer_thy %} · THY{% endif %}
-
           </p>
-
           <div class="actions">
-
             <a class="button" href="/searches/{{ search.id }}">Detay</a>
-
             <form method="post" action="/searches/{{ search.id }}/run">
-
               <button class="button primary" type="submit">Simdi tara</button>
-
             </form>
-
             <form method="post" action="/searches/{{ search.id }}/delete" onsubmit="return confirm('{{ search.name }} silinsin mi?');">
-
               <button class="button danger" type="submit">Sil</button>
-
             </form>
-
           </div>
-
         </article>
-
         {% endfor %}
-
       </div>
-
       {% else %}
-
-      <p>Henuz arama yok. Ilk kesfinizi olusturun.</p>
-
+      <p data-i18n="no_searches">{{ t.no_searches }}</p>
       {% endif %}
 
       {% if broken_searches %}
-
       <div class="broken-panel">
-
         <h3>Onarilamayan eski aramalar</h3>
-
         <p class="hint">Asagidaki kayitlar eski surumden kaldi ve acilamiyor. Silebilirsiniz.</p>
-
         {% for item in broken_searches %}
-
         <div class="broken-row">
-
           <span>{{ item.name }}</span>
-
           <form method="post" action="/searches/{{ item.id }}/delete" onsubmit="return confirm('Bu eski arama silinsin mi?');">
-
             <button class="button danger" type="submit">Sil</button>
-
           </form>
-
         </div>
-
         {% endfor %}
-
       </div>
-
       {% endif %}
-
     </section>
-
   </main>
-
-  <button type="button" id="scroll-top-btn" class="scroll-top-btn" aria-label="Yukari cik" hidden>↑</button>
-  <script src="/static/scroll-top.js"></script>
-</body>
-
-</html>
-
+{% endblock %}

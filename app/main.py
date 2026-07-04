@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
 from app.flags import country_flag
+from app.i18n import all_strings, normalize_lang, DEFAULT_LANG
 from app.offer_display import format_miles, route_display
 from app.regions import country_labels, load_continents, scope_label
 from app.models import AllianceFilter, DestinationScope, ExploreMode, ExploreSearchRequest
@@ -72,6 +74,26 @@ def _place_payload(place) -> dict:
     return item
 
 
+def _locale_context(request: Request) -> dict:
+    lang = normalize_lang(request.cookies.get("lang"))
+    strings = all_strings(lang)
+    locale_json = json.dumps({"lang": lang, "strings": strings}, ensure_ascii=False)
+    return {"lang": lang, "t": strings, "locale_json": locale_json}
+
+
+def _render(request: Request, name: str, context: dict) -> HTMLResponse:
+    ctx = dict(context)
+    ctx.update(_locale_context(request))
+    return templates.TemplateResponse(request, name, ctx)
+
+
+@app.get("/api/locale")
+async def api_locale(lang: str = Query(DEFAULT_LANG)):
+    lng = normalize_lang(lang)
+    strings = all_strings(lng)
+    return JSONResponse({"lang": lng, "strings": strings})
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     ensure_data_dirs()
@@ -110,7 +132,7 @@ async def home(request: Request):
     searches = list_searches()
     broken_searches = list_broken_searches()
     today, _, _ = _default_dates()
-    return templates.TemplateResponse(
+    return _render(
         request,
         "index.html",
         {"searches": searches, "broken_searches": broken_searches, "today": today},
@@ -130,7 +152,7 @@ async def search_form(request: Request):
             "is_quick_form": True,
         }
     )
-    return templates.TemplateResponse(request, "form.html", ctx)
+    return _render(request, "form.html", ctx)
 
 
 @app.get("/searches/new", response_class=HTMLResponse)
@@ -155,7 +177,7 @@ async def edit_search_form(request: Request, search_id: str):
             "is_quick_form": False,
         }
     )
-    return templates.TemplateResponse(request, "form.html", ctx)
+    return _render(request, "form.html", ctx)
 
 
 @app.get("/searches/{search_id}", response_class=HTMLResponse)
@@ -165,7 +187,7 @@ async def search_detail(request: Request, search_id: str):
         raise HTTPException(status_code=404, detail="Arama bulunamadi.")
     results = list_results(search_id)
     latest_results = results[:1] if results else []
-    return templates.TemplateResponse(
+    return _render(
         request,
         "detail.html",
         {"search": search, "results": latest_results, "is_quick": search_id == "quick"},

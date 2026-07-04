@@ -1,38 +1,13 @@
-<!DOCTYPE html>
-
-<html lang="tr">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>{{ title }} | UcuzBilet Avcisi</title>
-
-  <link rel="stylesheet" href="/static/style.css">
-
-</head>
-
-<body>
-
+{% extends "base.html" %}
+{% block title %}{{ title }} | {{ t.site_name }}{% endblock %}
+{% block body %}
   <header class="hero compact">
-
     <div>
-
-      <p class="eyebrow"><a class="brand-link" href="/">ucuzbilet.online</a> · <span class="beta-badge">{{ beta_label }}</span> · Geliştiren Ali Dinçer</p>
-
       <h1>{{ title }}</h1>
-
-      <p class="subtitle">En ucuz nereye gidebilirim? — Google Flights kesif</p>
-
+      <p class="subtitle" data-i18n="site_tagline">{{ t.site_tagline }}</p>
     </div>
-
-    <a class="button" href="/">Geri</a>
-
+    <a class="button" href="/" data-i18n="back">{{ t.back }}</a>
   </header>
-
-
 
   <main class="container">
 
@@ -200,7 +175,8 @@
     </form>
 
   </main>
-
+{% endblock %}
+{% block scripts %}
   <script>
       {% if search and search.target_country_ids %}
       window.__savedTargetCountries = {{ search.target_country_ids|tojson }};
@@ -217,9 +193,5 @@
   <script src="/static/region-picker.js"></script>
   <script src="/static/destination-picker.js"></script>
   <script src="/static/explore-form.js"></script>
-  <button type="button" id="scroll-top-btn" class="scroll-top-btn" aria-label="Yukari cik" hidden>↑</button>
-  <script src="/static/scroll-top.js"></script>
-</body>
-
-</html>
+{% endblock %}
 

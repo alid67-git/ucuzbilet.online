@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ t.site_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <nav class="top-bar" id="top-bar">
+    <div class="top-bar-left">
+      <a href="/" class="top-brand">
+        <span class="top-brand-icon" aria-hidden="true">✈</span>
+        <span>{{ t.site_name }}</span>
+      </a>
+      <span class="beta-badge top-beta">{{ beta_label }}</span>
+    </div>
+    <div class="top-bar-center">
+      <span class="top-developer">{{ t.developer }}</span>
+    </div>
+    <div class="top-bar-right">
+      <div class="lang-switch" role="group" aria-label="{{ t.language }}">
+        <button type="button" class="lang-btn{% if lang == 'tr' %} active{% endif %}" data-lang="tr" title="Türkçe">🇹🇷 TR</button>
+        <button type="button" class="lang-btn{% if lang == 'en' %} active{% endif %}" data-lang="en" title="English">🇬🇧 EN</button>
+        <button type="button" class="lang-btn{% if lang == 'de' %} active{% endif %}" data-lang="de" title="Deutsch">🇩🇪 DE</button>
+        <button type="button" class="lang-btn{% if lang == 'fr' %} active{% endif %}" data-lang="fr" title="Français">🇫🇷 FR</button>
+      </div>
+      <label class="top-currency-wrap">
+        <span class="top-currency-label">{{ t.currency }}</span>
+        <select id="currency-select" class="top-select" aria-label="{{ t.currency }}">
+          <option value="TRY">₺ TRY</option>
+          <option value="EUR">€ EUR</option>
+          <option value="USD">$ USD</option>
+          <option value="GBP">£ GBP</option>
+        </select>
+      </label>
+      <label class="top-auto-currency">
+        <input type="checkbox" id="currency-auto" checked>
+        <span data-i18n="currency_auto">{{ t.currency_auto }}</span>
+      </label>
+      <button type="button" class="button small help-btn" id="help-open" title="{{ t.help }}">?</button>
+    </div>
+  </nav>
+
+  <dialog id="help-dialog" class="help-dialog">
+    <div class="help-dialog-inner">
+      <button type="button" class="help-close" id="help-close" aria-label="Close">×</button>
+      <h2 data-i18n="help_title">{{ t.help_title }}</h2>
+      <p data-i18n="help_body">{{ t.help_body }}</p>
+      <ul class="help-list">
+        <li><strong data-i18n="tier_lcc">{{ t.tier_lcc }}</strong> — <span data-i18n="tier_lcc_tip">{{ t.tier_lcc_tip }}</span></li>
+        <li><strong data-i18n="tier_ulcc">{{ t.tier_ulcc }}</strong> — <span data-i18n="tier_ulcc_tip">{{ t.tier_ulcc_tip }}</span></li>
+        <li><strong data-i18n="tier_fsc">{{ t.tier_fsc }}</strong> — <span data-i18n="tier_fsc_tip">{{ t.tier_fsc_tip }}</span></li>
+        <li><strong data-i18n="tier_thy">{{ t.tier_thy }}</strong> — <span data-i18n="tier_thy_tip">{{ t.tier_thy_tip }}</span></li>
+      </ul>
+    </div>
+  </dialog>
+
+  {% block body %}{% endblock %}
+
+  <button type="button" id="scroll-top-btn" class="scroll-top-btn" aria-label="↑" hidden>↑</button>
+
+  <script>
+    window.__LOCALE = {{ locale_json | safe }};
+  </script>
+  <script src="/static/site.js"></script>
+  {% block scripts %}{% endblock %}
+  <script src="/static/scroll-top.js"></script>
+</body>
+</html>

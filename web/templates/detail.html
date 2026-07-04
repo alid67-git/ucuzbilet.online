@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ search.name }} | UcuzBilet Avcisi</title>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}{{ search.name }} | {{ t.site_name }}{% endblock %}
+{% block body %}
   <header class="hero compact">
     <div>
-      <p class="eyebrow"><a class="brand-link" href="/">ucuzbilet.online</a> · <span class="beta-badge">{{ beta_label }}</span></p>
       <h1>{{ search.name }}</h1>
       {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
       <p class="subtitle">Avrupa hub{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
@@ -89,7 +82,7 @@
             <p class="price-range-highlight" id="price-range-highlight"></p>
 
             <div class="filter-group">
-              <span class="filter-label">Aktarma</span>
+              <span class="filter-label" data-i18n="filter_stops">{{ t.filter_stops }}</span>
               <div class="filter-chip-row">
                 <label class="filter-chip"><input type="checkbox" class="filter-stops" value="0" checked> Direkt</label>
                 <label class="filter-chip"><input type="checkbox" class="filter-stops" value="1" checked> 1 aktarma</label>
@@ -97,20 +90,20 @@
               </div>
             </div>
 
-            <div class="filter-group">
-              <span class="filter-label">Havayolu modeli</span>
-              <div class="trip-type-tabs" id="airline-tier-tabs">
-                <button type="button" class="trip-type-tab active" data-tier="all" title="Tum havayolu modelleri">Hepsi</button>
-                <button type="button" class="trip-type-tab" data-tier="lcc" title="Low-Cost Carrier — dusuk maliyetli havayolu (Pegasus, easyJet, flydubai...)">LCC</button>
-                <button type="button" class="trip-type-tab" data-tier="ulcc" title="Ultra Low-Cost Carrier — ultra dusuk maliyetli (Ryanair, Wizz Air...)">ULCC</button>
-                <button type="button" class="trip-type-tab" data-tier="fsc" title="Full-Service Carrier — tam hizmet geleneksel havayolu (THY, Lufthansa, Air France...)">FSC</button>
+            <div class="filter-group filter-group-wide">
+              <span class="filter-label" data-i18n="filter_airline_model">{{ t.filter_airline_model }}</span>
+              <div class="trip-type-tabs trip-type-tabs-wrap" id="airline-tier-tabs">
+                <button type="button" class="trip-type-tab active" data-tier="all" data-i18n="tier_all">{{ t.tier_all }}</button>
+                <button type="button" class="trip-type-tab" data-tier="lcc" data-i18n="tier_lcc" title="{{ t.tier_lcc_tip }}">{{ t.tier_lcc }}</button>
+                <button type="button" class="trip-type-tab" data-tier="ulcc" data-i18n="tier_ulcc" title="{{ t.tier_ulcc_tip }}">{{ t.tier_ulcc }}</button>
+                <button type="button" class="trip-type-tab" data-tier="fsc" data-i18n="tier_fsc" title="{{ t.tier_fsc_tip }}">{{ t.tier_fsc }}</button>
+                <button type="button" class="trip-type-tab" data-tier="thy" data-i18n="tier_thy" title="{{ t.tier_thy_tip }}">{{ t.tier_thy }}</button>
               </div>
             </div>
 
             <div class="filter-group">
-              <span class="filter-label">Ittifak</span>
+              <span class="filter-label" data-i18n="filter_alliance">{{ t.filter_alliance }}</span>
               <div id="filter-airline-groups" class="filter-chip-row">
-                <button type="button" class="button small" data-airline-group="thy">Sadece THY</button>
                 <button type="button" class="button small" data-airline-group="star_alliance">Star Alliance</button>
                 <button type="button" class="button small" data-airline-group="oneworld">Oneworld</button>
                 <button type="button" class="button small" data-airline-group="skyteam">SkyTeam</button>
@@ -122,13 +115,13 @@
               <div id="filter-airlines" class="filter-chip-row"></div>
             </details>
 
-            <details class="filter-details">
-              <summary id="filter-origin-countries-summary">Kalkis Ulkesi</summary>
+            <details class="filter-details filter-details-open" open>
+              <summary id="filter-origin-countries-summary" data-i18n="filter_departure_country">{{ t.filter_departure_country }}</summary>
               <div id="filter-origin-countries" class="filter-chip-row"></div>
             </details>
 
-            <details class="filter-details">
-              <summary id="filter-countries-summary">Varis Bolgesi / Ulke</summary>
+            <details class="filter-details filter-details-open" open>
+              <summary id="filter-countries-summary" data-i18n="filter_destination_country">{{ t.filter_destination_country }}</summary>
               <div id="filter-countries" class="filter-chip-row"></div>
             </details>
 
@@ -159,7 +152,7 @@
             </div>
 
             <div class="filter-group actions">
-              <button type="button" class="button" id="filter-reset">Filtreleri sifirla</button>
+              <button type="button" class="button" id="filter-reset" data-i18n="filter_reset">{{ t.filter_reset }}</button>
               <p class="hint" id="filter-summary"></p>
             </div>
           </div>
@@ -199,7 +192,7 @@
                   </strong>
                   <div class="offer-meta-right">
                     {% if r.miles_estimate %}<span class="miles-badge">~{{ r.miles_estimate|format_miles }} mil</span>{% endif %}
-                    <span class="price">{{ offer.price_text }}</span>
+                    <span class="price" data-price-try="{{ offer.price_amount if offer.price_amount is not none else '' }}">{{ offer.price_text }}</span>
                   </div>
                 </div>
                 {% if offer.date_summary %}<p class="muted small">{{ offer.date_summary }}</p>{% endif %}
@@ -227,8 +220,7 @@
       <button class="button danger" type="submit">Aramayi sil</button>
     </form>
   </main>
-  <button type="button" id="scroll-top-btn" class="scroll-top-btn" aria-label="Yukari cik" hidden>↑</button>
+{% endblock %}
+{% block scripts %}
   <script src="/static/results-filter.js"></script>
-  <script src="/static/scroll-top.js"></script>
-</body>
-</html>
+{% endblock %}
