@@ -479,3 +479,26 @@ async def delete_search_route(search_id: str):
     if not delete_search(search_id):
         raise HTTPException(status_code=404, detail="Arama bulunamadi.")
     return RedirectResponse(url="/", status_code=303)
+
+
+# Asagidakiler yalnizca POST kabul eder; tarayicinin "yenile" veya gecmisten
+# tekrar acma gibi durumlarda yanlislikla GET gondermesi halinde ham 405 hatasi
+# yerine mantikli bir sayfaya yonlendirir.
+@app.get("/search/run")
+async def quick_search_run_get_fallback():
+    return RedirectResponse(url="/search", status_code=303)
+
+
+@app.get("/searches")
+async def create_search_get_fallback():
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.get("/searches/{search_id}/run")
+async def run_search_get_fallback(search_id: str):
+    return RedirectResponse(url=f"/searches/{search_id}", status_code=303)
+
+
+@app.get("/searches/{search_id}/delete")
+async def delete_search_get_fallback(search_id: str):
+    return RedirectResponse(url=f"/searches/{search_id}", status_code=303)
