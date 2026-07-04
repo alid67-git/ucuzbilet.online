@@ -86,6 +86,8 @@
 
           {% if result.offers %}
           <div class="filters-panel" id="results-filters">
+            <p class="price-range-highlight" id="price-range-highlight"></p>
+
             <div class="filter-group">
               <span class="filter-label">Aktarma</span>
               <div class="filter-chip-row">
@@ -94,28 +96,61 @@
                 <label class="filter-chip"><input type="checkbox" class="filter-stops" value="2plus" checked> 2+ aktarma</label>
               </div>
             </div>
+
             <div class="filter-group">
-              <span class="filter-label">Havayolu</span>
+              <span class="filter-label">Havayolu fiyat kademesi</span>
+              <div class="trip-type-tabs" id="airline-tier-tabs">
+                <button type="button" class="trip-type-tab active" data-tier="all">Hepsi</button>
+                <button type="button" class="trip-type-tab" data-tier="budget">Sadece ucuz</button>
+                <button type="button" class="trip-type-tab" data-tier="premium">Sadece pahali</button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Ittifak</span>
               <div id="filter-airline-groups" class="filter-chip-row">
                 <button type="button" class="button small" data-airline-group="star_alliance">Star Alliance</button>
                 <button type="button" class="button small" data-airline-group="oneworld">Oneworld</button>
                 <button type="button" class="button small" data-airline-group="skyteam">SkyTeam</button>
-                <button type="button" class="button small" data-airline-group="budget">Ucuz havayollari</button>
               </div>
+            </div>
+
+            <details class="filter-details">
+              <summary id="filter-airlines-summary">Havayolu</summary>
               <div id="filter-airlines" class="filter-chip-row"></div>
-            </div>
-            <div class="filter-group">
-              <span class="filter-label">Bolge / Ulke</span>
+            </details>
+
+            <details class="filter-details">
+              <summary id="filter-countries-summary">Bolge / Ulke</summary>
               <div id="filter-countries" class="filter-chip-row"></div>
-            </div>
-            <div class="filter-group">
-              <span class="filter-label">Maks. fiyat: <span id="filter-price-value">-</span></span>
-              <input type="range" id="filter-price" class="filter-range">
-            </div>
+            </details>
+
             <div class="filter-group">
               <span class="filter-label">Maks. sure: <span id="filter-duration-value">-</span></span>
               <input type="range" id="filter-duration" class="filter-range">
             </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Sirala</span>
+              <select id="sort-select">
+                <option value="price">Fiyat (ucuzdan pahaliya)</option>
+                <option value="duration">Sure (kisadan uzuna)</option>
+                <option value="stops">Aktarma (azdan coga)</option>
+                <option value="recommended">En iyiyi oner</option>
+                <option value="country">Ulkeye gore (gruplu)</option>
+              </select>
+            </div>
+
+            <div class="filter-group" id="pagination-controls">
+              <span class="filter-label">Sayfa basina sonuc</span>
+              <input type="number" id="page-size-input" min="5" max="200" value="20">
+              <div class="pagination-nav">
+                <button type="button" class="button small" id="page-prev">‹ Onceki</button>
+                <span id="page-indicator"></span>
+                <button type="button" class="button small" id="page-next">Sonraki ›</button>
+              </div>
+            </div>
+
             <div class="filter-group actions">
               <button type="button" class="button" id="filter-reset">Filtreleri sifirla</button>
               <p class="hint" id="filter-summary"></p>
@@ -171,6 +206,7 @@
             </div>
           </div>
           {% endfor %}
+          <div id="flat-results" class="offers" hidden></div>
           {% endif %}
         </article>
         {% endfor %}

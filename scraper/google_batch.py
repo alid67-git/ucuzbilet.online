@@ -248,7 +248,7 @@ class GoogleBatchScraper:
 
         if search.flexible_departure_in_range:
             single_best = [group[0] for group in grouped.values()]
-            return sorted(single_best, key=price_key)[: search.flexible_top_n]
+            return sorted(single_best, key=price_key)
 
         multi_offers: list[ExploreOffer] = []
         for group in grouped.values():

@@ -4,15 +4,28 @@
 
   const offerCards = Array.from(document.querySelectorAll(".offer[data-price]"));
   const countryGroups = Array.from(document.querySelectorAll(".country-group"));
+  const flatContainer = document.getElementById("flat-results");
+  const originalOrder = offerCards.map((el) => ({ el, parent: el.parentElement }));
+
   const stopsCheckboxes = Array.from(document.querySelectorAll(".filter-stops"));
   const airlinesContainer = document.getElementById("filter-airlines");
+  const airlinesSummary = document.getElementById("filter-airlines-summary");
   const countriesContainer = document.getElementById("filter-countries");
-  const priceInput = document.getElementById("filter-price");
-  const priceValue = document.getElementById("filter-price-value");
+  const countriesSummary = document.getElementById("filter-countries-summary");
   const durationInput = document.getElementById("filter-duration");
   const durationValue = document.getElementById("filter-duration-value");
   const resetBtn = document.getElementById("filter-reset");
   const summary = document.getElementById("filter-summary");
+  const priceRangeHighlight = document.getElementById("price-range-highlight");
+  const sortSelect = document.getElementById("sort-select");
+  const paginationControls = document.getElementById("pagination-controls");
+  const pageSizeInput = document.getElementById("page-size-input");
+  const pagePrevBtn = document.getElementById("page-prev");
+  const pageNextBtn = document.getElementById("page-next");
+  const pageIndicator = document.getElementById("page-indicator");
+  const tierTabs = Array.from(document.querySelectorAll("#airline-tier-tabs .trip-type-tab"));
+
+  let currentPage = 1;
 
   function numAttr(el, name) {
     const raw = el.dataset[name];
@@ -51,6 +64,37 @@
     });
   }
 
+  function buildCountryChipRow(container, cards) {
+    container.innerHTML = "";
+    const byCountry = new Map();
+    cards.forEach((c) => {
+      const country = c.dataset.country;
+      if (!country) return;
+      const price = numAttr(c, "price");
+      if (!byCountry.has(country)) byCountry.set(country, []);
+      if (price !== null) byCountry.get(country).push(price);
+    });
+    Array.from(byCountry.keys())
+      .sort((a, b) => a.localeCompare(b, "tr"))
+      .forEach((country) => {
+        const prices = byCountry.get(country);
+        const label = document.createElement("label");
+        label.className = "filter-chip";
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.className = "filter-country";
+        input.value = country;
+        input.checked = true;
+        label.appendChild(input);
+        let text = " " + country;
+        if (prices.length) {
+          text += " (" + formatPrice(Math.min(...prices)) + " - " + formatPrice(Math.max(...prices)) + ")";
+        }
+        label.appendChild(document.createTextNode(text));
+        container.appendChild(label);
+      });
+  }
+
   const AIRLINE_GROUPS = {
     star_alliance: [
       "turkish airlines", "lufthansa", "austrian", "swiss", "united", "air canada",
@@ -84,9 +128,7 @@
 
   const airlines = uniqueSorted(offerCards.map((c) => c.dataset.airline));
   buildChipRow(airlinesContainer, airlines, "filter-airline");
-
-  const countries = uniqueSorted(offerCards.map((c) => c.dataset.country));
-  buildChipRow(countriesContainer, countries, "filter-country");
+  buildCountryChipRow(countriesContainer, offerCards);
 
   const prices = offerCards.map((c) => numAttr(c, "price")).filter((v) => v !== null);
   const durations = offerCards.map((c) => numAttr(c, "duration")).filter((v) => v !== null);
@@ -96,23 +138,20 @@
   const durationMin = durations.length ? Math.min(...durations) : 0;
   const durationMax = durations.length ? Math.max(...durations) : 0;
 
-  priceInput.min = String(priceMin);
-  priceInput.max = String(priceMax);
-  priceInput.value = String(priceMax);
-  priceInput.disabled = prices.length === 0;
+  if (priceRangeHighlight) {
+    priceRangeHighlight.textContent = prices.length
+      ? "Fiyat araligi: " + formatPrice(priceMin) + " - " + formatPrice(priceMax)
+      : "";
+  }
 
   durationInput.min = String(durationMin);
   durationInput.max = String(durationMax);
   durationInput.value = String(durationMax);
   durationInput.disabled = durations.length === 0;
 
-  function updatePriceLabel() {
-    priceValue.textContent = prices.length ? formatPrice(Number(priceInput.value)) : "-";
-  }
   function updateDurationLabel() {
     durationValue.textContent = durations.length ? formatDuration(Number(durationInput.value)) : "-";
   }
-  updatePriceLabel();
   updateDurationLabel();
 
   function activeValues(selector) {
@@ -128,43 +167,147 @@
     return activeStops.includes("2plus");
   }
 
-  function applyFilters() {
+  function updateAirlineSummary() {
+    if (!airlinesSummary) return;
+    const total = document.querySelectorAll(".filter-airline").length;
+    const checked = document.querySelectorAll(".filter-airline:checked").length;
+    airlinesSummary.textContent = "Havayolu (" + checked + "/" + total + " secili)";
+  }
+
+  function updateCountrySummary() {
+    if (!countriesSummary) return;
+    const total = document.querySelectorAll(".filter-country").length;
+    const checked = document.querySelectorAll(".filter-country:checked").length;
+    countriesSummary.textContent = "Bolge / Ulke (" + checked + "/" + total + " secili)";
+  }
+
+  function restoreGroupedView() {
+    originalOrder.forEach(({ el, parent }) => parent.appendChild(el));
+  }
+
+  function computeRecommendationScores(cards) {
+    const scores = new Map();
+    if (!cards.length) return scores;
+    const priceVals = cards.map((c) => numAttr(c, "price")).filter((v) => v !== null);
+    const durationVals = cards.map((c) => numAttr(c, "duration")).filter((v) => v !== null);
+    const stopsVals = cards.map((c) => numAttr(c, "stops")).filter((v) => v !== null);
+    const pMin = priceVals.length ? Math.min(...priceVals) : 0;
+    const pMax = priceVals.length ? Math.max(...priceVals) : 0;
+    const dMin = durationVals.length ? Math.min(...durationVals) : 0;
+    const dMax = durationVals.length ? Math.max(...durationVals) : 0;
+    const sMin = stopsVals.length ? Math.min(...stopsVals) : 0;
+    const sMax = stopsVals.length ? Math.max(...stopsVals) : 0;
+    const norm = (v, min, max) => (v === null || max === min ? 0 : (v - min) / (max - min));
+    cards.forEach((c) => {
+      const p = numAttr(c, "price");
+      const d = numAttr(c, "duration");
+      const s = numAttr(c, "stops");
+      // "En iyiyi oner": fiyata %50, sureye %30, aktarmaya %20 agirlik.
+      // Dusuk skor = daha iyi oneri. Gorunen (filtrelenmis) sonuclar
+      // uzerinden min-max normalize edilir.
+      const score = 0.5 * norm(p, pMin, pMax) + 0.3 * norm(d, dMin, dMax) + 0.2 * norm(s, sMin, sMax);
+      scores.set(c, score);
+    });
+    return scores;
+  }
+
+  function sortCards(cards, mode) {
+    if (mode === "price") {
+      return cards.sort((a, b) => (numAttr(a, "price") ?? Infinity) - (numAttr(b, "price") ?? Infinity));
+    }
+    if (mode === "duration") {
+      return cards.sort((a, b) => (numAttr(a, "duration") ?? Infinity) - (numAttr(b, "duration") ?? Infinity));
+    }
+    if (mode === "stops") {
+      return cards.sort((a, b) => {
+        const sa = numAttr(a, "stops") ?? Infinity;
+        const sb = numAttr(b, "stops") ?? Infinity;
+        if (sa !== sb) return sa - sb;
+        return (numAttr(a, "price") ?? Infinity) - (numAttr(b, "price") ?? Infinity);
+      });
+    }
+    if (mode === "recommended") {
+      const scores = computeRecommendationScores(cards);
+      return cards.sort((a, b) => (scores.get(a) ?? Infinity) - (scores.get(b) ?? Infinity));
+    }
+    return cards;
+  }
+
+  function refresh() {
     const activeStops = activeValues(".filter-stops");
     const activeAirlines = activeValues(".filter-airline");
     const activeCountries = activeValues(".filter-country");
-    const maxPrice = Number(priceInput.value);
     const maxDuration = Number(durationInput.value);
 
-    let visibleCount = 0;
+    const passing = [];
+    offerCards.forEach((card) => {
+      const stopsCount = numAttr(card, "stops");
+      const airline = card.dataset.airline;
+      const country = card.dataset.country;
+      const duration = numAttr(card, "duration");
 
-    countryGroups.forEach((group) => {
-      let groupHasVisible = false;
-      const cards = group.querySelectorAll(".offer");
-      cards.forEach((card) => {
-        const stopsCount = numAttr(card, "stops");
-        const airline = card.dataset.airline;
-        const country = card.dataset.country;
-        const price = numAttr(card, "price");
-        const duration = numAttr(card, "duration");
+      const stopsOk = stopsMatches(stopsCount, activeStops);
+      const airlineOk = !airline || activeAirlines.includes(airline);
+      const countryOk = !country || activeCountries.includes(country);
+      const durationOk = duration === null || duration <= maxDuration;
 
-        const stopsOk = stopsMatches(stopsCount, activeStops);
-        const airlineOk = !airline || activeAirlines.includes(airline);
-        const countryOk = !country || activeCountries.includes(country);
-        const priceOk = price === null || price <= maxPrice;
-        const durationOk = duration === null || duration <= maxDuration;
-
-        const visible = stopsOk && airlineOk && countryOk && priceOk && durationOk;
-        card.hidden = !visible;
-        if (visible) {
-          groupHasVisible = true;
-          visibleCount += 1;
-        }
-      });
-      group.hidden = !groupHasVisible;
+      const ok = stopsOk && airlineOk && countryOk && durationOk;
+      if (ok) {
+        passing.push(card);
+      } else {
+        card.hidden = true;
+      }
     });
 
+    updateAirlineSummary();
+    updateCountrySummary();
+
+    const sortMode = sortSelect ? sortSelect.value : "country";
+
+    if (sortMode === "country") {
+      restoreGroupedView();
+      flatContainer.hidden = true;
+      if (paginationControls) paginationControls.hidden = true;
+
+      countryGroups.forEach((group) => {
+        const cards = Array.from(group.querySelectorAll(".offer"));
+        let anyVisible = false;
+        cards.forEach((card) => {
+          const visible = passing.includes(card);
+          card.hidden = !visible;
+          if (visible) anyVisible = true;
+        });
+        group.hidden = !anyVisible;
+      });
+
+      if (summary) summary.textContent = passing.length + " sonuc gosteriliyor.";
+      return;
+    }
+
+    const sorted = sortCards(passing.slice(), sortMode);
+    countryGroups.forEach((g) => (g.hidden = true));
+    flatContainer.hidden = false;
+    sorted.forEach((card) => flatContainer.appendChild(card));
+
+    if (paginationControls) paginationControls.hidden = false;
+    const pageSize = Math.max(1, Number(pageSizeInput.value) || 20);
+    const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    const startIdx = (currentPage - 1) * pageSize;
+    const endIdx = startIdx + pageSize;
+
+    sorted.forEach((card, idx) => {
+      card.hidden = idx < startIdx || idx >= endIdx;
+    });
+
+    if (pageIndicator) pageIndicator.textContent = "Sayfa " + currentPage + " / " + totalPages;
+    if (pagePrevBtn) pagePrevBtn.disabled = currentPage <= 1;
+    if (pageNextBtn) pageNextBtn.disabled = currentPage >= totalPages;
+
     if (summary) {
-      summary.textContent = visibleCount + " sonuc gosteriliyor.";
+      const shown = Math.max(0, Math.min(pageSize, sorted.length - startIdx));
+      summary.textContent = sorted.length + " sonuctan " + shown + " tanesi gosteriliyor.";
     }
   }
 
@@ -173,6 +316,7 @@
     btn.addEventListener("click", () => {
       const wasActive = btn.classList.contains("active");
       groupButtons.forEach((b) => b.classList.remove("active"));
+      tierTabs.forEach((t) => t.classList.toggle("active", t.dataset.tier === "all"));
       const allAirlineCheckboxes = Array.from(document.querySelectorAll(".filter-airline"));
 
       if (wasActive) {
@@ -184,34 +328,89 @@
         });
         btn.classList.add("active");
       }
-      applyFilters();
+      currentPage = 1;
+      refresh();
     });
   });
 
-  stopsCheckboxes.forEach((cb) => cb.addEventListener("change", applyFilters));
-  airlinesContainer.addEventListener("change", applyFilters);
-  countriesContainer.addEventListener("change", applyFilters);
-  priceInput.addEventListener("input", () => {
-    updatePriceLabel();
-    applyFilters();
+  function setTier(tier) {
+    tierTabs.forEach((t) => t.classList.toggle("active", t.dataset.tier === tier));
+    groupButtons.forEach((b) => b.classList.remove("active"));
+    const allAirlineCheckboxes = Array.from(document.querySelectorAll(".filter-airline"));
+    if (tier === "budget") {
+      allAirlineCheckboxes.forEach((cb) => {
+        cb.checked = airlineComboMatchesGroup(cb.value, AIRLINE_GROUPS.budget);
+      });
+    } else if (tier === "premium") {
+      allAirlineCheckboxes.forEach((cb) => {
+        cb.checked = !airlineComboMatchesGroup(cb.value, AIRLINE_GROUPS.budget);
+      });
+    } else {
+      allAirlineCheckboxes.forEach((cb) => (cb.checked = true));
+    }
+    currentPage = 1;
+    refresh();
+  }
+  tierTabs.forEach((tab) => tab.addEventListener("click", () => setTier(tab.dataset.tier)));
+
+  stopsCheckboxes.forEach((cb) =>
+    cb.addEventListener("change", () => {
+      currentPage = 1;
+      refresh();
+    })
+  );
+  airlinesContainer.addEventListener("change", () => {
+    currentPage = 1;
+    refresh();
+  });
+  countriesContainer.addEventListener("change", () => {
+    currentPage = 1;
+    refresh();
   });
   durationInput.addEventListener("input", () => {
     updateDurationLabel();
-    applyFilters();
+    currentPage = 1;
+    refresh();
   });
+  if (sortSelect) {
+    sortSelect.addEventListener("change", () => {
+      currentPage = 1;
+      refresh();
+    });
+  }
+  if (pageSizeInput) {
+    pageSizeInput.addEventListener("input", () => {
+      currentPage = 1;
+      refresh();
+    });
+  }
+  if (pagePrevBtn) {
+    pagePrevBtn.addEventListener("click", () => {
+      currentPage = Math.max(1, currentPage - 1);
+      refresh();
+    });
+  }
+  if (pageNextBtn) {
+    pageNextBtn.addEventListener("click", () => {
+      currentPage += 1;
+      refresh();
+    });
+  }
 
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
       stopsCheckboxes.forEach((cb) => (cb.checked = true));
       document.querySelectorAll(".filter-airline, .filter-country").forEach((cb) => (cb.checked = true));
       groupButtons.forEach((btn) => btn.classList.remove("active"));
-      priceInput.value = String(priceMax);
+      tierTabs.forEach((t) => t.classList.toggle("active", t.dataset.tier === "all"));
       durationInput.value = String(durationMax);
-      updatePriceLabel();
       updateDurationLabel();
-      applyFilters();
+      if (sortSelect) sortSelect.value = "price";
+      if (pageSizeInput) pageSizeInput.value = "20";
+      currentPage = 1;
+      refresh();
     });
   }
 
-  applyFilters();
+  refresh();
 })();
