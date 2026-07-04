@@ -114,10 +114,13 @@
   }
 
   function syncScopeField() {
-    const showScope = !hasResolvedDestination() && !isHubMode();
+    const showScope = !hasResolvedDestination();
     if (scopeField) {
       scopeField.hidden = !showScope;
       scopeField.classList.toggle("field-hidden", !showScope);
+      scopeField.querySelectorAll("select, input").forEach((el) => {
+        el.disabled = !showScope;
+      });
     }
   }
 
@@ -184,9 +187,12 @@
       destinationLabel.textContent = "Varis (ulke / sehir / havalimani) — opsiyonel";
     }
     if (destinationHint) {
-      if (hub) {
+      if (hub && hasDest) {
         destinationHint.textContent =
-          "Hub secili: tum Avrupa hub'lari (FRA, AMS, CDG, LHR, MXP, MAD, FCO...) taranir.";
+          "Hub + belirli varis: Avrupa hub'larindan secilen varise gidilir.";
+      } else if (hub) {
+        destinationHint.textContent =
+          "Hub secili: Avrupa hub'larindan taranir. Asagidaki bolge hedefi varis ulkelerini belirler.";
       } else if (hasDest) {
         destinationHint.textContent =
           "Belirli varis secildi. Bolge hedefi devre disi — temizlemek icin 'Varisi temizle'.";

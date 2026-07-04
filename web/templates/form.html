@@ -20,7 +20,7 @@
 
     <div>
 
-      <p class="eyebrow">ucuzbilet.online · Geliştiren Ali Dinçer</p>
+      <p class="eyebrow">ucuzbilet.online · <span class="beta-badge">{{ beta_label }}</span> · Geliştiren Ali Dinçer</p>
 
       <h1>{{ title }}</h1>
 
@@ -90,7 +90,7 @@
           {% if search and (search.use_european_hubs or search.mode.value == 'hub_to_country') %}checked{% endif %}>
         Avrupa hub'larindan tara (FRA, AMS, CDG, LHR, MXP, MAD, FCO...)
       </label>
-      <p class="hint full" id="hub-hint" hidden>Hub seciliyken kalkis alani kullanilmaz. Tarih modunu asagidan secin.</p>
+      <p class="hint full" id="hub-hint" hidden>Hub: kalkis Avrupa hub'larindan olur. Bolge hedefi bagimsizdir — varis ulkelerini asagidan secebilirsiniz.</p>
 
       <label class="full">
         Arama modu

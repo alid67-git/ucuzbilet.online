@@ -1,0 +1,2 @@
+APP_VERSION = "0.4.0"
+BETA_BUILD = 1

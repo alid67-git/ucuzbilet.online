@@ -4,6 +4,8 @@ Google Flights uzerinden **en ucuz nereye gidebilirim** sorusuna cevap arayan ye
 
 Konum: `Documents/ucuzbilet.online`
 
+Surum: `app/version.py` icindeki `BETA_BUILD` — her canliya cikista +1 artirin (ornek: beta.1, beta.2).
+
 ## Ozellikler
 
 - **Kalkis:** ulke, sehir (tum havalimanlari) veya tek havalimani
