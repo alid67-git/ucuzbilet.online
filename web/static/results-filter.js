@@ -212,6 +212,16 @@
       .map((el) => el.value);
   }
 
+  /** Chip yoksa veya deger bos ise gec; aksi halde secili listeye bak. */
+  function matchesChipFilter(selector, value) {
+    const boxes = document.querySelectorAll(selector);
+    if (!boxes.length) return true;
+    const active = activeValues(selector);
+    if (!active.length) return false;
+    if (!value) return true;
+    return active.includes(value);
+  }
+
   function stopsMatches(stopsCount, activeStops) {
     if (stopsCount === null) return true;
     if (stopsCount === 0) return activeStops.includes("0");
@@ -248,7 +258,6 @@
 
   function cardsForCountryPricing() {
     const activeStops = activeValues(".filter-stops");
-    const activeAirlines = activeValues(".filter-airline");
     const maxDuration = Number(durationInput.value);
 
     return offerCards.filter((card) => {
@@ -256,7 +265,7 @@
       const airline = card.dataset.airline;
       const duration = numAttr(card, "duration");
       const stopsOk = stopsMatches(stopsCount, activeStops);
-      const airlineOk = !airline || activeAirlines.includes(airline);
+      const airlineOk = matchesChipFilter(".filter-airline", airline);
       const durationOk = duration === null || duration <= maxDuration;
       return stopsOk && airlineOk && durationOk;
     });
@@ -322,9 +331,6 @@
 
   function refresh() {
     const activeStops = activeValues(".filter-stops");
-    const activeAirlines = activeValues(".filter-airline");
-    const activeCountries = activeValues(".filter-country");
-    const activeOriginCountries = activeValues(".filter-origin-country");
     const maxDuration = Number(durationInput.value);
 
     const passing = [];
@@ -336,9 +342,9 @@
       const duration = numAttr(card, "duration");
 
       const stopsOk = stopsMatches(stopsCount, activeStops);
-      const airlineOk = !airline || activeAirlines.includes(airline);
-      const countryOk = !country || activeCountries.includes(country);
-      const originCountryOk = !originCountry || activeOriginCountries.includes(originCountry);
+      const airlineOk = matchesChipFilter(".filter-airline", airline);
+      const countryOk = matchesChipFilter(".filter-country", country);
+      const originCountryOk = matchesChipFilter(".filter-origin-country", originCountry);
       const durationOk = duration === null || duration <= maxDuration;
 
       const ok = stopsOk && airlineOk && countryOk && originCountryOk && durationOk;
