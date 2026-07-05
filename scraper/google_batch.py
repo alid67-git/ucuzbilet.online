@@ -121,6 +121,12 @@ def _is_thy_offer(offer: ExploreOffer) -> bool:
     return bool(offer.airline) and "turkish airlines" in offer.airline.lower()
 
 
+def _flight_stops_count(flight, dest_code: str) -> int:
+    outbound_segments, _ = _split_outbound_return(flight.flights, dest_code)
+    leg_segments = outbound_segments or flight.flights
+    return max(0, len(leg_segments) - 1)
+
+
 def _should_supplement_thy(search: ExploreSearchRequest) -> bool:
     if search.prefer_thy:
         return False
@@ -276,6 +282,32 @@ def _search_sync(
                 )
             if cheapest_thy is not None and thy_query is not None:
                 chosen.append((cheapest_thy, thy_query))
+
+        # Yukaridaki garanti sadece "en ucuz" THY secenegini ekliyor -- THY'nin
+        # ucuz ama aktarmali bir bileti varsa, daha pahali olsa da direkt THY
+        # secenegi hic gorunmeyebilir ("Direkt" + "Sadece THY" filtresi birlikte
+        # kullanildiginda satir kaybolur). Direkt bir THY ucusu ayri olarak
+        # garanti edilir.
+        if max_stops != 0 and not any(
+            _is_thy_flight(f) and _flight_stops_count(f, dest_code) == 0 for f, _ in chosen
+        ):
+            direct_thy = next(
+                (f for f in valid if _is_thy_flight(f) and _flight_stops_count(f, dest_code) == 0),
+                None,
+            )
+            direct_thy_query = query
+            if direct_thy is None and _should_supplement_thy(search):
+                direct_thy, direct_thy_query = _fetch_cheapest_thy_flight(
+                    origin_code,
+                    dest_code,
+                    departure,
+                    return_date,
+                    search,
+                    one_way=one_way,
+                    max_stops=0,
+                )
+            if direct_thy is not None and direct_thy_query is not None:
+                chosen.append((direct_thy, direct_thy_query))
 
         destinations = destinations_for_search(
             search.destination_place(),
