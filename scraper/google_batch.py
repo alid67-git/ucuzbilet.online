@@ -476,7 +476,15 @@ class GoogleBatchScraper:
 
             multi_offers.extend(group_chosen)
 
-        return sorted(multi_offers, key=price_key)[:120]
+        # Genel 120 sonuc sinirlamasi, fiyatca ucuz olmayan hub'lardaki
+        # garanti THY secenegini disarida birakabiliyor -- oysa "Sadece THY"
+        # filtresinin butun amaci her hub'daki THY secenegini
+        # karsilastirabilmek. THY'li teklifler bu sinirlamadan muaf tutulur.
+        thy_offers = [o for o in multi_offers if _is_thy_offer(o)]
+        other_offers = [o for o in multi_offers if not _is_thy_offer(o)]
+        remaining_slots = max(0, 120 - len(thy_offers))
+        combined = thy_offers + sorted(other_offers, key=price_key)[:remaining_slots]
+        return sorted(combined, key=price_key)
 
     def _anchor_departure(self, search: ExploreSearchRequest) -> date:
         if search.date_from:
