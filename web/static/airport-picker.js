@@ -81,24 +81,42 @@
       dropdown.classList.add("open");
     }
 
+    async function fetchWithTimeout(url, ms) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      try {
+        return await fetch(url, { signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
     async function search(query) {
-      const response = await fetch("/api/places/search?q=" + encodeURIComponent(query));
-      if (!response.ok) return;
-      const data = await response.json();
-      renderItems(data);
+      try {
+        const response = await fetchWithTimeout("/api/places/search?q=" + encodeURIComponent(query), 8000);
+        if (!response.ok) return;
+        const data = await response.json();
+        renderItems(data);
+      } catch {
+        /* mobil ag hatasi/zaman asimi: sonuc listesi guncellenmez */
+      }
     }
 
     async function resolveQuery() {
       const query = input.value.trim();
       if (!query || hidden.value) return Boolean(hidden.value);
-      const response = await fetch("/api/places/resolve?q=" + encodeURIComponent(query));
-      if (!response.ok) return false;
-      const data = await response.json();
-      if (!data.id) return false;
-      hidden.value = data.id;
-      input.value = data.label;
-      input.dispatchEvent(new CustomEvent("place-selected", { detail: data, bubbles: false }));
-      return true;
+      try {
+        const response = await fetchWithTimeout("/api/places/resolve?q=" + encodeURIComponent(query), 8000);
+        if (!response.ok) return false;
+        const data = await response.json();
+        if (!data.id) return false;
+        hidden.value = data.id;
+        input.value = data.label;
+        input.dispatchEvent(new CustomEvent("place-selected", { detail: data, bubbles: false }));
+        return true;
+      } catch {
+        return false;
+      }
     }
 
     input.addEventListener("input", () => {
@@ -195,52 +213,63 @@
   if (form) {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-
-      const destInput = document.getElementById("destination-input");
-      const destHidden = document.getElementById("destination-place-id");
-      const originHidden = document.getElementById("origin-place-id");
-      const destText = destInput ? destInput.value.trim() : "";
-      const hub = isHubMode();
-
-      if (hub) {
-        if (originHidden) {
-          originHidden.value = "HUB_EU";
-        }
-        if (modeSelect?.value === "flexible") {
-          alert("Hub modu esnek taramayla kullanilamaz. Ucus fiyat taramasi secin.");
-          return;
-        }
-      } else if (originPicker) {
-        await originPicker.resolveQuery();
-        if (!originHidden.value) {
-          alert("Lutfen listeden bir kalkis noktasi secin (ornek: Italya — Tum havalimanlari).");
-          document.getElementById("origin-input").focus();
-          return;
-        }
-      }
-
-      if (destText && destPicker) {
-        await destPicker.resolveQuery();
-        if (!destHidden.value) {
-          alert("Varis cozulemedi. Listeden secin veya alani bos birakin (bolge hedefi kullanilir).");
-          destInput.focus();
-          return;
-        }
-      } else if (destHidden) {
-        destHidden.value = "";
-        if (destInput) {
-          destInput.value = "";
-        }
-      }
-
-      syncFormFieldsBeforeSubmit();
-
-      const submitter = event.submitter;
-      const targetAction =
-        (submitter && submitter.getAttribute("formaction")) || form.getAttribute("action") || form.action;
-      form.action = targetAction;
       window.SiteLoading?.show();
-      form.submit();
+
+      function abort(message, focusEl) {
+        window.SiteLoading?.hide();
+        alert(message);
+        if (focusEl) focusEl.focus();
+      }
+
+      try {
+        const destInput = document.getElementById("destination-input");
+        const destHidden = document.getElementById("destination-place-id");
+        const originHidden = document.getElementById("origin-place-id");
+        const destText = destInput ? destInput.value.trim() : "";
+        const hub = isHubMode();
+
+        if (hub) {
+          if (originHidden) {
+            originHidden.value = "HUB_EU";
+          }
+          if (modeSelect?.value === "flexible") {
+            abort("Hub modu esnek taramayla kullanilamaz. Ucus fiyat taramasi secin.");
+            return;
+          }
+        } else if (originPicker) {
+          await originPicker.resolveQuery();
+          if (!originHidden.value) {
+            abort(
+              "Lutfen listeden bir kalkis noktasi secin (ornek: Italya — Tum havalimanlari).",
+              document.getElementById("origin-input")
+            );
+            return;
+          }
+        }
+
+        if (destText && destPicker) {
+          await destPicker.resolveQuery();
+          if (!destHidden.value) {
+            abort("Varis cozulemedi. Listeden secin veya alani bos birakin (bolge hedefi kullanilir).", destInput);
+            return;
+          }
+        } else if (destHidden) {
+          destHidden.value = "";
+          if (destInput) {
+            destInput.value = "";
+          }
+        }
+
+        syncFormFieldsBeforeSubmit();
+
+        const submitter = event.submitter;
+        const targetAction =
+          (submitter && submitter.getAttribute("formaction")) || form.getAttribute("action") || form.action;
+        form.action = targetAction;
+        form.submit();
+      } catch {
+        abort("Beklenmeyen bir hata olustu. Lutfen tekrar deneyin.");
+      }
     });
   }
 })();
