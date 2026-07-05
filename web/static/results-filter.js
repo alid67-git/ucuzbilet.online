@@ -20,7 +20,7 @@
   const summary = document.getElementById("filter-summary");
   const priceRangeHighlight = document.getElementById("price-range-highlight");
   const sortSelect = document.getElementById("sort-select");
-  const paginationControls = document.getElementById("pagination-controls");
+  const paginationBar = document.getElementById("pagination-bar");
   const pageSizeInput = document.getElementById("page-size-input");
   const pagePrevBtn = document.getElementById("page-prev");
   const pageNextBtn = document.getElementById("page-next");
@@ -364,7 +364,7 @@
     if (sortMode === "country") {
       restoreGroupedView();
       flatContainer.hidden = true;
-      if (paginationControls) paginationControls.hidden = true;
+      if (paginationBar) paginationBar.hidden = true;
 
       countryGroups.forEach((group) => {
         const cards = Array.from(group.querySelectorAll(".offer"));
@@ -386,7 +386,7 @@
     flatContainer.hidden = false;
     sorted.forEach((card) => flatContainer.appendChild(card));
 
-    if (paginationControls) paginationControls.hidden = false;
+    if (paginationBar) paginationBar.hidden = false;
     const pageSize = Math.max(1, Number(pageSizeInput.value) || 20);
     const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
     if (currentPage > totalPages) currentPage = totalPages;
@@ -549,6 +549,27 @@
       refresh();
     });
   }
+
+  function setChipChecks(className, checked) {
+    document.querySelectorAll("." + className).forEach((cb) => {
+      cb.checked = checked;
+    });
+    currentPage = 1;
+    if (className === "filter-airline") {
+      refreshCountryPriceLabels();
+    }
+    refresh();
+  }
+
+  filtersPanel.addEventListener("click", (event) => {
+    const selectAllBtn = event.target.closest("[data-chip-select-all]");
+    const selectNoneBtn = event.target.closest("[data-chip-select-none]");
+    if (selectAllBtn) {
+      setChipChecks(selectAllBtn.dataset.chipSelectAll, true);
+    } else if (selectNoneBtn) {
+      setChipChecks(selectNoneBtn.dataset.chipSelectNone, false);
+    }
+  });
 
   refresh();
   applyTierTabLabels();

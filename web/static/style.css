@@ -317,6 +317,16 @@ input, select {
   font-size: 1.05rem;
 }
 
+.booking-link-wrap {
+  margin-top: 0.35rem;
+}
+
+.booking-link-note {
+  margin: 0.2rem 0 0;
+  line-height: 1.35;
+  max-width: 36rem;
+}
+
 .trip-type-tab.active {
   background: var(--gradient-hero);
   color: white;
@@ -718,8 +728,29 @@ input, select {
   overflow-y: auto;
 }
 
+.filter-chip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
 #pagination-controls {
   gap: 0.5rem;
+}
+
+.pagination-bar {
+  display: flex;
+  justify-content: center;
+  margin: 1.25rem 0 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border, #e8ecf0);
+}
+
+.page-bottom-actions {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0 2rem;
 }
 
 .pagination-nav {

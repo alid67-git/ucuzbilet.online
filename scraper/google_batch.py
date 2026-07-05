@@ -1,13 +1,75 @@
 import asyncio
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from fast_flights import FlightQuery, Passengers, create_query, get_flights
+from fast_flights.model import SimpleDatetime, SingleFlight
 
 from app.explore_data import alliance_airlines, canonical_country, destination_codes_for_search, destinations_for_search, origin_codes_for_search
 from app.miles import estimate_flight_miles
 from app.models import ExploreMode, ExploreOffer, ExploreSearchRequest
 from app.places import get_place
 from app.regions import country_name_by_code
+
+
+def _simple_datetime_to_dt(value: SimpleDatetime) -> datetime:
+    year, month, day = value.date
+    hour = value.time[0] if value.time else 0
+    minute = value.time[1] if len(value.time) > 1 else 0
+    return datetime(year, month, day, hour, minute)
+
+
+def _elapsed_minutes(segments: list[SingleFlight]) -> int:
+    """Total journey time: air time plus layovers (matches Google Flights display)."""
+    if not segments:
+        return 0
+    total = 0
+    for index, segment in enumerate(segments):
+        total += segment.duration
+        if index + 1 >= len(segments):
+            continue
+        arrival = _simple_datetime_to_dt(segment.arrival)
+        departure = _simple_datetime_to_dt(segments[index + 1].departure)
+        if departure < arrival:
+            departure += timedelta(days=1)
+        total += max(0, int((departure - arrival).total_seconds() // 60))
+    return total
+
+
+def _split_outbound_return(
+    segments: list[SingleFlight],
+    dest_code: str,
+) -> tuple[list[SingleFlight], list[SingleFlight]]:
+    dest = dest_code.upper()
+    outbound: list[SingleFlight] = []
+    inbound: list[SingleFlight] = []
+    past_dest = False
+    for segment in segments:
+        if not past_dest:
+            outbound.append(segment)
+            if (segment.to_airport.code or "").upper() == dest:
+                past_dest = True
+        else:
+            inbound.append(segment)
+    if not inbound:
+        return segments, []
+    return outbound, inbound
+
+
+def _display_journey_minutes(
+    segments: list[SingleFlight],
+    dest_code: str,
+    one_way: bool,
+) -> int:
+    if not segments:
+        return 0
+    if one_way:
+        return _elapsed_minutes(segments)
+    outbound, _ = _split_outbound_return(segments, dest_code)
+    return _elapsed_minutes(outbound or segments)
+
+
+def _format_duration(minutes: int) -> str:
+    return f"{minutes // 60} sa {minutes % 60} dk"
 
 
 def _parse_price_amount(price: int | str | None) -> tuple[float | None, str]:
@@ -159,8 +221,10 @@ def _search_sync(
         offers = []
         for flight in chosen:
             amount, currency = _parse_price_amount(flight.price)
-            stops_count = max(0, len(flight.flights) - 1)
-            total_minutes = sum(seg.duration for seg in flight.flights)
+            outbound_segments, _ = _split_outbound_return(flight.flights, dest_code)
+            leg_segments = outbound_segments or flight.flights
+            stops_count = max(0, len(leg_segments) - 1)
+            total_minutes = _display_journey_minutes(flight.flights, dest_code, one_way)
             segment_codes = [
                 (seg.from_airport.code, seg.to_airport.code)
                 for seg in flight.flights
@@ -186,7 +250,7 @@ def _search_sync(
                     date_summary=date_summary,
                     departure_date=dep_text,
                     return_date=ret_text,
-                    duration=f"{total_minutes // 60} sa {total_minutes % 60} dk",
+                    duration=_format_duration(total_minutes),
                     duration_minutes=total_minutes,
                     stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
                     stops_count=stops_count,

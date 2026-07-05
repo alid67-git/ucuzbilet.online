@@ -99,16 +99,28 @@
 
             <details class="filter-details">
               <summary id="filter-airlines-summary" data-i18n="filter_airline">{{ t.filter_airline }}</summary>
+              <div class="filter-chip-actions">
+                <button type="button" class="button small" data-chip-select-all="filter-airline" data-i18n="filter_select_all">{{ t.filter_select_all }}</button>
+                <button type="button" class="button small" data-chip-select-none="filter-airline" data-i18n="filter_select_none">{{ t.filter_select_none }}</button>
+              </div>
               <div id="filter-airlines" class="filter-chip-row"></div>
             </details>
 
             <details class="filter-details filter-details-open" open>
               <summary id="filter-origin-countries-summary" data-i18n="filter_departure_country">{{ t.filter_departure_country }}</summary>
+              <div class="filter-chip-actions">
+                <button type="button" class="button small" data-chip-select-all="filter-origin-country" data-i18n="filter_select_all">{{ t.filter_select_all }}</button>
+                <button type="button" class="button small" data-chip-select-none="filter-origin-country" data-i18n="filter_select_none">{{ t.filter_select_none }}</button>
+              </div>
               <div id="filter-origin-countries" class="filter-chip-row"></div>
             </details>
 
             <details class="filter-details filter-details-open" open>
               <summary id="filter-countries-summary" data-i18n="filter_destination_country">{{ t.filter_destination_country }}</summary>
+              <div class="filter-chip-actions">
+                <button type="button" class="button small" data-chip-select-all="filter-country" data-i18n="filter_select_all">{{ t.filter_select_all }}</button>
+                <button type="button" class="button small" data-chip-select-none="filter-country" data-i18n="filter_select_none">{{ t.filter_select_none }}</button>
+              </div>
               <div id="filter-countries" class="filter-chip-row"></div>
             </details>
 
@@ -131,11 +143,6 @@
             <div class="filter-group" id="pagination-controls">
               <span class="filter-label" data-i18n="page_size_label">{{ t.page_size_label }}</span>
               <input type="number" id="page-size-input" min="5" max="200" value="20">
-              <div class="pagination-nav">
-                <button type="button" class="button small" id="page-prev" data-i18n="page_prev">{{ t.page_prev }}</button>
-                <span id="page-indicator"></span>
-                <button type="button" class="button small" id="page-next" data-i18n="page_next">{{ t.page_next }}</button>
-              </div>
             </div>
 
             <div class="filter-group actions">
@@ -187,7 +194,10 @@
                 <p class="muted small">{{ offer.duration or '' }}{% if offer.stops %} · {{ offer.stops }}{% endif %}{% if offer.airline %} · {{ offer.airline }}{% endif %}</p>
                 {% endif %}
                 {% if offer.booking_url %}
-                <a href="{{ offer.booking_url }}" target="_blank" rel="noopener" data-i18n="view_flights_link">{{ t.view_flights_link }}</a>
+                <div class="booking-link-wrap">
+                  <a href="{{ offer.booking_url }}" target="_blank" rel="noopener" data-i18n="view_flights_link">{{ t.view_flights_link }}</a>
+                  <p class="muted small booking-link-note" data-i18n="google_link_note">{{ t.google_link_note }}</p>
+                </div>
                 {% endif %}
               </div>
               {% endfor %}
@@ -195,6 +205,14 @@
           </div>
           {% endfor %}
           <div id="flat-results" class="offers" hidden></div>
+
+          <div class="pagination-bar" id="pagination-bar" hidden>
+            <div class="pagination-nav">
+              <button type="button" class="button" id="page-prev" data-i18n="page_prev">{{ t.page_prev }}</button>
+              <span id="page-indicator"></span>
+              <button type="button" class="button" id="page-next" data-i18n="page_next">{{ t.page_next }}</button>
+            </div>
+          </div>
           {% endif %}
         </article>
         {% endfor %}
@@ -203,18 +221,11 @@
       {% endif %}
     </section>
 
-    <form method="post" action="/searches/{{ search.id }}/delete" id="delete-search-form">
-      <button class="button danger" type="submit" data-i18n="delete_search_button">{{ t.delete_search_button }}</button>
-    </form>
+    <div class="page-bottom-actions">
+      <a class="button primary" href="/search" data-i18n="new_search_button">{{ t.new_search_button }}</a>
+    </div>
   </main>
 {% endblock %}
 {% block scripts %}
-  <script>
-    document.getElementById("delete-search-form")?.addEventListener("submit", (event) => {
-      if (!confirm(window.SiteLocale ? window.SiteLocale.t("delete_confirm") : "{{ t.delete_confirm }}")) {
-        event.preventDefault();
-      }
-    });
-  </script>
   <script src="/static/results-filter.js"></script>
 {% endblock %}
