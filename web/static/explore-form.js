@@ -414,13 +414,21 @@
   }
 
   modeSelect?.addEventListener("change", syncModePanels);
-  useReturnCheckbox?.addEventListener("change", syncTripDatePanel);
+  useReturnCheckbox?.addEventListener("change", () => {
+    syncTripDatePanel();
+    window.GfForm?.syncTripTriggerLabel?.();
+    window.GfForm?.syncDateDisplays?.();
+  });
   flexibleSearchCheckbox?.addEventListener("change", syncTripDatePanel);
   tripDeparture?.addEventListener("change", () => {
     syncReturnDateMinimum();
     syncTripDatePanel();
+    window.GfForm?.syncDateDisplays?.();
   });
-  tripReturn?.addEventListener("change", syncTripDatePanel);
+  tripReturn?.addEventListener("change", () => {
+    syncTripDatePanel();
+    window.GfForm?.syncDateDisplays?.();
+  });
   flexibilityDaysInput?.addEventListener("input", syncTripDatePanel);
 
   if (hubCheckbox) hubCheckbox.addEventListener("change", syncModePanels);
