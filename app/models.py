@@ -193,6 +193,7 @@ class ExploreOffer(BaseModel):
     duration_minutes: int | None = None
     stops: str | None = None
     stops_count: int | None = None
+    layover_summary: str | None = None
     airline: str | None = None
     summary: str | None = None
     booking_url: str | None = None

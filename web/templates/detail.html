@@ -201,6 +201,9 @@
                 {% if offer.duration or offer.stops %}
                 <p class="muted small">{{ offer.duration or '' }}{% if offer.stops %} · {{ offer.stops }}{% endif %}{% if offer.airline %} · {{ offer.airline }}{% endif %}</p>
                 {% endif %}
+                {% if offer.layover_summary %}
+                <p class="muted small layover-summary">{{ t.layover_prefix }}: {{ offer.layover_summary }}</p>
+                {% endif %}
                 {% if offer.booking_url %}
                 <div class="booking-link-wrap">
                   <a href="{{ offer.booking_url }}" target="_blank" rel="noopener" data-i18n="view_flights_link">{{ t.view_flights_link }}</a>

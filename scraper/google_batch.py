@@ -72,6 +72,27 @@ def _format_duration(minutes: int) -> str:
     return f"{minutes // 60} sa {minutes % 60} dk"
 
 
+def _layover_summary(segments: list[SingleFlight]) -> str | None:
+    """Her aktarma icin havalimani ve bekleme suresini ozetler."""
+    if len(segments) < 2:
+        return None
+    parts = []
+    for index in range(len(segments) - 1):
+        segment = segments[index]
+        next_segment = segments[index + 1]
+        arrival = _simple_datetime_to_dt(segment.arrival)
+        departure = _simple_datetime_to_dt(next_segment.departure)
+        if departure < arrival:
+            departure += timedelta(days=1)
+        wait_minutes = max(0, int((departure - arrival).total_seconds() // 60))
+        airport = segment.to_airport
+        code = airport.code or ""
+        name = airport.name or code
+        label = f"{name} ({code})" if code and code not in name else name or code
+        parts.append(f"{label}: {_format_duration(wait_minutes)}")
+    return " · ".join(parts)
+
+
 def _parse_price_amount(price: int | str | None) -> tuple[float | None, str]:
     if price is None:
         return None, "TRY"
@@ -368,6 +389,7 @@ def _search_sync(
                     duration_minutes=total_minutes,
                     stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
                     stops_count=stops_count,
+                    layover_summary=_layover_summary(leg_segments),
                     airline=", ".join(flight.airlines[:2]) if flight.airlines else None,
                     summary=f"{origin_code} → {dest_code}",
                     booking_url=booking_query.url(),
