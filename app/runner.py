@@ -9,7 +9,7 @@ from scraper.exceptions import BotBlockedError
 # asimlari genelde 60-100 sn civarindadir; bu sinirin altinda kalip
 # sonsuza kadar "donmus" gorunen bir istek yerine anlasilir bir hata donmek
 # icin genis kapsamli aramalari burada kesiyoruz.
-SEARCH_TIMEOUT_SECONDS = 50
+SEARCH_TIMEOUT_SECONDS = 70
 
 
 async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:

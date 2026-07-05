@@ -133,6 +133,14 @@ def _validate_flight_route(
 
 MAX_AIRLINE_VARIANTS_PER_ROUTE = 6
 
+# Esnek tarih (± gun) genis kalkis/varis secimleriyle (orn. "Turkiye - Tum
+# havalimanlari" + hub karsilastirmasi) birlestiginde toplam sorgu sayisi
+# patlayip aramanin zaman asimina ugramasina yol aciyordu. Kalkis/varis
+# cifti sayisina gore taranacak tarih sayisini sinirlayarak toplami
+# makul tutuyoruz (anchor tarihe en yakin tarihler oncelikli kalir).
+MAX_TOTAL_QUERIES = 90
+MAX_ORIGIN_DEST_PAIRS = 150
+
 
 def _is_thy_flight(flight) -> bool:
     return any("turkish airlines" in (a or "").lower() for a in (flight.airlines or []))
@@ -418,10 +426,20 @@ class GoogleBatchScraper:
             max_codes=10,
             target_airport_ids=search.target_airport_ids or None,
         )
+        if origin_codes and len(origin_codes) * len(destinations) > MAX_ORIGIN_DEST_PAIRS:
+            max_destinations = max(1, MAX_ORIGIN_DEST_PAIRS // len(origin_codes))
+            destinations = destinations[:max_destinations]
 
         departure_dates = self._build_departure_dates(search)
+        if len(departure_dates) > 1:
+            anchor = self._anchor_departure(search)
+            departure_dates = sorted(departure_dates, key=lambda d: abs((d - anchor).days))
+            total_pairs = len(origin_codes) * len(destinations)
+            max_dates = max(1, MAX_TOTAL_QUERIES // max(1, total_pairs))
+            departure_dates = departure_dates[:max_dates]
+
         tasks = []
-        semaphore = asyncio.Semaphore(4)
+        semaphore = asyncio.Semaphore(8)
 
         async def run_one(origin_code: str, dest: dict, dep: date) -> list[ExploreOffer]:
             if search.one_way and not search.use_return_date:
