@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ t.form_title }} | {{ t.site_name }}{% endblock %}
 {% block head_extra %}
-  <link rel="stylesheet" href="/static/gf-form.css">
+  <link rel="stylesheet" href="/static/gf-form.css?v={{ beta_build }}">
 {% endblock %}
 {% block body %}
   <aside class="site-backdrop" aria-hidden="true">
@@ -173,13 +173,19 @@
         </div>
 
         <div class="gf-calendar-popover" id="gf-calendar-popover" hidden>
-          <p class="gf-date-summary" id="trip-date-summary" aria-live="polite"></p>
-          <div class="visually-hidden" aria-hidden="true">
-            <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
-            <input type="date" name="date_to" id="trip-return" value="{{ trip_ret }}" {% if not has_return %}disabled{% endif %}>
+          <div class="gf-calendar-modal" id="gf-calendar-modal" role="dialog" aria-modal="true" aria-label="{{ t.date_heading }}">
+            <div class="gf-calendar-modal-head">
+              <span class="gf-calendar-modal-title">{{ t.date_heading }}</span>
+              <button type="button" class="gf-calendar-close" id="gf-calendar-close" aria-label="{{ t.clear_button }}">×</button>
+            </div>
+            <p class="gf-date-summary" id="trip-date-summary" aria-live="polite"></p>
+            <div class="visually-hidden" aria-hidden="true">
+              <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
+              <input type="date" name="date_to" id="trip-return" value="{{ trip_ret }}" {% if not has_return %}disabled{% endif %}>
+            </div>
+            <div class="fs-date-calendar" id="trip-date-calendar" aria-label="{{ t.date_heading }}"></div>
+            <input type="hidden" name="trip_days" id="trip-days" value="{{ search.trip_days if search else 5 }}">
           </div>
-          <div class="fs-date-calendar" id="trip-date-calendar" aria-label="{{ t.date_heading }}"></div>
-          <input type="hidden" name="trip_days" id="trip-days" value="{{ search.trip_days if search else 5 }}">
         </div>
       </section>
 
@@ -249,10 +255,10 @@
       window.__savedTargetAirports = [];
       {% endif %}
   </script>
-  <script src="/static/airport-picker.js"></script>
-  <script src="/static/region-picker.js"></script>
-  <script src="/static/destination-picker.js"></script>
-  <script src="/static/explore-form.js"></script>
-  <script src="/static/date-range-calendar.js"></script>
-  <script src="/static/gf-form.js"></script>
+  <script src="/static/airport-picker.js?v={{ beta_build }}"></script>
+  <script src="/static/region-picker.js?v={{ beta_build }}"></script>
+  <script src="/static/destination-picker.js?v={{ beta_build }}"></script>
+  <script src="/static/explore-form.js?v={{ beta_build }}"></script>
+  <script src="/static/date-range-calendar.js?v={{ beta_build }}"></script>
+  <script src="/static/gf-form.js?v={{ beta_build }}"></script>
 {% endblock %}

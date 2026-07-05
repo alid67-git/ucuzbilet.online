@@ -215,6 +215,16 @@
     }
   });
 
+  // Takvim artik tam ekran bir modal/backdrop; sadece backdrop'in kendisine
+  // (icerideki karta degil) veya kapat butonuna tiklaninca kapanmali.
+  calendarPopover?.addEventListener("click", (e) => {
+    if (e.target === calendarPopover) closeAll();
+  });
+  document.getElementById("gf-calendar-close")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeAll();
+  });
+
   document.getElementById("gf-dep-prev")?.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!depInput?.value) return;

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{ t.site_name }}{% endblock %}</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v={{ beta_build }}">
   {% block head_extra %}{% endblock %}
 </head>
 <body>
@@ -86,8 +86,8 @@
   <script>
     window.__LOCALE = {{ locale_json | safe }};
   </script>
-  <script src="/static/site.js"></script>
+  <script src="/static/site.js?v={{ beta_build }}"></script>
   {% block scripts %}{% endblock %}
-  <script src="/static/scroll-top.js"></script>
+  <script src="/static/scroll-top.js?v={{ beta_build }}"></script>
 </body>
 </html>
