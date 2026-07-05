@@ -106,6 +106,7 @@ def _leg_sync(origin_code: str, dest_code: str, departure: date, search: Explore
             "airline": ", ".join(flight.airlines[:2]) if flight.airlines else None,
             "departure_dt": _simple_datetime_to_dt(flight.flights[0].departure),
             "arrival_dt": _simple_datetime_to_dt(flight.flights[-1].arrival),
+            "stops_count": max(0, len(flight.flights) - 1),
         }
     except Exception:
         return None
@@ -203,3 +204,60 @@ async def find_self_transfer_offers(
 
     combos.sort(key=lambda o: o.price_amount if o.price_amount is not None else float("inf"))
     return combos[:HUB_COMBO_RESULT_CAP]
+
+
+async def find_separate_oneway_offers(
+    search: ExploreSearchRequest,
+    origin_code: str,
+    dest_code: str,
+    departure: date,
+    return_date: date,
+) -> list[ExploreOffer]:
+    """Gidis-donus aramasi az sonuc dondurduğünde, ayni rotanin gidis ve
+    donusunu (hub'siz) AYRI birer tek yon bilet olarak sorgular. Havayollari
+    bazen gidis-donus fiyatlandirmasinda gostermedigi ucuz secenekleri tek
+    yonlu aramada gosteriyor; bu da gercek bir "ayri bilet al" stratejisidir."""
+    origin_place = get_place(origin_code)
+    dest_place = get_place(dest_code)
+    if not origin_place or not dest_place:
+        return []
+
+    loop = asyncio.get_event_loop()
+    outbound, inbound = await asyncio.gather(
+        loop.run_in_executor(None, _leg_sync, origin_code, dest_code, departure, search),
+        loop.run_in_executor(None, _leg_sync, dest_code, origin_code, return_date, search),
+    )
+    if not outbound or not inbound:
+        return []
+
+    total_amount = outbound["amount"] + inbound["amount"]
+    outbound_minutes = int((outbound["arrival_dt"] - outbound["departure_dt"]).total_seconds() // 60)
+    airline_text = ", ".join(filter(None, [outbound["airline"], inbound["airline"]])) or None
+    stops_count = max(outbound["stops_count"], inbound["stops_count"])
+
+    return [
+        ExploreOffer(
+            destination=dest_place.city or dest_place.name,
+            destination_code=dest_code,
+            destination_city=dest_place.city or dest_place.name,
+            country=dest_place.country,
+            destination_country_code=dest_place.country_code,
+            origin_code=origin_code,
+            origin_city=origin_place.city or origin_place.name,
+            origin_country=origin_place.country,
+            origin_country_code=origin_place.country_code,
+            price_text=f"₺{round(total_amount):,}".replace(",", "."),
+            price_amount=total_amount,
+            currency="TRY",
+            date_summary=f"{departure.isoformat()} - {return_date.isoformat()}",
+            departure_date=departure.isoformat(),
+            return_date=return_date.isoformat(),
+            duration=f"{outbound_minutes // 60} sa {outbound_minutes % 60} dk",
+            duration_minutes=outbound_minutes,
+            stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
+            stops_count=stops_count,
+            airline=airline_text,
+            summary=f"{origin_code} → {dest_code}",
+            is_self_transfer=True,
+        )
+    ]

@@ -32,16 +32,10 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
         ExploreMode.FIXED_TRIP,
         ExploreMode.DATE_RANGE,
     ):
-        # Dogrudan sonuc hic gelmediyse veya cok azsa -- ozellikle uzak
-        # bolgeler arasinda (Avrupa/Ortadogu <-> Asya/Okyanusya/Amerika/
-        # Afrika) tek biletli itinerary hep bulunamayabiliyor/az cikabiliyor
-        # -- Korfez/Uzakdogu/Kuzey Amerika hub'lari uzerinden ayri biletli
-        # (self-transfer) kombinasyon deneniyor ve mevcut sonuclara EKLENIYOR.
-        # Bu tamamen otomatik ve en fazla hub-combo'nun kendi zaman
-        # butcesi kadar surer; hicbir zaman ana aramayi patlatmaz.
+        # Dogrudan sonuc hic gelmediyse veya cok azsa yedek aramalar deneniyor.
+        # Bunlarin hicbiri ana aramayi patlatmaz (try/except ile sarili) ve
+        # toplamda disaridaki SEARCH_TIMEOUT_SECONDS butcesi icinde kalir.
         try:
-            from app.hub_routes import find_self_transfer_offers
-
             dest_place = request.destination_place()
             origin_place = request.origin_place()
             departure = request.date_from or request.departure_date
@@ -51,10 +45,32 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                 origin_codes = expand_to_airport_codes(origin_place, max_airports=1)
                 dest_codes = expand_to_airport_codes(dest_place, max_airports=1)
                 if origin_codes and dest_codes and origin_codes[0] != dest_codes[0]:
-                    combo_offers = await find_self_transfer_offers(
-                        request, origin_codes[0], dest_codes[0], departure
-                    )
-                    offers = offers + combo_offers
+                    origin_code, dest_code = origin_codes[0], dest_codes[0]
+
+                    # 1) Gidis-donus sorgusu az sonuc dondurdugunde, ayni rotanin
+                    # gidis ve donusunu ayri birer tek yon bilet olarak sorgular
+                    # -- gidis-donus fiyatlandirmasinda gorunmeyen ucuz/farkli
+                    # havayolu secenekleri boylece yakalanabiliyor.
+                    if request.use_return_date and request.date_to:
+                        from app.hub_routes import find_separate_oneway_offers
+
+                        oneway_offers = await find_separate_oneway_offers(
+                            request, origin_code, dest_code, departure, request.date_to
+                        )
+                        offers = offers + oneway_offers
+
+                    # 2) Uzak bolgeler arasinda (Avrupa/Ortadogu <-> Asya/
+                    # Okyanusya/Amerika/Afrika) tek biletli itinerary hep
+                    # bulunamayabiliyor -- Korfez/Uzakdogu/Kuzey Amerika
+                    # hub'lari uzerinden ayri biletli (self-transfer)
+                    # kombinasyon deneniyor.
+                    if len(offers) < SPARSE_RESULT_THRESHOLD:
+                        from app.hub_routes import find_self_transfer_offers
+
+                        combo_offers = await find_self_transfer_offers(
+                            request, origin_code, dest_code, departure
+                        )
+                        offers = offers + combo_offers
         except Exception:
             pass
 
