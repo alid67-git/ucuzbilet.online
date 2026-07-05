@@ -2,6 +2,11 @@
 {% block title %}{{ t.form_title }} | {{ t.site_name }}{% endblock %}
 {% block body %}
   <main class="container container-narrow">
+    {% set has_return = search.use_return_date if search else true %}
+    {% if search and search.mode.value == 'date_range' and search.date_to and not search.flexible_departure_in_range %}
+      {% set has_return = true %}
+    {% endif %}
+    {% set trip_dep = search.date_from if search and search.date_from else (search.departure_date if search and search.departure_date else today) %}
     <form class="panel search-form" method="post" action="/search/run" id="search-form">
 
       <header class="form-page-head">
@@ -108,12 +113,11 @@
         <p class="hint compact-hint" id="origin-hub-note" hidden data-i18n="origin_hub_note">{{ t.origin_hub_note }}</p>
         <p class="hint compact-hint" id="destination-hint" hidden data-i18n="dest_hint_empty">{{ t.dest_hint_empty }}</p>
         <p class="hint compact-hint" id="hub-hint" hidden data-i18n="hub_hint">{{ t.hub_hint }}</p>
-      </section>
 
-      <!-- 2. Bolge hedefi -->
-      <section class="form-section" id="scope-field">
-        <h2 class="form-section-title" data-i18n="explore_heading">{{ t.explore_heading }}</h2>
-        <label for="target-continent" data-i18n="continent_label">{{ t.continent_label }}</label>
+        <!-- Bolge hedefi: varisin hemen altinda -->
+        <div class="explore-inline" id="scope-field">
+          <h2 class="form-section-title explore-inline-title" data-i18n="explore_heading">{{ t.explore_heading }}</h2>
+          <label for="target-continent" data-i18n="continent_label">{{ t.continent_label }}</label>
         <select name="destination_scope" id="target-continent" class="full-width-select">
           <option value="anywhere" data-i18n="continent_anywhere" {% if not search or search.destination_scope.value == 'anywhere' %}selected{% endif %}>{{ t.continent_anywhere }}</option>
           <option value="americas" data-i18n="continent_americas" {% if search and search.destination_scope.value == 'americas' %}selected{% endif %}>{{ t.continent_americas }}</option>
@@ -123,8 +127,9 @@
           <option value="africa" data-i18n="continent_africa" {% if search and search.destination_scope.value == 'africa' %}selected{% endif %}>{{ t.continent_africa }}</option>
           <option value="oceania" data-i18n="continent_oceania" {% if search and search.destination_scope.value == 'oceania' %}selected{% endif %}>{{ t.continent_oceania }}</option>
         </select>
-        <div id="country-grid" class="country-grid country-grid-compact"></div>
-        <p class="hint compact-hint" id="country-selection-hint" data-i18n="continent_hint">{{ t.continent_hint }}</p>
+          <div id="country-grid" class="country-grid country-grid-compact"></div>
+          <p class="hint compact-hint" id="country-selection-hint" data-i18n="continent_hint">{{ t.continent_hint }}</p>
+        </div>
       </section>
 
       <section class="form-section" id="destination-airports-field" hidden>
@@ -133,36 +138,29 @@
         <p class="hint compact-hint" id="destination-airport-hint" data-i18n="dest_airports_hint">{{ t.dest_airports_hint }}</p>
       </section>
 
-      <!-- 3. Tarih -->
-      {% set has_return = search.use_return_date if search else false %}
-      {% if search and search.mode.value == 'date_range' and search.date_to and not search.flexible_departure_in_range %}
-        {% set has_return = true %}
-      {% endif %}
-      {% set trip_dep = search.date_from if search and search.date_from else (search.departure_date if search and search.departure_date else today) %}
-
+      <!-- 3. Tarih: tek takvim ile gidis-donus secimi -->
       <section class="form-section" id="trip-date-panel">
         <h2 class="form-section-title" data-i18n="date_heading">{{ t.date_heading }}</h2>
 
-        <div class="date-range-row date-range-row-clean">
-          <label>
-            <span data-i18n="date_departure">{{ t.date_departure }}</span>
-            <div class="date-input-row">
-              <button type="button" class="date-shift" data-target="trip-departure" data-delta="-1" aria-label="-1">‹</button>
-              <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
-              <button type="button" class="date-shift" data-target="trip-departure" data-delta="1" aria-label="+1">›</button>
-            </div>
-          </label>
-          <label id="return-date-field">
-            <span data-i18n="date_return">{{ t.date_return }}</span>
-            <div class="date-input-row">
-              <button type="button" class="date-shift" data-target="trip-return" data-delta="-1" aria-label="-1">‹</button>
-              <input type="date" name="date_to" id="trip-return"
-                value="{{ search.date_to if search and search.date_to else default_range_end }}"
-                {% if not has_return %}disabled{% endif %}>
-              <button type="button" class="date-shift" data-target="trip-return" data-delta="1" aria-label="+1">›</button>
-            </div>
-          </label>
+        <div class="cal-chips" id="cal-chips">
+          <button type="button" class="cal-chip cal-chip-dep" id="cal-chip-dep">
+            <span class="cal-chip-label" data-i18n="date_departure">{{ t.date_departure }}</span>
+            <strong class="cal-chip-value" id="cal-chip-dep-value">—</strong>
+          </button>
+          <button type="button" class="cal-chip cal-chip-ret" id="cal-chip-ret">
+            <span class="cal-chip-label" data-i18n="date_return">{{ t.date_return }}</span>
+            <strong class="cal-chip-value" id="cal-chip-ret-value">—</strong>
+          </button>
         </div>
+
+        <div class="visually-hidden" aria-hidden="true">
+          <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
+          <input type="date" name="date_to" id="trip-return"
+            value="{{ search.date_to if search and search.date_to else default_return }}"
+            {% if not has_return %}disabled{% endif %}>
+        </div>
+
+        <div class="fs-date-calendar" id="trip-date-calendar" aria-label="{{ t.date_heading }}"></div>
 
         <div class="form-inline-options">
           <label class="checkbox">
@@ -227,4 +225,5 @@
   <script src="/static/region-picker.js"></script>
   <script src="/static/destination-picker.js"></script>
   <script src="/static/explore-form.js"></script>
+  <script src="/static/date-range-calendar.js"></script>
 {% endblock %}

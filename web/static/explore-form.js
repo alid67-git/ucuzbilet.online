@@ -417,7 +417,7 @@
   useReturnCheckbox?.addEventListener("change", syncTripDatePanel);
   flexibleSearchCheckbox?.addEventListener("change", syncTripDatePanel);
   tripDeparture?.addEventListener("change", () => {
-    resetReturnDateToDeparture();
+    syncReturnDateMinimum();
     syncTripDatePanel();
   });
   tripReturn?.addEventListener("change", syncTripDatePanel);

@@ -1387,6 +1387,209 @@ input, select {
   cursor: not-allowed;
 }
 
+/* --- Varisin altinda kesfet blogu --- */
+.explore-inline {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.explore-inline-title {
+  margin-bottom: 0.6rem;
+}
+
+/* --- Tek takvim: gidis-donus chip'leri --- */
+.cal-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.cal-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.cal-chip-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cal-chip-value {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.cal-chip-dep.active,
+.cal-chip-dep:hover {
+  border-color: var(--secondary);
+  background: rgba(14, 165, 160, 0.06);
+}
+
+.cal-chip-dep.active {
+  box-shadow: 0 0 0 2px rgba(14, 165, 160, 0.2);
+}
+
+.cal-chip-dep .cal-chip-label {
+  color: #0d9488;
+}
+
+.cal-chip-ret.active,
+.cal-chip-ret:hover {
+  border-color: var(--primary);
+  background: rgba(232, 93, 74, 0.05);
+}
+
+.cal-chip-ret.active {
+  box-shadow: 0 0 0 2px rgba(232, 93, 74, 0.18);
+}
+
+.cal-chip-ret .cal-chip-label {
+  color: var(--primary-dark);
+}
+
+.cal-chip[hidden] {
+  display: none;
+}
+
+/* --- Tek takvim: ay gorunumu --- */
+.fs-date-calendar {
+  max-width: 24rem;
+}
+
+.fs-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fs-cal-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.fs-cal-nav {
+  border: 0;
+  background: #f2ede4;
+  color: var(--text);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.fs-cal-nav:hover {
+  background: var(--sand);
+}
+
+.fs-cal-weekdays,
+.fs-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.2rem;
+}
+
+.fs-cal-weekdays {
+  margin-bottom: 0.35rem;
+}
+
+.fs-cal-weekdays span {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.fs-cal-day,
+.fs-cal-pad {
+  aspect-ratio: 1;
+  min-height: 2.1rem;
+}
+
+.fs-cal-day {
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.fs-cal-day:hover:not(:disabled) {
+  background: var(--sand);
+}
+
+.fs-cal-day.fs-cal-today {
+  box-shadow: inset 0 0 0 1.5px var(--secondary);
+}
+
+.fs-cal-day.fs-cal-in-range {
+  background: rgba(14, 165, 160, 0.18);
+  color: #0f766e;
+  border-radius: 4px;
+}
+
+.fs-cal-day.fs-cal-start,
+.fs-cal-day.fs-cal-end {
+  background: var(--secondary);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(14, 165, 160, 0.35);
+}
+
+.fs-cal-day.fs-cal-end {
+  background: var(--primary);
+  box-shadow: 0 2px 8px rgba(232, 93, 74, 0.35);
+}
+
+.fs-cal-day.fs-cal-selected {
+  background: var(--secondary);
+  color: white;
+  font-weight: 700;
+}
+
+.fs-cal-day.fs-cal-start {
+  border-radius: 10px 4px 4px 10px;
+}
+
+.fs-cal-day.fs-cal-end {
+  border-radius: 4px 10px 10px 4px;
+}
+
+.fs-cal-day.fs-cal-start.fs-cal-end {
+  border-radius: 10px;
+}
+
+.fs-cal-day:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* --- Bekleme overlay'i: donen ucak + dunya --- */
 .loading-overlay {
   position: fixed;
