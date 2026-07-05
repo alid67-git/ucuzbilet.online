@@ -2,6 +2,10 @@
   const modeSelect = document.getElementById("mode-select");
   const tripDatePanel = document.getElementById("trip-date-panel");
   const scopeField = document.getElementById("scope-field");
+  const hubComboField = document.getElementById("hub-combo-checkbox-field");
+  const destinationField = document.getElementById("destination-field");
+  const hubComboCheckbox = document.getElementById("enable-hub-combo");
+  let destinationType = destinationField ? destinationField.dataset.destinationType || "" : "";
   const hubCheckbox = document.getElementById("use-european-hubs");
   const hubHint = document.getElementById("hub-hint");
   const destinationHint = document.getElementById("destination-hint");
@@ -162,6 +166,14 @@
     }
   }
 
+  function syncHubComboField() {
+    if (!hubComboField) return;
+    const show = hasResolvedDestination() && !isHubMode() && destinationType !== "country";
+    hubComboField.hidden = !show;
+    hubComboField.classList.toggle("field-hidden", !show);
+    if (!show && hubComboCheckbox) hubComboCheckbox.checked = false;
+  }
+
   function syncOriginField() {
     const hub = isHubMode();
     if (hub) {
@@ -223,7 +235,9 @@
   function clearDestination() {
     if (destInput) destInput.value = "";
     if (destHidden) destHidden.value = "";
+    destinationType = "";
     syncScopeField();
+    syncHubComboField();
     syncHints();
   }
 
@@ -409,6 +423,7 @@
     syncFlexibleOption();
     syncOriginField();
     syncScopeField();
+    syncHubComboField();
     syncHints();
     syncTripDatePanel();
   }
@@ -442,11 +457,15 @@
   if (destInput) {
     destInput.addEventListener("input", () => {
       if (!destInput.value.trim() && destHidden) destHidden.value = "";
+      if (!destInput.value.trim()) destinationType = "";
       syncScopeField();
+      syncHubComboField();
       syncHints();
     });
-    destInput.addEventListener("place-selected", () => {
+    destInput.addEventListener("place-selected", (event) => {
+      destinationType = event.detail?.type || "";
       syncScopeField();
+      syncHubComboField();
       syncHints();
     });
   }

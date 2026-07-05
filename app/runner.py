@@ -1,6 +1,7 @@
 import asyncio
 from datetime import UTC, datetime
 
+from app.hub_routes import scrape_hub_combos
 from app.models import ExploreMode, ExploreSearchRequest, SavedSearch, SearchRunResult
 from scraper.google_batch import GoogleBatchScraper
 from scraper.exceptions import BotBlockedError
@@ -10,6 +11,11 @@ from scraper.exceptions import BotBlockedError
 # sonsuza kadar "donmus" gorunen bir istek yerine anlasilir bir hata donmek
 # icin genis kapsamli aramalari burada kesiyoruz.
 SEARCH_TIMEOUT_SECONDS = 50
+
+# Hub-combo (self-transfer) taramasi direkt aramadan sonra, kendi ayri
+# zaman asimi butcesiyle calisir; dis SEARCH_TIMEOUT_SECONDS icinde kalir ve
+# hicbir zaman ana aramanin basarisini etkilemez.
+HUB_COMBO_TIMEOUT_SECONDS = 35
 
 
 async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
@@ -72,6 +78,16 @@ async def run_search(saved: SavedSearch) -> list[SearchRunResult]:
             status = "partial"
             message = "Sonuc bulunamadi. Tarih araligini genisletin veya filteleri gevsetin."
 
+        hub_combo_offers = []
+        if request.enable_hub_combo:
+            try:
+                hub_combo_offers = await asyncio.wait_for(
+                    scrape_hub_combos(request), timeout=HUB_COMBO_TIMEOUT_SECONDS
+                )
+            except Exception:
+                hub_combo_offers = []
+                message += " (Ayri bilet/self-transfer sonuclari zaman asimina ugradi.)"
+
         return [
             SearchRunResult(
                 search_id=saved.id,
@@ -80,6 +96,7 @@ async def run_search(saved: SavedSearch) -> list[SearchRunResult]:
                 status=status,
                 message=message,
                 offers=offers,
+                hub_combo_offers=hub_combo_offers,
                 scraped_at=scraped_at,
             )
         ]

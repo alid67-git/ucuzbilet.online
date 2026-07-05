@@ -45,6 +45,7 @@
         <li><span data-i18n="passenger_label">{{ t.passenger_label }}</span>: {{ search.adults }} {{ t.adult_short }}, {{ search.children }} {{ t.child_short }}</li>
         {% if search.max_price %}<li><span data-i18n="max_price_label">{{ t.max_price_label }}</span>: {{ search.max_price }} TRY</li>{% endif %}
         {% if search.max_stops == 0 %}<li data-i18n="direct_only_label">{{ t.direct_only_label }}</li>{% elif search.max_stops is not none %}<li><span data-i18n="max_stops_label">{{ t.max_stops_label }}</span>: {{ search.max_stops }}</li>{% endif %}
+        {% if search.enable_hub_combo %}<li data-i18n="hub_combo_checkbox_label">{{ t.hub_combo_checkbox_label }}</li>{% endif %}
       </ul>
     </section>
 
@@ -219,6 +220,50 @@
               <button type="button" class="button" id="page-prev" data-i18n="page_prev">{{ t.page_prev }}</button>
               <span id="page-indicator"></span>
               <button type="button" class="button" id="page-next" data-i18n="page_next">{{ t.page_next }}</button>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if result.hub_combo_offers %}
+          <div class="hub-combo-section">
+            <h3 data-i18n="hub_combo_heading">{{ t.hub_combo_heading }}</h3>
+            <p class="hint" data-i18n="hub_combo_risk_note">{{ t.hub_combo_risk_note }}</p>
+            <div class="offers">
+              {% for combo in result.hub_combo_offers %}
+              {% set r1 = combo.leg1|route_display %}
+              {% set r2 = combo.leg2|route_display %}
+              <div class="offer hub-combo-offer{% if combo.risky %} hub-combo-offer-risky{% endif %}">
+                <div class="offer-route">
+                  <strong class="route">
+                    <span class="route-end">
+                      {% if r1.origin_flag %}<span class="flag" title="{{ r1.origin_country or '' }}">{{ r1.origin_flag }}</span>{% endif %}
+                      <span class="route-place">{{ r1.origin_city }}{% if r1.origin_code %} <span class="iata">({{ r1.origin_code }})</span>{% endif %}</span>
+                    </span>
+                    <span class="route-arrow">→</span>
+                    <span class="route-end">
+                      <span class="route-place">{{ combo.hub_city or combo.hub_code }} <span class="iata">({{ combo.hub_code }})</span></span>
+                    </span>
+                    <span class="route-arrow">→</span>
+                    <span class="route-end">
+                      {% if r2.destination_flag %}<span class="flag" title="{{ r2.destination_country or '' }}">{{ r2.destination_flag }}</span>{% endif %}
+                      <span class="route-place">{{ r2.destination_city }}{% if r2.destination_code %} <span class="iata">({{ r2.destination_code }})</span>{% endif %}</span>
+                    </span>
+                  </strong>
+                  <div class="offer-meta-right">
+                    {% if combo.risky %}<span class="hub-combo-risky-badge" data-i18n="hub_combo_risky_badge">{{ t.hub_combo_risky_badge }}</span>{% endif %}
+                    <span class="price"><span data-i18n="hub_combo_total_label">{{ t.hub_combo_total_label }}</span>: ₺{{ "{:,.0f}".format(combo.total_cost).replace(",", ".") }}</span>
+                  </div>
+                </div>
+                <p class="muted small">
+                  {{ combo.leg1.price_text }} + {{ combo.leg2.price_text }}
+                  · <span data-i18n="hub_combo_baggage_label">{{ t.hub_combo_baggage_label }}</span>: ~₺{{ "{:,.0f}".format(combo.baggage_estimate).replace(",", ".") }}
+                  · <span data-i18n="hub_combo_connection_label">{{ t.hub_combo_connection_label }}</span>: {{ combo.connection_hours }} sa
+                </p>
+                <p class="muted small">
+                  {{ combo.leg1.airline or '' }}{% if combo.leg1.airline and combo.leg2.airline %} · {% endif %}{{ combo.leg2.airline or '' }}
+                </p>
+              </div>
+              {% endfor %}
             </div>
           </div>
           {% endif %}

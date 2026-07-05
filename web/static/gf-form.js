@@ -272,6 +272,43 @@
   depInput?.addEventListener("change", syncDateDisplays);
   retInput?.addEventListener("change", syncDateDisplays);
 
+  document.querySelectorAll(".route-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const originInput = document.getElementById("origin-input");
+      const originHidden = document.getElementById("origin-place-id");
+      const destInput = document.getElementById("destination-input");
+      const destHidden = document.getElementById("destination-place-id");
+      const hubCheckbox = document.getElementById("use-european-hubs");
+      if (!originInput || !originHidden || !destInput || !destHidden) return;
+
+      // Hub modu acikken origin alani devre disi kalir; belirli bir kalkis
+      // secmek istedigimiz icin once hub modunu kapatiyoruz.
+      if (hubCheckbox && hubCheckbox.checked) {
+        hubCheckbox.checked = false;
+        hubCheckbox.dispatchEvent(new Event("change"));
+      }
+
+      const originPlace = {
+        id: chip.dataset.originCode,
+        type: "airport",
+        label: chip.dataset.originLabel,
+      };
+      const destPlace = {
+        id: chip.dataset.destCode,
+        type: "airport",
+        label: chip.dataset.destLabel,
+      };
+
+      originInput.value = originPlace.label;
+      originHidden.value = originPlace.id;
+      originInput.dispatchEvent(new CustomEvent("place-selected", { detail: originPlace }));
+
+      destInput.value = destPlace.label;
+      destHidden.value = destPlace.id;
+      destInput.dispatchEvent(new CustomEvent("place-selected", { detail: destPlace }));
+    });
+  });
+
   syncTripTriggerLabel();
   syncPassengerHidden();
   syncCabinTrigger();

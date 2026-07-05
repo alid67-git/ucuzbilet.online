@@ -17,6 +17,19 @@
       <p class="subtitle" data-i18n="site_tagline">{{ t.site_tagline }}</p>
     </section>
 
+    {% if popular_routes %}
+    <section class="popular-routes-strip" aria-label="Populer rotalar">
+      {% for route in popular_routes %}
+      <button type="button" class="route-chip"
+        data-origin-code="{{ route.origin_code }}" data-origin-label="{{ route.origin_label }}"
+        data-dest-code="{{ route.dest_code }}" data-dest-label="{{ route.dest_label }}">
+        <span class="route-chip-cities">{{ route.origin_city }} → {{ route.dest_city }}</span>
+        <span class="route-chip-flag" aria-hidden="true">{{ route.dest_flag }}</span>
+      </button>
+      {% endfor %}
+    </section>
+    {% endif %}
+
     {% set has_return = search.use_return_date if search else true %}
     {% if search and search.mode.value == 'date_range' and search.date_to and not search.flexible_departure_in_range %}
       {% set has_return = true %}
@@ -115,7 +128,7 @@
 
           <button type="button" class="gf-swap" id="swap-places" title="{{ t.swap_places }}" aria-label="{{ t.swap_places }}">⇄</button>
 
-          <div class="gf-dest-block" id="destination-field">
+          <div class="gf-dest-block" id="destination-field" data-destination-type="{{ search.destination_place().type if search and search.destination_place() else '' }}">
             <div class="gf-field-stack">
               <span class="gf-field-caption"><span data-i18n="route_to">{{ t.route_to }}</span> <span class="label-optional">(<span data-i18n="optional_tag">{{ t.optional_tag }}</span>)</span></span>
               <label class="gf-field gf-field-dest">
@@ -127,6 +140,14 @@
               </label>
             </div>
             <div class="place-dropdown" id="destination-dropdown"></div>
+            <div class="gf-hub-row" id="hub-combo-checkbox-field" hidden>
+              <label class="gf-hub-check">
+                <input type="checkbox" name="enable_hub_combo" id="enable-hub-combo"
+                  {% if search and search.enable_hub_combo %}checked{% endif %}>
+                <span data-i18n="hub_combo_checkbox_label">{{ t.hub_combo_checkbox_label }}</span>
+              </label>
+              <p class="gf-hint" data-i18n="hub_combo_hint">{{ t.hub_combo_hint }}</p>
+            </div>
             <p class="gf-hint" id="destination-hint" data-i18n="dest_hint_empty">{{ t.dest_hint_empty }}</p>
 
             <div class="gf-explore-inline" id="scope-field">

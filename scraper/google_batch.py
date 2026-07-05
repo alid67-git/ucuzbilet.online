@@ -12,9 +12,12 @@ from app.regions import country_name_by_code
 
 
 def _simple_datetime_to_dt(value: SimpleDatetime) -> datetime:
+    # fast_flights bazen "12:01 AM" gibi gece yarisina yakin saatleri
+    # saat/dakikadan biri None olacak sekilde yanlis ayristirabiliyor;
+    # cokmek yerine 0'a düşürüp devam ediyoruz.
     year, month, day = value.date
-    hour = value.time[0] if value.time else 0
-    minute = value.time[1] if len(value.time) > 1 else 0
+    hour = (value.time[0] if value.time else 0) or 0
+    minute = (value.time[1] if len(value.time) > 1 else 0) or 0
     return datetime(year, month, day, hour, minute)
 
 
@@ -121,6 +124,64 @@ def _is_thy_offer(offer: ExploreOffer) -> bool:
     return bool(offer.airline) and "turkish airlines" in offer.airline.lower()
 
 
+def _build_offer_from_flight(
+    flight,
+    *,
+    origin_code: str,
+    dest_code: str,
+    one_way: bool,
+    query,
+    dep_text: str,
+    ret_text: str | None,
+    date_summary: str,
+    origin_place,
+    dest_place,
+    origin_country: str | None,
+    dest_country: str | None,
+    region: str | None = None,
+) -> ExploreOffer:
+    amount, currency = _parse_price_amount(flight.price)
+    outbound_segments, _ = _split_outbound_return(flight.flights, dest_code)
+    leg_segments = outbound_segments or flight.flights
+    stops_count = max(0, len(leg_segments) - 1)
+    total_minutes = _display_journey_minutes(flight.flights, dest_code, one_way)
+    segment_codes = [
+        (seg.from_airport.code, seg.to_airport.code)
+        for seg in flight.flights
+        if seg.from_airport.code and seg.to_airport.code
+    ]
+    miles = estimate_flight_miles(origin_code, dest_code, segment_codes or None)
+    dest_cc = dest_place.country_code if dest_place else None
+    origin_cc = origin_place.country_code if origin_place else None
+    return ExploreOffer(
+        destination=dest_place.city or dest_place.name if dest_place else dest_code,
+        destination_code=dest_code,
+        destination_city=(dest_place.city or dest_place.name) if dest_place else None,
+        country=dest_country,
+        destination_country_code=dest_cc,
+        origin_code=origin_code,
+        origin_city=(origin_place.city or origin_place.name) if origin_place else None,
+        origin_country=origin_country,
+        origin_country_code=origin_cc,
+        region=region,
+        price_text=f"₺{flight.price:,}".replace(",", ".") if flight.price else "?",
+        price_amount=amount,
+        currency=currency,
+        miles_estimate=miles,
+        date_summary=date_summary,
+        departure_date=dep_text,
+        return_date=ret_text,
+        duration=_format_duration(total_minutes),
+        duration_minutes=total_minutes,
+        stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
+        stops_count=stops_count,
+        airline=", ".join(flight.airlines[:2]) if flight.airlines else None,
+        summary=f"{origin_code} → {dest_code}",
+        booking_url=query.url(),
+        origin_note=origin_code,
+    )
+
+
 def _search_sync(
     origin_code: str,
     dest_code: str,
@@ -218,48 +279,24 @@ def _search_sync(
             origin_place.country if origin_place else None
         )
 
-        offers = []
-        for flight in chosen:
-            amount, currency = _parse_price_amount(flight.price)
-            outbound_segments, _ = _split_outbound_return(flight.flights, dest_code)
-            leg_segments = outbound_segments or flight.flights
-            stops_count = max(0, len(leg_segments) - 1)
-            total_minutes = _display_journey_minutes(flight.flights, dest_code, one_way)
-            segment_codes = [
-                (seg.from_airport.code, seg.to_airport.code)
-                for seg in flight.flights
-                if seg.from_airport.code and seg.to_airport.code
-            ]
-            miles = estimate_flight_miles(origin_code, dest_code, segment_codes or None)
-            offers.append(
-                ExploreOffer(
-                    destination=dest_place.city or dest_place.name if dest_place else dest_code,
-                    destination_code=dest_code,
-                    destination_city=(dest_place.city or dest_place.name) if dest_place else None,
-                    country=dest_country,
-                    destination_country_code=dest_cc,
-                    origin_code=origin_code,
-                    origin_city=(origin_place.city or origin_place.name) if origin_place else None,
-                    origin_country=origin_country,
-                    origin_country_code=origin_cc,
-                    region=dest["region"] if dest else None,
-                    price_text=f"₺{flight.price:,}".replace(",", ".") if flight.price else "?",
-                    price_amount=amount,
-                    currency=currency,
-                    miles_estimate=miles,
-                    date_summary=date_summary,
-                    departure_date=dep_text,
-                    return_date=ret_text,
-                    duration=_format_duration(total_minutes),
-                    duration_minutes=total_minutes,
-                    stops="Direkt" if stops_count == 0 else f"{stops_count} aktarma",
-                    stops_count=stops_count,
-                    airline=", ".join(flight.airlines[:2]) if flight.airlines else None,
-                    summary=f"{origin_code} → {dest_code}",
-                    booking_url=query.url(),
-                    origin_note=origin_code,
-                )
+        offers = [
+            _build_offer_from_flight(
+                flight,
+                origin_code=origin_code,
+                dest_code=dest_code,
+                one_way=one_way,
+                query=query,
+                dep_text=dep_text,
+                ret_text=ret_text,
+                date_summary=date_summary,
+                origin_place=origin_place,
+                dest_place=dest_place,
+                origin_country=origin_country,
+                dest_country=dest_country,
+                region=dest["region"] if dest else None,
             )
+            for flight in chosen
+        ]
         return offers
     except Exception:
         return []
