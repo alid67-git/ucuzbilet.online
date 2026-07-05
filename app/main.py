@@ -199,15 +199,6 @@ def _parse_search_form(
         if dest and origin:
             if origin.id.upper() == dest.id.upper():
                 raise HTTPException(status_code=400, detail="Kalkis ve varis ayni olamaz.")
-            if (
-                origin.country_code == dest.country_code
-                and dest.type in ("country", "city")
-                and origin.type in ("country", "city", "airport")
-            ):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Varis, kalkisla ayni ulke/sehir olamaz. Ornek: Istanbul → New York.",
-                )
 
     parsed_from = _parse_date_field(date_from, "gidis")
     parsed_to = _parse_date_field(date_to, "donus") if date_to.strip() else None
