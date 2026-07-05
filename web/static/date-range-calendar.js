@@ -9,8 +9,7 @@
   const retChipValue = document.getElementById("cal-chip-ret-value");
   if (!calRoot || !depInput) return;
 
-  let viewYear;
-  let viewMonth;
+  const MONTHS_AHEAD = 12;
   let pickPhase = "start";
 
   function currentLang() {
@@ -59,8 +58,8 @@
     });
   }
 
-  function monthTitle() {
-    const d = new Date(viewYear, viewMonth, 1);
+  function monthTitle(year, month) {
+    const d = new Date(year, month, 1);
     return d.toLocaleDateString(currentLang(), { month: "long", year: "numeric" });
   }
 
@@ -84,15 +83,7 @@
     retChip?.classList.toggle("active", pickPhase === "end" && isRoundTrip());
   }
 
-  function ensureViewDate() {
-    const anchor = parseIso(depIso()) || new Date();
-    if (viewYear == null || viewMonth == null) {
-      viewYear = anchor.getFullYear();
-      viewMonth = anchor.getMonth();
-    }
-  }
-
-  function cellClass(iso, minIso) {
+  function cellClass(iso) {
     const classes = ["fs-cal-day"];
     const dep = depIso();
     const ret = retIso();
@@ -116,7 +107,7 @@
       depInput.value = iso;
       pickPhase = "start";
       depInput.dispatchEvent(new Event("change", { bubbles: true }));
-      render();
+      renderAll(false);
       return;
     }
 
@@ -133,59 +124,19 @@
       pickPhase = "start";
       retInput?.dispatchEvent(new Event("change", { bubbles: true }));
     }
-    render();
+    renderAll(false);
   }
 
-  function render() {
-    ensureViewDate();
-    syncChips();
+  function buildMonthSection(year, month) {
+    const section = document.createElement("div");
+    section.className = "fs-cal-month";
+    section.dataset.year = String(year);
+    section.dataset.month = String(month);
 
-    const minIso = todayIso();
-    const first = new Date(viewYear, viewMonth, 1);
-    const startPad = (first.getDay() + 6) % 7;
-    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-
-    calRoot.innerHTML = "";
-
-    const header = document.createElement("div");
-    header.className = "fs-cal-header";
-    const prev = document.createElement("button");
-    prev.type = "button";
-    prev.className = "fs-cal-nav";
-    prev.textContent = "‹";
-    prev.setAttribute("aria-label", "previous month");
-    prev.addEventListener("click", (event) => {
-      // render() bu tikin icinde takvimi yeniden olusturup eski butonu
-      // DOM'dan kaldiriyor; olay document'a kadar yukselirse "disari
-      // tiklandi" saniliyor ve popover kapaniyor. stopPropagation ile
-      // bunu onluyoruz.
-      event.stopPropagation();
-      viewMonth -= 1;
-      if (viewMonth < 0) {
-        viewMonth = 11;
-        viewYear -= 1;
-      }
-      render();
-    });
-    const title = document.createElement("span");
-    title.className = "fs-cal-title";
-    title.textContent = monthTitle();
-    const next = document.createElement("button");
-    next.type = "button";
-    next.className = "fs-cal-nav";
-    next.textContent = "›";
-    next.setAttribute("aria-label", "next month");
-    next.addEventListener("click", (event) => {
-      event.stopPropagation();
-      viewMonth += 1;
-      if (viewMonth > 11) {
-        viewMonth = 0;
-        viewYear += 1;
-      }
-      render();
-    });
-    header.append(prev, title, next);
-    calRoot.appendChild(header);
+    const title = document.createElement("div");
+    title.className = "fs-cal-month-title";
+    title.textContent = monthTitle(year, month);
+    section.appendChild(title);
 
     const weekdays = document.createElement("div");
     weekdays.className = "fs-cal-weekdays";
@@ -194,10 +145,15 @@
       span.textContent = wd;
       weekdays.appendChild(span);
     });
-    calRoot.appendChild(weekdays);
+    section.appendChild(weekdays);
 
     const grid = document.createElement("div");
     grid.className = "fs-cal-grid";
+
+    const first = new Date(year, month, 1);
+    const startPad = (first.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const minIso = todayIso();
 
     for (let i = 0; i < startPad; i += 1) {
       const pad = document.createElement("span");
@@ -208,14 +164,10 @@
 
     for (let day = 1; day <= daysInMonth; day += 1) {
       const iso =
-        viewYear +
-        "-" +
-        String(viewMonth + 1).padStart(2, "0") +
-        "-" +
-        String(day).padStart(2, "0");
+        year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = cellClass(iso, minIso);
+      btn.className = cellClass(iso);
       btn.textContent = String(day);
       btn.disabled = iso < minIso;
       btn.addEventListener("click", (event) => {
@@ -225,7 +177,39 @@
       grid.appendChild(btn);
     }
 
-    calRoot.appendChild(grid);
+    section.appendChild(grid);
+    return section;
+  }
+
+  function renderAll(scrollToAnchor) {
+    syncChips();
+    const previousScrollTop = calRoot.scrollTop;
+
+    calRoot.innerHTML = "";
+    const today = new Date();
+    let y = today.getFullYear();
+    let m = today.getMonth();
+    const anchorDate = parseIso(depIso());
+    let anchorSection = null;
+
+    for (let i = 0; i <= MONTHS_AHEAD; i += 1) {
+      const section = buildMonthSection(y, m);
+      if (anchorDate && anchorDate.getFullYear() === y && anchorDate.getMonth() === m) {
+        anchorSection = section;
+      }
+      calRoot.appendChild(section);
+      m += 1;
+      if (m > 11) {
+        m = 0;
+        y += 1;
+      }
+    }
+
+    if (scrollToAnchor && anchorSection) {
+      anchorSection.scrollIntoView({ block: "start" });
+    } else {
+      calRoot.scrollTop = previousScrollTop;
+    }
   }
 
   depChip?.addEventListener("click", () => {
@@ -241,13 +225,13 @@
 
   useReturnCb?.addEventListener("change", () => {
     pickPhase = "start";
-    render();
+    renderAll(true);
   });
 
-  depInput.addEventListener("change", render);
-  retInput?.addEventListener("change", render);
-  document.addEventListener("localechange", render);
+  depInput.addEventListener("change", () => renderAll(false));
+  retInput?.addEventListener("change", () => renderAll(false));
+  document.addEventListener("localechange", () => renderAll(false));
 
-  render();
-  window.TripDateCalendar = { refresh: render };
+  renderAll(true);
+  window.TripDateCalendar = { refresh: () => renderAll(true) };
 })();
