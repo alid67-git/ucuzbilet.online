@@ -2,6 +2,7 @@
   const LANG_CURRENCY = { tr: "TRY", en: "USD", de: "EUR", fr: "EUR" };
   const RATES = { TRY: 1, EUR: 37, USD: 34, GBP: 43 };
   const SYMBOLS = { TRY: "₺", EUR: "€", USD: "$", GBP: "£" };
+  const FLAGS = { tr: "🇹🇷", en: "🇬🇧", de: "🇩🇪", fr: "🇫🇷" };
 
   function getStored(key, fallback) {
     try {
@@ -58,6 +59,8 @@
     });
     const autoLabel = document.querySelector("#currency-auto + span[data-i18n]");
     if (autoLabel && strings.currency_auto) autoLabel.textContent = strings.currency_auto;
+    const flagEl = document.getElementById("lang-picker-flag");
+    if (flagEl) flagEl.textContent = FLAGS[lang] || "🏳";
   }
 
   function syncCurrencySelect() {
@@ -92,10 +95,42 @@
     document.dispatchEvent(new CustomEvent("localechange", { detail: { lang, currency: effectiveCurrency() } }));
   }
 
-  function initTopBar() {
-    document.querySelectorAll(".lang-btn").forEach((btn) => {
-      btn.addEventListener("click", () => setLang(btn.dataset.lang));
+  function initLangPicker() {
+    const picker = document.getElementById("lang-picker");
+    const toggle = document.getElementById("lang-picker-toggle");
+    const menu = document.getElementById("lang-picker-menu");
+    if (!picker || !toggle || !menu) return;
+
+    function closeMenu() {
+      menu.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+    }
+    function openMenu() {
+      menu.hidden = false;
+      toggle.setAttribute("aria-expanded", "true");
+    }
+
+    toggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (menu.hidden) openMenu();
+      else closeMenu();
     });
+    menu.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setLang(btn.dataset.lang);
+        closeMenu();
+      });
+    });
+    document.addEventListener("click", (event) => {
+      if (!picker.contains(event.target)) closeMenu();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+  }
+
+  function initTopBar() {
+    initLangPicker();
     const sel = document.getElementById("currency-select");
     const auto = document.getElementById("currency-auto");
     if (auto) {
@@ -138,6 +173,17 @@
     formatFromTry: tryToDisplay,
     rates: RATES,
     symbols: SYMBOLS,
+  };
+
+  window.SiteLoading = {
+    show() {
+      const overlay = document.getElementById("loading-overlay");
+      if (overlay) overlay.hidden = false;
+    },
+    hide() {
+      const overlay = document.getElementById("loading-overlay");
+      if (overlay) overlay.hidden = true;
+    },
   };
 
   applyI18n();

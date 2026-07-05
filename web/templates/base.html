@@ -17,17 +17,24 @@
             <span>{{ t.site_name }}</span>
           </a>
           <span class="beta-badge top-beta">{{ beta_label }}</span>
+          <div class="lang-picker" id="lang-picker">
+            <button type="button" class="lang-picker-toggle" id="lang-picker-toggle" aria-haspopup="true" aria-expanded="false" aria-label="{{ t.language }}">
+              <span id="lang-picker-flag">{{ {"tr": "🇹🇷", "en": "🇬🇧", "de": "🇩🇪", "fr": "🇫🇷"}[lang] }}</span>
+              <span class="lang-picker-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="lang-picker-menu" id="lang-picker-menu" hidden role="menu">
+              <button type="button" class="lang-btn{% if lang == 'tr' %} active{% endif %}" data-lang="tr" data-flag="🇹🇷">🇹🇷 Türkçe</button>
+              <button type="button" class="lang-btn{% if lang == 'en' %} active{% endif %}" data-lang="en" data-flag="🇬🇧">🇬🇧 English</button>
+              <button type="button" class="lang-btn{% if lang == 'de' %} active{% endif %}" data-lang="de" data-flag="🇩🇪">🇩🇪 Deutsch</button>
+              <button type="button" class="lang-btn{% if lang == 'fr' %} active{% endif %}" data-lang="fr" data-flag="🇫🇷">🇫🇷 Français</button>
+            </div>
+          </div>
+          <button type="button" class="button small help-btn" id="help-open" title="{{ t.help }}" aria-label="{{ t.help }}">?</button>
         </div>
         <span class="top-developer">{{ t.developer }}</span>
       </div>
     </div>
     <div class="top-bar-right">
-      <div class="lang-switch" role="group" aria-label="{{ t.language }}">
-        <button type="button" class="lang-btn{% if lang == 'tr' %} active{% endif %}" data-lang="tr" title="Türkçe">🇹🇷 TR</button>
-        <button type="button" class="lang-btn{% if lang == 'en' %} active{% endif %}" data-lang="en" title="English">🇬🇧 EN</button>
-        <button type="button" class="lang-btn{% if lang == 'de' %} active{% endif %}" data-lang="de" title="Deutsch">🇩🇪 DE</button>
-        <button type="button" class="lang-btn{% if lang == 'fr' %} active{% endif %}" data-lang="fr" title="Français">🇫🇷 FR</button>
-      </div>
       <label class="top-currency-wrap">
         <span class="top-currency-label">{{ t.currency }}</span>
         <select id="currency-select" class="top-select" aria-label="{{ t.currency }}">
@@ -41,7 +48,6 @@
         <input type="checkbox" id="currency-auto" checked>
         <span data-i18n="currency_auto">{{ t.currency_auto }}</span>
       </label>
-      <button type="button" class="button small help-btn" id="help-open" title="{{ t.help }}">?</button>
     </div>
   </nav>
 
@@ -60,6 +66,14 @@
   </dialog>
 
   {% block body %}{% endblock %}
+
+  <div class="loading-overlay" id="loading-overlay" hidden aria-hidden="true">
+    <div class="loading-orbit">
+      <span class="loading-globe" aria-hidden="true">🌍</span>
+      <span class="loading-plane" aria-hidden="true"></span>
+    </div>
+    <p class="loading-text" data-i18n="loading_message">{{ t.loading_message }}</p>
+  </div>
 
   <button type="button" id="scroll-top-btn" class="scroll-top-btn" aria-label="↑" hidden>↑</button>
 

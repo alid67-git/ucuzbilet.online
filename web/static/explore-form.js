@@ -2,8 +2,6 @@
   const modeSelect = document.getElementById("mode-select");
   const tripDatePanel = document.getElementById("trip-date-panel");
   const scopeField = document.getElementById("scope-field");
-  const allianceField = document.getElementById("alliance-field");
-  const preferThyCheckbox = document.querySelector('input[name="prefer_thy"]');
   const hubCheckbox = document.getElementById("use-european-hubs");
   const hubHint = document.getElementById("hub-hint");
   const destinationHint = document.getElementById("destination-hint");
@@ -25,8 +23,26 @@
   const flexibilityDaysInput = document.getElementById("flexibility-days");
   const tripDateHint = document.getElementById("trip-date-hint");
   const swapButton = document.getElementById("swap-places");
-  const tabOneWay = document.getElementById("tab-one-way");
-  const tabRoundTrip = document.getElementById("tab-round-trip");
+
+  const tripTypeDropdown = document.getElementById("trip-type-dropdown");
+  const tripTypeToggle = document.getElementById("trip-type-toggle");
+  const tripTypeMenu = document.getElementById("trip-type-menu");
+  const tripTypeLabel = document.getElementById("trip-type-label");
+
+  const passengerDropdown = document.getElementById("passenger-dropdown");
+  const passengerToggle = document.getElementById("passenger-toggle");
+  const passengerMenu = document.getElementById("passenger-menu");
+  const passengerCountLabel = document.getElementById("passenger-count-label");
+  const adultsCount = document.getElementById("adults-count");
+  const childrenCount = document.getElementById("children-count");
+  const adultsInput = document.getElementById("adults-input");
+  const childrenInput = document.getElementById("children-input");
+  const passengerCancel = document.getElementById("passenger-cancel");
+  const passengerDone = document.getElementById("passenger-done");
+
+  function t(key) {
+    return window.SiteLocale ? window.SiteLocale.t(key) : key;
+  }
 
   function hasResolvedDestination() {
     return Boolean(destHidden?.value);
@@ -103,29 +119,35 @@
 
     if (!tripDateHint) return;
 
+    const dayUnit = t("date_hint_day_unit");
     if (flexSearch) {
       if (useReturn && dep && ret && span) {
         tripDateHint.textContent =
-          "Esnek gidiş-donus: " +
+          t("date_hint_flex_prefix") +
+          ": " +
           formatDateTr(dep) +
           " ±" +
           flexDays +
-          " gun; donus " +
+          " " +
+          dayUnit +
+          "; " +
+          t("date_hint_return_prefix") +
+          " " +
           formatDateTr(ret) +
-          " (en iyi 3).";
+          ".";
       } else if (dep) {
         tripDateHint.textContent =
-          "Esnek tek gidiş: " + formatDateTr(dep) + " ±" + flexDays + " gun (en iyi 3).";
+          t("date_hint_flex_prefix") + ": " + formatDateTr(dep) + " ±" + flexDays + " " + dayUnit + ".";
       } else {
-        tripDateHint.textContent = "Esnek arama: gidis ±N gun, en ucuz 3 sonuc.";
+        tripDateHint.textContent = t("date_hint_default");
       }
     } else if (useReturn && dep && ret && span) {
       tripDateHint.textContent =
-        "Gidis-donus: " + formatDateTr(dep) + " → " + formatDateTr(ret) + " (" + span + " gun).";
+        t("date_hint_return_prefix") + ": " + formatDateTr(dep) + " → " + formatDateTr(ret) + " (" + span + " " + dayUnit + ").";
     } else if (dep) {
-      tripDateHint.textContent = "Tek gidiş: " + formatDateTr(dep) + " — donus aranmaz.";
+      tripDateHint.textContent = t("date_hint_oneway_prefix") + ": " + formatDateTr(dep) + " " + t("date_hint_no_return");
     } else {
-      tripDateHint.textContent = "Gidis tarihi secin. Donus icin 'Donus tarihi belirle' isaretleyin.";
+      tripDateHint.textContent = t("date_hint_pick");
     }
   }
 
@@ -137,21 +159,6 @@
       scopeField.querySelectorAll("select, input").forEach((el) => {
         el.disabled = !showScope;
       });
-    }
-  }
-
-  function syncAllianceField() {
-    const thyOnly = Boolean(preferThyCheckbox?.checked);
-    if (allianceField) {
-      allianceField.hidden = thyOnly;
-      allianceField.classList.toggle("field-hidden", thyOnly);
-      const select = allianceField.querySelector("select");
-      if (select) {
-        select.disabled = thyOnly;
-        if (thyOnly) {
-          select.value = "any";
-        }
-      }
     }
   }
 
@@ -177,7 +184,7 @@
       if (originField) originField.classList.remove("field-passive");
       if (originHint) {
         originHint.hidden = false;
-        originHint.textContent = "Ülke yazınca «tüm havalimanları» seçeneğini işaretleyin.";
+        originHint.textContent = t("origin_hint_default");
       }
       if (originHubNote) originHubNote.hidden = true;
     }
@@ -201,13 +208,13 @@
     if (destinationHint) {
       destinationHint.hidden = false;
       if (hub && hasDest) {
-        destinationHint.textContent = "Hub + belirli varış: seçilen hedefe hub'lardan gidilir.";
+        destinationHint.textContent = t("dest_hint_hub_dest");
       } else if (hub) {
-        destinationHint.textContent = "Hub seçili — bölge hedefi varış ülkelerini belirler.";
+        destinationHint.textContent = t("dest_hint_hub_only");
       } else if (hasDest) {
-        destinationHint.textContent = "Belirli varış seçildi. Bölge hedefi kapalı.";
+        destinationHint.textContent = t("dest_hint_has_dest");
       } else {
-        destinationHint.textContent = "Boş bırakırsanız aşağıdaki bölge hedefi kullanılır.";
+        destinationHint.textContent = t("dest_hint_empty");
       }
     }
     if (tripDateHint) tripDateHint.hidden = false;
@@ -239,8 +246,17 @@
 
   function syncTripTypeTabs() {
     const useReturn = Boolean(useReturnCheckbox?.checked);
-    if (tabOneWay) tabOneWay.classList.toggle("active", !useReturn);
-    if (tabRoundTrip) tabRoundTrip.classList.toggle("active", useReturn);
+    if (!tripTypeMenu) return;
+    tripTypeMenu.querySelectorAll(".trip-type-option[data-return]").forEach((option) => {
+      const active = (option.dataset.return === "1") === useReturn;
+      option.classList.toggle("active", active);
+      option.setAttribute("aria-checked", active ? "true" : "false");
+      if (active && tripTypeLabel) {
+        const key = option.dataset.return === "1" ? "trip_round_trip" : "trip_one_way";
+        tripTypeLabel.setAttribute("data-i18n", key);
+        tripTypeLabel.textContent = t(key);
+      }
+    });
   }
 
   function setTripType(useReturn) {
@@ -250,11 +266,149 @@
     syncTripTypeTabs();
   }
 
+  function closeTripTypeMenu() {
+    if (!tripTypeMenu || !tripTypeToggle) return;
+    tripTypeMenu.hidden = true;
+    tripTypeToggle.setAttribute("aria-expanded", "false");
+  }
+
+  function openTripTypeMenu() {
+    if (!tripTypeMenu || !tripTypeToggle) return;
+    closePassengerMenu();
+    tripTypeMenu.hidden = false;
+    tripTypeToggle.setAttribute("aria-expanded", "true");
+  }
+
+  function initTripTypeDropdown() {
+    if (!tripTypeDropdown || !tripTypeToggle || !tripTypeMenu) return;
+    tripTypeToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (tripTypeMenu.hidden) openTripTypeMenu();
+      else closeTripTypeMenu();
+    });
+    tripTypeMenu.querySelectorAll(".trip-type-option[data-return]").forEach((option) => {
+      option.addEventListener("click", () => {
+        setTripType(option.dataset.return === "1");
+        closeTripTypeMenu();
+      });
+    });
+    document.addEventListener("click", (event) => {
+      if (!tripTypeDropdown.contains(event.target)) closeTripTypeMenu();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeTripTypeMenu();
+    });
+  }
+
+  function passengerTotal() {
+    const adults = parseInt(adultsInput?.value || "1", 10) || 1;
+    const children = parseInt(childrenInput?.value || "0", 10) || 0;
+    return adults + children;
+  }
+
+  function updatePassengerLabel() {
+    if (passengerCountLabel) passengerCountLabel.textContent = String(passengerTotal());
+  }
+
+  function clampPassengerCount(target, value) {
+    if (target === "adults") return Math.min(9, Math.max(1, value));
+    return Math.min(8, Math.max(0, value));
+  }
+
+  function adjustPassengerCount(target, delta) {
+    const input = target === "adults" ? adultsInput : childrenInput;
+    const display = target === "adults" ? adultsCount : childrenCount;
+    if (!input) return;
+    const next = clampPassengerCount(target, (parseInt(input.value || "0", 10) || 0) + delta);
+    input.value = String(next);
+    if (display) display.textContent = String(next);
+    updatePassengerLabel();
+  }
+
+  let passengerSnapshot = null;
+
+  function closePassengerMenu() {
+    if (!passengerMenu || !passengerToggle) return;
+    passengerMenu.hidden = true;
+    passengerToggle.setAttribute("aria-expanded", "false");
+  }
+
+  function openPassengerMenu() {
+    if (!passengerMenu || !passengerToggle) return;
+    closeTripTypeMenu();
+    passengerSnapshot = { adults: adultsInput?.value, children: childrenInput?.value };
+    passengerMenu.hidden = false;
+    passengerToggle.setAttribute("aria-expanded", "true");
+  }
+
+  function restorePassengerSnapshot() {
+    if (!passengerSnapshot) return;
+    if (adultsInput) adultsInput.value = passengerSnapshot.adults;
+    if (childrenInput) childrenInput.value = passengerSnapshot.children;
+    if (adultsCount) adultsCount.textContent = passengerSnapshot.adults;
+    if (childrenCount) childrenCount.textContent = passengerSnapshot.children;
+    updatePassengerLabel();
+  }
+
+  function initPassengerDropdown() {
+    if (!passengerDropdown || !passengerToggle || !passengerMenu) return;
+    passengerToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (passengerMenu.hidden) openPassengerMenu();
+      else closePassengerMenu();
+    });
+    passengerDropdown.querySelectorAll(".stepper-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        adjustPassengerCount(btn.dataset.target, parseInt(btn.dataset.delta, 10));
+      });
+    });
+    if (passengerCancel) {
+      passengerCancel.addEventListener("click", () => {
+        restorePassengerSnapshot();
+        closePassengerMenu();
+      });
+    }
+    if (passengerDone) {
+      passengerDone.addEventListener("click", () => {
+        closePassengerMenu();
+      });
+    }
+    document.addEventListener("click", (event) => {
+      if (!passengerDropdown.contains(event.target)) closePassengerMenu();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closePassengerMenu();
+    });
+  }
+
+  function shiftDateInput(input, delta) {
+    if (!input || input.disabled) return;
+    const base = input.value ? new Date(input.value + "T00:00:00") : new Date();
+    base.setDate(base.getDate() + delta);
+    const iso =
+      base.getFullYear() +
+      "-" +
+      String(base.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(base.getDate()).padStart(2, "0");
+    if (input.min && iso < input.min) return;
+    input.value = iso;
+    input.dispatchEvent(new Event("change"));
+  }
+
+  function initDateShiftButtons() {
+    document.querySelectorAll(".date-shift").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const input = document.getElementById(btn.dataset.target);
+        shiftDateInput(input, parseInt(btn.dataset.delta, 10));
+      });
+    });
+  }
+
   function syncModePanels() {
     syncFlexibleOption();
     syncOriginField();
     syncScopeField();
-    syncAllianceField();
     syncHints();
     syncTripDatePanel();
   }
@@ -270,7 +424,6 @@
   flexibilityDaysInput?.addEventListener("input", syncTripDatePanel);
 
   if (hubCheckbox) hubCheckbox.addEventListener("change", syncModePanels);
-  if (preferThyCheckbox) preferThyCheckbox.addEventListener("change", syncAllianceField);
   if (clearDestBtn) {
     clearDestBtn.addEventListener("click", (event) => {
       event.preventDefault();
@@ -298,18 +451,16 @@
       swapPlaces();
     });
   }
-  if (tabOneWay) {
-    tabOneWay.addEventListener("click", (event) => {
-      event.preventDefault();
-      setTripType(false);
-    });
-  }
-  if (tabRoundTrip) {
-    tabRoundTrip.addEventListener("click", (event) => {
-      event.preventDefault();
-      setTripType(true);
-    });
-  }
+  initTripTypeDropdown();
+  initPassengerDropdown();
+  initDateShiftButtons();
+  updatePassengerLabel();
+
+  document.addEventListener("localechange", () => {
+    syncOriginField();
+    syncHints();
+    syncTripDatePanel();
+  });
 
   syncModePanels();
 })();

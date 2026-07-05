@@ -5,68 +5,55 @@
     <div>
       <h1>{{ search.name }}</h1>
       {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
-      <p class="subtitle">Avrupa hub{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
+      <p class="subtitle">{{ t.hub_label }}{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
       {% else %}
       <p class="subtitle">{{ search.origin_label }}{% if search.destination_label %} → {{ search.destination_label }}{% endif %}</p>
       {% endif %}
     </div>
     <div class="actions">
-      {% if is_quick %}
-      <a class="button" href="/search">Duzenle</a>
-      <form method="post" action="/searches/from-quick" class="inline-form">
-        <input type="text" name="name" placeholder="Arama adi" required value="{{ search.name }}">
-        <button class="button" type="submit">Bu aramayi kaydet</button>
-      </form>
-      {% else %}
-      <a class="button" href="/searches/{{ search.id }}/edit">Duzenle</a>
+      <a class="button" href="/search" data-i18n="edit_button">{{ t.edit_button }}</a>
       <form method="post" action="/searches/{{ search.id }}/run">
-        <button class="button primary" type="submit">Simdi tara</button>
+        <button class="button primary" type="submit" data-i18n="search_again_button">{{ t.search_again_button }}</button>
       </form>
-      {% endif %}
     </div>
   </header>
 
   <main class="container">
-    {% if is_quick %}
-    <section class="panel banner">
-      <p class="hint">Hizli arama — kayitli listeye eklenmedi. Begendinizse yukaridan kaydedin veya <a href="/search">kriterleri degistirin</a>.</p>
-    </section>
-    {% endif %}
     <section class="panel">
-      <h2>Kriterler</h2>
+      <h2 data-i18n="criteria_heading">{{ t.criteria_heading }}</h2>
       <ul class="meta">
-        <li>Mod: {{ search.mode.value.replace('_', ' ') }}</li>
+        <li><span data-i18n="mode_label">{{ t.mode_label }}</span>: {{ search.mode.value.replace('_', ' ') }}</li>
         {% if search.mode.value == 'fixed_trip' %}
-        <li>Tarih: {{ search.date_from or search.departure_date }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% elif search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun{% else %} · tek gidiş{% endif %}{% if search.flexible_departure_in_range %} (en iyi 3){% endif %}</li>
+        <li><span data-i18n="date_label">{{ t.date_label }}</span>: {{ search.date_from or search.departure_date }}{% if search.use_return_date and search.date_to %} → {{ search.date_to }}{% elif search.flexible_departure_in_range %} · ±{{ search.flexibility_days }}{% endif %}</li>
         {% elif search.mode.value == 'date_range' %}
-        <li>Tarih: {{ search.date_from }} gidis{% if search.use_return_date and search.date_to %} → {{ search.date_to }} donus{% endif %}{% if search.flexible_departure_in_range %} · esnek ±{{ search.flexibility_days }} gun (en iyi 3){% endif %}</li>
+        <li><span data-i18n="date_label">{{ t.date_label }}</span>: {{ search.date_from }}{% if search.use_return_date and search.date_to %} → {{ search.date_to }}{% endif %}{% if search.flexible_departure_in_range %} · ±{{ search.flexibility_days }}{% endif %}</li>
         {% endif %}
         {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
-        <li>Hub: Avrupa (FRA, AMS, CDG, LHR, MXP, MAD, FCO...)</li>
-        {% if search.destination_label %}<li>Hedef: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
-        <li>Bolge: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} (tum ulkeler){% endif %}</li>{% endif %}
+        <li><span data-i18n="hub_label">{{ t.hub_label }}</span>: Europe (FRA, AMS, CDG, LHR, MXP, MAD, FCO...)</li>
+        {% if search.destination_label %}<li><span data-i18n="target_label">{{ t.target_label }}</span>: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
+        <li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} ({{ t.region_all_countries }}){% endif %}</li>{% endif %}
         {% else %}
-        <li>Kalkis: {{ search.origin_label }}</li>
-        {% if search.destination_label %}<li>Varis: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
-        <li>Bolge: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} (tum ulkeler){% endif %}</li>{% else %}<li>Bolge: Her yer</li>{% endif %}
+        <li><span data-i18n="origin_label">{{ t.origin_label }}</span>: {{ search.origin_label }}</li>
+        {% if search.destination_label %}<li><span data-i18n="destination_label">{{ t.destination_label }}</span>: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
+        <li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} ({{ t.region_all_countries }}){% endif %}</li>{% else %}<li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ t.region_everywhere }}</li>{% endif %}
         {% endif %}
         {% if search.prefer_thy %}
-        <li>Havayolu: Turk Hava Yollari (THY)</li>
+        <li>{{ t.tier_thy }}: Turkish Airlines (THY)</li>
         {% elif search.alliance.value != 'any' %}
-        <li>Ittifak: {{ search.alliance.value.replace('_', ' ') }}</li>
+        <li><span data-i18n="alliance_label">{{ t.alliance_label }}</span>: {{ search.alliance.value.replace('_', ' ') }}</li>
         {% endif %}
-        <li>Yolcu: {{ search.adults }} yetiskin, {{ search.children }} cocuk</li>
-        {% if search.max_price %}<li>Maksimum: {{ search.max_price }} TRY</li>{% endif %}
-        {% if search.max_stops == 0 %}<li>Sadece direkt</li>{% elif search.max_stops is not none %}<li>Max aktarma: {{ search.max_stops }}</li>{% endif %}
+        <li><span data-i18n="passenger_label">{{ t.passenger_label }}</span>: {{ search.adults }} {{ t.adult_short }}, {{ search.children }} {{ t.child_short }}</li>
+        {% if search.max_price %}<li><span data-i18n="max_price_label">{{ t.max_price_label }}</span>: {{ search.max_price }} TRY</li>{% endif %}
+        {% if search.max_stops == 0 %}<li data-i18n="direct_only_label">{{ t.direct_only_label }}</li>{% elif search.max_stops is not none %}<li><span data-i18n="max_stops_label">{{ t.max_stops_label }}</span>: {{ search.max_stops }}</li>{% endif %}
       </ul>
     </section>
 
     <section class="panel">
       {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
-      <h2>Hub karsilastirmasi (Avrupa → hedef)</h2>
-      <p class="hint">Her satir farkli bir Avrupa hub'indan hedefe giden rotayi gosterir.</p>
+      <h2 data-i18n="hub_comparison_heading">{{ t.hub_comparison_heading }}</h2>
+      <p class="hint" data-i18n="hub_comparison_hint">{{ t.hub_comparison_hint }}</p>
       {% else %}
-      <h2>En ucuz destinasyonlar</h2>
+      <h2 data-i18n="cheapest_destinations_heading">{{ t.cheapest_destinations_heading }}</h2>
       {% endif %}
       {% if results %}
         {% for result in results %}
@@ -84,9 +71,9 @@
             <div class="filter-group">
               <span class="filter-label" data-i18n="filter_stops">{{ t.filter_stops }}</span>
               <div class="filter-chip-row">
-                <label class="filter-chip"><input type="checkbox" class="filter-stops" value="0" checked> Direkt</label>
-                <label class="filter-chip"><input type="checkbox" class="filter-stops" value="1" checked> 1 aktarma</label>
-                <label class="filter-chip"><input type="checkbox" class="filter-stops" value="2plus" checked> 2+ aktarma</label>
+                <label class="filter-chip"><input type="checkbox" class="filter-stops" value="0" checked> <span data-i18n="stops_direct">{{ t.stops_direct }}</span></label>
+                <label class="filter-chip"><input type="checkbox" class="filter-stops" value="1" checked> <span data-i18n="stops_one">{{ t.stops_one }}</span></label>
+                <label class="filter-chip"><input type="checkbox" class="filter-stops" value="2plus" checked> <span data-i18n="stops_two_plus">{{ t.stops_two_plus }}</span></label>
               </div>
             </div>
 
@@ -111,7 +98,7 @@
             </div>
 
             <details class="filter-details">
-              <summary id="filter-airlines-summary">Havayolu</summary>
+              <summary id="filter-airlines-summary" data-i18n="filter_airline">{{ t.filter_airline }}</summary>
               <div id="filter-airlines" class="filter-chip-row"></div>
             </details>
 
@@ -126,28 +113,28 @@
             </details>
 
             <div class="filter-group">
-              <span class="filter-label">Maks. sure: <span id="filter-duration-value">-</span></span>
+              <span class="filter-label"><span data-i18n="filter_max_duration">{{ t.filter_max_duration }}</span>: <span id="filter-duration-value">-</span></span>
               <input type="range" id="filter-duration" class="filter-range">
             </div>
 
             <div class="filter-group">
-              <span class="filter-label">Sirala</span>
+              <span class="filter-label" data-i18n="filter_sort">{{ t.filter_sort }}</span>
               <select id="sort-select">
-                <option value="price">Fiyat (ucuzdan pahaliya)</option>
-                <option value="duration">Sure (kisadan uzuna)</option>
-                <option value="stops">Aktarma (azdan coga)</option>
-                <option value="recommended">En iyiyi oner</option>
-                <option value="country">Ulkeye gore (gruplu)</option>
+                <option value="price" data-i18n="sort_price">{{ t.sort_price }}</option>
+                <option value="duration" data-i18n="sort_duration">{{ t.sort_duration }}</option>
+                <option value="stops" data-i18n="sort_stops">{{ t.sort_stops }}</option>
+                <option value="recommended" data-i18n="sort_recommended">{{ t.sort_recommended }}</option>
+                <option value="country" data-i18n="sort_country">{{ t.sort_country }}</option>
               </select>
             </div>
 
             <div class="filter-group" id="pagination-controls">
-              <span class="filter-label">Sayfa basina sonuc</span>
+              <span class="filter-label" data-i18n="page_size_label">{{ t.page_size_label }}</span>
               <input type="number" id="page-size-input" min="5" max="200" value="20">
               <div class="pagination-nav">
-                <button type="button" class="button small" id="page-prev">‹ Onceki</button>
+                <button type="button" class="button small" id="page-prev" data-i18n="page_prev">{{ t.page_prev }}</button>
                 <span id="page-indicator"></span>
-                <button type="button" class="button small" id="page-next">Sonraki ›</button>
+                <button type="button" class="button small" id="page-next" data-i18n="page_next">{{ t.page_next }}</button>
               </div>
             </div>
 
@@ -158,14 +145,14 @@
           </div>
 
           {% for country, country_offers in result.offers|groupby('country') %}
-          <div class="country-group" data-country-group="{{ country or 'Diger' }}">
-            <h3 class="country-group-title">{{ country or 'Diger' }} <span class="muted">— {{ country_offers|length }} sonuc</span></h3>
+          <div class="country-group" data-country-group="{{ country or t.region_everywhere }}">
+            <h3 class="country-group-title">{{ country or t.region_everywhere }} <span class="muted">— {{ country_offers|length }} {{ t.result_count_suffix }}</span></h3>
             <div class="offers">
               {% for offer in country_offers %}
               {% set r = offer|route_display %}
               <div class="offer"
-                data-country="{{ country or 'Diger' }}"
-                data-origin-country="{{ offer.origin_country or r.origin_country or 'Diger' }}"
+                data-country="{{ country or t.region_everywhere }}"
+                data-origin-country="{{ offer.origin_country or r.origin_country or t.region_everywhere }}"
                 data-airline="{{ offer.airline or '' }}"
                 data-stops="{{ offer.stops_count if offer.stops_count is not none else '' }}"
                 data-price="{{ offer.price_amount if offer.price_amount is not none else '' }}"
@@ -200,7 +187,7 @@
                 <p class="muted small">{{ offer.duration or '' }}{% if offer.stops %} · {{ offer.stops }}{% endif %}{% if offer.airline %} · {{ offer.airline }}{% endif %}</p>
                 {% endif %}
                 {% if offer.booking_url %}
-                <a href="{{ offer.booking_url }}" target="_blank" rel="noopener">Ucuslari gor</a>
+                <a href="{{ offer.booking_url }}" target="_blank" rel="noopener" data-i18n="view_flights_link">{{ t.view_flights_link }}</a>
                 {% endif %}
               </div>
               {% endfor %}
@@ -212,15 +199,22 @@
         </article>
         {% endfor %}
       {% else %}
-      <p>Henuz tarama yapilmadi.</p>
+      <p data-i18n="no_search_yet">{{ t.no_search_yet }}</p>
       {% endif %}
     </section>
 
-    <form method="post" action="/searches/{{ search.id }}/delete" onsubmit="return confirm('Silinsin mi?');">
-      <button class="button danger" type="submit">Aramayi sil</button>
+    <form method="post" action="/searches/{{ search.id }}/delete" id="delete-search-form">
+      <button class="button danger" type="submit" data-i18n="delete_search_button">{{ t.delete_search_button }}</button>
     </form>
   </main>
 {% endblock %}
 {% block scripts %}
+  <script>
+    document.getElementById("delete-search-form")?.addEventListener("submit", (event) => {
+      if (!confirm(window.SiteLocale ? window.SiteLocale.t("delete_confirm") : "{{ t.delete_confirm }}")) {
+        event.preventDefault();
+      }
+    });
+  </script>
   <script src="/static/results-filter.js"></script>
 {% endblock %}

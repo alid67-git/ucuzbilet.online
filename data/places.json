@@ -7,7 +7,7 @@
       "google": "IST",
       "name": "İstanbul Havalimanı",
       "city": "İstanbul",
-      "country": "Türkiye",
+      "country": "Turkiye",
       "country_code": "TR",
       "keywords": [
         "istanbul",
@@ -21,7 +21,7 @@
       "google": "SAW",
       "name": "Sabiha Gökçen",
       "city": "İstanbul",
-      "country": "Türkiye",
+      "country": "Turkiye",
       "country_code": "TR",
       "keywords": [
         "sabiha",
@@ -363,7 +363,7 @@
       "google": "MXP",
       "name": "Milano Malpensa",
       "city": "Milano",
-      "country": "İtalya",
+      "country": "Italya",
       "country_code": "IT",
       "keywords": [
         "malpensa",
@@ -377,7 +377,7 @@
       "google": "BGY",
       "name": "Bergamo",
       "city": "Milano",
-      "country": "İtalya",
+      "country": "Italya",
       "country_code": "IT",
       "keywords": [
         "bergamo",
@@ -423,7 +423,7 @@
       "google": "VCE",
       "name": "Venedik",
       "city": "Venedik",
-      "country": "İtalya",
+      "country": "Italya",
       "country_code": "IT",
       "keywords": [
         "venedik",
@@ -2233,7 +2233,7 @@
       "google": "LHR",
       "name": "Londra Heathrow",
       "city": "Londra",
-      "country": "İngiltere",
+      "country": "Ingiltere",
       "country_code": "GB",
       "keywords": [
         "heathrow",
@@ -2248,7 +2248,7 @@
       "google": "LGW",
       "name": "Londra Gatwick",
       "city": "Londra",
-      "country": "İngiltere",
+      "country": "Ingiltere",
       "country_code": "GB",
       "keywords": [
         "gatwick",
@@ -2262,7 +2262,7 @@
       "google": "STN",
       "name": "Londra Stansted",
       "city": "Londra",
-      "country": "İngiltere",
+      "country": "Ingiltere",
       "country_code": "GB",
       "keywords": [
         "stansted",
@@ -2276,7 +2276,7 @@
       "google": "LTN",
       "name": "Londra Luton",
       "city": "Londra",
-      "country": "İngiltere",
+      "country": "Ingiltere",
       "country_code": "GB",
       "keywords": [
         "luton",
@@ -2290,7 +2290,7 @@
       "google": "MAN",
       "name": "Manchester",
       "city": "Manchester",
-      "country": "İngiltere",
+      "country": "Ingiltere",
       "country_code": "GB",
       "keywords": [
         "manchester"
@@ -2303,7 +2303,7 @@
       "google": "EDI",
       "name": "Edinburgh",
       "city": "Edinburgh",
-      "country": "İngiltere",
+      "country": "Ingiltere",
       "country_code": "GB",
       "keywords": [
         "edinburgh"
@@ -2604,7 +2604,7 @@
       "google": "BCN",
       "name": "Barselona",
       "city": "Barselona",
-      "country": "İspanya",
+      "country": "Ispanya",
       "country_code": "ES",
       "keywords": [
         "barcelona",
@@ -2711,7 +2711,7 @@
       "google": "AGP",
       "name": "Malaga",
       "city": "Malaga",
-      "country": "İspanya",
+      "country": "Ispanya",
       "country_code": "ES",
       "keywords": [
         "malaga"
@@ -2724,7 +2724,7 @@
       "google": "ALC",
       "name": "Alicante",
       "city": "Alicante",
-      "country": "İspanya",
+      "country": "Ispanya",
       "country_code": "ES",
       "keywords": [
         "alicante"
@@ -2737,7 +2737,7 @@
       "google": "PMI",
       "name": "Palma de Mallorca",
       "city": "Palma",
-      "country": "İspanya",
+      "country": "Ispanya",
       "country_code": "ES",
       "keywords": [
         "palma",
@@ -3205,7 +3205,7 @@
       "google": "SJJ",
       "name": "Saraybosna",
       "city": "Saraybosna",
-      "country": "Bosna Hersek",
+      "country": "Bosna-Hersek",
       "country_code": "BA",
       "keywords": [
         "sarajevo",

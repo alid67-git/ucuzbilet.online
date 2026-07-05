@@ -239,6 +239,7 @@
       const targetAction =
         (submitter && submitter.getAttribute("formaction")) || form.getAttribute("action") || form.action;
       form.action = targetAction;
+      window.SiteLoading?.show();
       form.submit();
     });
   }

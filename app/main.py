@@ -21,13 +21,9 @@ from app.storage import (
     delete_search,
     ensure_data_dirs,
     list_results,
-    list_broken_searches,
-    list_searches,
     load_search,
     save_result,
-    save_search,
     save_quick_search,
-    update_search,
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,56 +123,16 @@ async def api_place_children(place_id: str):
     return JSONResponse([_place_payload(child) for child in children])
 
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    searches = list_searches()
-    broken_searches = list_broken_searches()
-    today, _, _ = _default_dates()
-    return _render(
-        request,
-        "index.html",
-        {"searches": searches, "broken_searches": broken_searches, "today": today},
-    )
+@app.get("/")
+async def home():
+    return RedirectResponse(url="/search", status_code=303)
 
 
 @app.get("/search", response_class=HTMLResponse)
 async def search_form(request: Request):
     quick = load_search("quick")
     ctx = _form_context(quick)
-    ctx.update(
-        {
-            "request": request,
-            "action": "/searches",
-            "run_action": "/search/run",
-            "title": "Ucuz bilet ara",
-            "is_quick_form": True,
-        }
-    )
-    return _render(request, "form.html", ctx)
-
-
-@app.get("/searches/new", response_class=HTMLResponse)
-async def new_search_form(request: Request):
-    return RedirectResponse(url="/search", status_code=303)
-
-
-@app.get("/searches/{search_id}/edit", response_class=HTMLResponse)
-async def edit_search_form(request: Request, search_id: str):
-    if search_id == "quick":
-        return RedirectResponse(url="/search", status_code=303)
-    search = load_search(search_id)
-    if not search:
-        raise HTTPException(status_code=404, detail="Arama bulunamadi.")
-    ctx = _form_context(search)
-    ctx.update(
-        {
-            "request": request,
-            "action": f"/searches/{search_id}",
-            "run_action": "/search/run",
-            "title": "Aramayi duzenle",
-            "is_quick_form": False,
-        }
-    )
+    ctx["request"] = request
     return _render(request, "form.html", ctx)
 
 
@@ -366,123 +322,6 @@ async def quick_search_run(
     return RedirectResponse(url="/searches/quick", status_code=303)
 
 
-@app.post("/searches")
-async def create_search(
-    name: str = Form(""),
-    origin_place_id: str = Form(""),
-    destination_place_id: str = Form(""),
-    use_european_hubs: str | None = Form(None),
-    mode: str = Form("fixed_trip"),
-    date_from: str = Form(""),
-    date_to: str = Form(""),
-    trip_days: int = Form(5),
-    use_return_date: str | None = Form(None),
-    flexible_search: str | None = Form(None),
-    flexibility_days: int = Form(3),
-    destination_scope: str = Form("anywhere"),
-    target_countries: list[str] = Form(default=[]),
-    target_airports: list[str] = Form(default=[]),
-    alliance: str = Form("any"),
-    prefer_thy: str | None = Form(None),
-    max_stops: str = Form(""),
-    adults: int = Form(1),
-    children: int = Form(0),
-    max_price: str = Form(""),
-    cabin_class: str = Form("economy"),
-):
-    payload = _parse_search_form(
-        name.strip() or f"Arama {date.today().isoformat()}",
-        origin_place_id,
-        destination_place_id,
-        use_european_hubs,
-        mode,
-        date_from,
-        date_to,
-        trip_days,
-        use_return_date,
-        flexible_search,
-        flexibility_days,
-        destination_scope,
-        target_countries,
-        target_airports,
-        alliance,
-        prefer_thy,
-        max_stops,
-        adults,
-        children,
-        max_price,
-        cabin_class,
-    )
-    saved = save_search(payload)
-    return RedirectResponse(url=f"/searches/{saved.id}", status_code=303)
-
-
-@app.post("/searches/from-quick")
-async def save_from_quick(name: str = Form(...)):
-    quick = load_search("quick")
-    if not quick:
-        raise HTTPException(status_code=404, detail="Hizli arama bulunamadi.")
-    payload = ExploreSearchRequest.model_validate(
-        {**quick.model_dump(exclude={"id", "created_at", "updated_at"}), "name": name.strip()}
-    )
-    saved = save_search(payload)
-    return RedirectResponse(url=f"/searches/{saved.id}", status_code=303)
-
-
-@app.post("/searches/{search_id}")
-async def update_search_route(
-    search_id: str,
-    name: str = Form(...),
-    origin_place_id: str = Form(""),
-    destination_place_id: str = Form(""),
-    use_european_hubs: str | None = Form(None),
-    mode: str = Form("fixed_trip"),
-    date_from: str = Form(""),
-    date_to: str = Form(""),
-    trip_days: int = Form(5),
-    use_return_date: str | None = Form(None),
-    flexible_search: str | None = Form(None),
-    flexibility_days: int = Form(3),
-    destination_scope: str = Form("anywhere"),
-    target_countries: list[str] = Form(default=[]),
-    target_airports: list[str] = Form(default=[]),
-    alliance: str = Form("any"),
-    prefer_thy: str | None = Form(None),
-    max_stops: str = Form(""),
-    adults: int = Form(1),
-    children: int = Form(0),
-    max_price: str = Form(""),
-    cabin_class: str = Form("economy"),
-):
-    payload = _parse_search_form(
-        name,
-        origin_place_id,
-        destination_place_id,
-        use_european_hubs,
-        mode,
-        date_from,
-        date_to,
-        trip_days,
-        use_return_date,
-        flexible_search,
-        flexibility_days,
-        destination_scope,
-        target_countries,
-        target_airports,
-        alliance,
-        prefer_thy,
-        max_stops,
-        adults,
-        children,
-        max_price,
-        cabin_class,
-    )
-    updated = update_search(search_id, payload)
-    if not updated:
-        raise HTTPException(status_code=404, detail="Arama bulunamadi.")
-    return RedirectResponse(url=f"/searches/{search_id}", status_code=303)
-
-
 @app.post("/searches/{search_id}/run")
 async def run_search_route(search_id: str):
     search = load_search(search_id)
@@ -509,11 +348,6 @@ async def delete_search_route(search_id: str):
 @app.get("/search/run")
 async def quick_search_run_get_fallback():
     return RedirectResponse(url="/search", status_code=303)
-
-
-@app.get("/searches")
-async def create_search_get_fallback():
-    return RedirectResponse(url="/", status_code=303)
 
 
 @app.get("/searches/{search_id}/run")

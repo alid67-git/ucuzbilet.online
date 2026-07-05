@@ -159,7 +159,7 @@
       "ryanair", "wizz air", "spirit airlines", "frontier", "indigo",
     ],
     lcc: [
-      "pegasus", "easyjet", "wizz air", "vueling", "eurowings", "flydubai", "air arabia",
+      "pegasus", "easyjet", "vueling", "eurowings", "flydubai", "air arabia",
       "norwegian", "condor", "transavia", "volotea", "scoot", "jetstar", "bangkok airways",
       "airasia", "sunexpress",
     ],
@@ -536,7 +536,7 @@
       tierTabs.forEach((t) => t.classList.toggle("active", t.dataset.tier === "all"));
       durationInput.value = String(durationMax);
       updateDurationLabel();
-      if (sortSelect) sortSelect.value = "country";
+      if (sortSelect) sortSelect.value = "price";
       if (pageSizeInput) pageSizeInput.value = "20";
       currentPage = 1;
       refreshCountryPriceLabels();

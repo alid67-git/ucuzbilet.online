@@ -1,5 +1,4 @@
 import json
-import uuid
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -105,18 +104,6 @@ def migrate_legacy_search_data(data: dict) -> dict:
     return updated
 
 
-def _read_search_file(path: Path) -> SavedSearch | None:
-    try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return None
-    migrated = migrate_legacy_search_data(raw)
-    try:
-        return SavedSearch.model_validate(migrated)
-    except ValidationError:
-        return None
-
-
 def _persist_if_changed(path: Path, raw: dict, saved: SavedSearch) -> None:
     checks = {
         "origin_place_id": saved.origin_place_id,
@@ -140,31 +127,6 @@ def save_quick_search(payload: ExploreSearchRequest) -> SavedSearch:
     return saved
 
 
-def save_search(payload: ExploreSearchRequest) -> SavedSearch:
-    ensure_data_dirs()
-    search_id = uuid.uuid4().hex[:12]
-    now = _now_iso()
-    saved = SavedSearch(id=search_id, created_at=now, updated_at=now, **payload.model_dump())
-    path = SEARCHES_DIR / f"{search_id}.json"
-    path.write_text(saved.model_dump_json(indent=2), encoding="utf-8")
-    return saved
-
-
-def update_search(search_id: str, payload: ExploreSearchRequest) -> SavedSearch | None:
-    existing = load_search(search_id)
-    if not existing:
-        return None
-    updated = SavedSearch(
-        id=search_id,
-        created_at=existing.created_at,
-        updated_at=_now_iso(),
-        **payload.model_dump(),
-    )
-    path = SEARCHES_DIR / f"{search_id}.json"
-    path.write_text(updated.model_dump_json(indent=2), encoding="utf-8")
-    return updated
-
-
 def load_search(search_id: str) -> SavedSearch | None:
     path = SEARCHES_DIR / f"{search_id}.json"
     if not path.exists():
@@ -177,48 +139,6 @@ def load_search(search_id: str) -> SavedSearch | None:
         return None
     _persist_if_changed(path, raw, saved)
     return saved
-
-
-def _load_and_normalize(path: Path) -> SavedSearch | None:
-    try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return None
-    migrated = migrate_legacy_search_data(raw)
-    try:
-        saved = SavedSearch.model_validate(migrated)
-    except ValidationError:
-        return None
-    _persist_if_changed(path, raw, saved)
-    return saved
-
-
-def list_searches() -> list[SavedSearch]:
-    ensure_data_dirs()
-    searches: list[SavedSearch] = []
-    for path in sorted(SEARCHES_DIR.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
-        saved = _load_and_normalize(path)
-        if saved and saved.id != QUICK_SEARCH_ID:
-            searches.append(saved)
-    return searches
-
-
-def list_broken_searches() -> list[dict]:
-    """Yuklenemeyen (eski/bozuk) arama dosyalari."""
-    ensure_data_dirs()
-    loaded_ids = {search.id for search in list_searches()}
-    broken: list[dict] = []
-    for path in sorted(SEARCHES_DIR.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
-        search_id = path.stem
-        if search_id in loaded_ids:
-            continue
-        try:
-            raw = json.loads(path.read_text(encoding="utf-8"))
-            name = raw.get("name") or search_id
-        except json.JSONDecodeError:
-            name = search_id
-        broken.append({"id": search_id, "name": name})
-    return broken
 
 
 def delete_results(search_id: str) -> int:

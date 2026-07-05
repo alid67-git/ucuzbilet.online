@@ -1,35 +1,99 @@
 {% extends "base.html" %}
-{% block title %}{{ title }} | {{ t.site_name }}{% endblock %}
+{% block title %}{{ t.form_title }} | {{ t.site_name }}{% endblock %}
 {% block body %}
   <main class="container container-narrow">
-    <form class="panel search-form" method="post" action="{{ action }}" id="search-form">
+    <form class="panel search-form" method="post" action="/search/run" id="search-form">
 
       <header class="form-page-head">
         <div>
-          <h1>{{ title }}</h1>
+          <h1 data-i18n="form_title">{{ t.form_title }}</h1>
           <p class="subtitle" data-i18n="site_tagline">{{ t.site_tagline }}</p>
         </div>
-        <a class="button" href="/" data-i18n="back">{{ t.back }}</a>
       </header>
+
+      <!-- Ust secim satiri: gidis-donus/tek yon, yolcu, kabin -->
+      <div class="trip-options-row">
+        <div class="trip-type-dropdown" id="trip-type-dropdown">
+          <button type="button" class="trip-options-toggle" id="trip-type-toggle" aria-haspopup="true" aria-expanded="false">
+            <span id="trip-type-label" data-i18n="trip_round_trip">{{ t.trip_round_trip }}</span>
+            <span class="caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="trip-type-menu" id="trip-type-menu" hidden role="menu">
+            <button type="button" class="trip-type-option active" data-return="1" role="menuitemradio" aria-checked="true">
+              <span class="option-check" aria-hidden="true">✓</span>
+              <span data-i18n="trip_round_trip">{{ t.trip_round_trip }}</span>
+            </button>
+            <button type="button" class="trip-type-option" data-return="0" role="menuitemradio" aria-checked="false">
+              <span class="option-check" aria-hidden="true">✓</span>
+              <span data-i18n="trip_one_way">{{ t.trip_one_way }}</span>
+            </button>
+            <button type="button" class="trip-type-option is-disabled" disabled role="menuitemradio" aria-checked="false">
+              <span class="option-check" aria-hidden="true">✓</span>
+              <span data-i18n="trip_multi_city">{{ t.trip_multi_city }}</span>
+              <span class="badge-soon" data-i18n="trip_multi_city_badge">{{ t.trip_multi_city_badge }}</span>
+            </button>
+          </div>
+        </div>
+        <input type="checkbox" name="use_return_date" id="use-return-date" class="visually-hidden" {% if has_return %}checked{% endif %}>
+
+        <div class="passenger-dropdown" id="passenger-dropdown">
+          <button type="button" class="trip-options-toggle" id="passenger-toggle" aria-haspopup="true" aria-expanded="false">
+            <span aria-hidden="true">👤</span>
+            <span id="passenger-count-label">{{ (search.adults if search else 1) + (search.children if search else 0) }}</span>
+            <span class="caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="passenger-menu" id="passenger-menu" hidden>
+            <div class="passenger-row">
+              <span data-i18n="adults_label">{{ t.adults_label }}</span>
+              <div class="stepper">
+                <button type="button" class="stepper-btn" data-target="adults" data-delta="-1" aria-label="-">−</button>
+                <span id="adults-count">{{ search.adults if search else 1 }}</span>
+                <button type="button" class="stepper-btn" data-target="adults" data-delta="1" aria-label="+">+</button>
+              </div>
+            </div>
+            <div class="passenger-row">
+              <span data-i18n="children_label">{{ t.children_label }}</span>
+              <div class="stepper">
+                <button type="button" class="stepper-btn" data-target="children" data-delta="-1" aria-label="-">−</button>
+                <span id="children-count">{{ search.children if search else 0 }}</span>
+                <button type="button" class="stepper-btn" data-target="children" data-delta="1" aria-label="+">+</button>
+              </div>
+            </div>
+            <div class="passenger-menu-actions">
+              <button type="button" class="button small" id="passenger-cancel" data-i18n="cancel_button">{{ t.cancel_button }}</button>
+              <button type="button" class="button primary small" id="passenger-done" data-i18n="done_button">{{ t.done_button }}</button>
+            </div>
+          </div>
+          <input type="hidden" name="adults" id="adults-input" value="{{ search.adults if search else 1 }}">
+          <input type="hidden" name="children" id="children-input" value="{{ search.children if search else 0 }}">
+        </div>
+
+        <label class="cabin-select-wrap">
+          <select name="cabin_class" id="cabin-select" class="pill-select">
+            {% for cabin, key in [('economy','cabin_economy'), ('premium-economy','cabin_premium_economy'), ('business','cabin_business'), ('first','cabin_first')] %}
+            <option value="{{ cabin }}" data-i18n="{{ key }}" {% if search and search.cabin_class == cabin %}selected{% elif not search and cabin == 'economy' %}selected{% endif %}>{{ t[key] }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
 
       <!-- 1. Rota -->
       <section class="form-section">
-        <h2 class="form-section-title">Rota</h2>
         <div class="form-route-grid">
           <div class="place-field" id="origin-field">
-            <label for="origin-input">Kalkış</label>
-            <input type="text" id="origin-input" autocomplete="off" placeholder="İstanbul, İtalya, Roma…"
+            <label for="origin-input" data-i18n="route_from">{{ t.route_from }}</label>
+            <input type="text" id="origin-input" autocomplete="off" placeholder="{{ t.origin_placeholder }}"
               value="{{ search.origin_label if search else '' }}">
             <input type="hidden" name="origin_place_id" id="origin-place-id" value="{{ search.origin_place_id if search else '' }}">
             <div class="place-dropdown" id="origin-dropdown"></div>
           </div>
-          <button type="button" class="swap-button swap-button-center" id="swap-places" title="Kalkış ve varışı değiştir" aria-label="Kalkış ve varışı değiştir">⇄</button>
+          <button type="button" class="swap-button swap-button-center" id="swap-places" title="{{ t.swap_places }}" aria-label="{{ t.swap_places }}">⇄</button>
           <div class="place-field" id="destination-field">
-            <label for="destination-input" id="destination-label">Varış <span class="label-optional">(opsiyonel)</span></label>
+            <label for="destination-input" id="destination-label"><span data-i18n="route_to">{{ t.route_to }}</span> <span class="label-optional">(<span data-i18n="optional_tag">{{ t.optional_tag }}</span>)</span></label>
             <div class="place-input-row">
-              <input type="text" id="destination-input" autocomplete="off" placeholder="New York, Miami…"
+              <input type="text" id="destination-input" autocomplete="off" placeholder="{{ t.destination_placeholder }}"
                 value="{{ search.destination_label if search and search.destination_label else '' }}">
-              <button type="button" class="button" id="clear-destination" hidden>Temizle</button>
+              <button type="button" class="button" id="clear-destination" hidden data-i18n="clear_button">{{ t.clear_button }}</button>
             </div>
             <input type="hidden" name="destination_place_id" id="destination-place-id" value="{{ search.destination_place_id if search and search.destination_place_id else '' }}">
             <div class="place-dropdown" id="destination-dropdown"></div>
@@ -38,35 +102,35 @@
         <label class="checkbox hub-inline" id="hub-checkbox-field">
           <input type="checkbox" name="use_european_hubs" id="use-european-hubs"
             {% if search and (search.use_european_hubs or search.mode.value == 'hub_to_country') %}checked{% endif %}>
-          Avrupa hub'larından tara
+          <span data-i18n="hub_checkbox_label">{{ t.hub_checkbox_label }}</span>
         </label>
-        <p class="hint compact-hint" id="origin-hint" hidden>Ülke yazınca tüm havalimanları seçeneğini işaretleyin.</p>
-        <p class="hint compact-hint" id="origin-hub-note" hidden>Hub seçili — kalkış otomatik (IST, AMS, CDG, FRA…).</p>
-        <p class="hint compact-hint" id="destination-hint" hidden>Boş bırakırsanız aşağıdaki bölge hedefi kullanılır.</p>
-        <p class="hint compact-hint" id="hub-hint" hidden>Hub + bölge hedefi birlikte çalışır.</p>
+        <p class="hint compact-hint" id="origin-hint" hidden data-i18n="origin_hint_default">{{ t.origin_hint_default }}</p>
+        <p class="hint compact-hint" id="origin-hub-note" hidden data-i18n="origin_hub_note">{{ t.origin_hub_note }}</p>
+        <p class="hint compact-hint" id="destination-hint" hidden data-i18n="dest_hint_empty">{{ t.dest_hint_empty }}</p>
+        <p class="hint compact-hint" id="hub-hint" hidden data-i18n="hub_hint">{{ t.hub_hint }}</p>
       </section>
 
-      <!-- 2. Bölge hedefi -->
+      <!-- 2. Bolge hedefi -->
       <section class="form-section" id="scope-field">
-        <h2 class="form-section-title">Nereye keşfet?</h2>
-        <label for="target-continent">Kıta</label>
+        <h2 class="form-section-title" data-i18n="explore_heading">{{ t.explore_heading }}</h2>
+        <label for="target-continent" data-i18n="continent_label">{{ t.continent_label }}</label>
         <select name="destination_scope" id="target-continent" class="full-width-select">
-          <option value="anywhere" {% if not search or search.destination_scope.value == 'anywhere' %}selected{% endif %}>Her yer</option>
-          <option value="americas" {% if search and search.destination_scope.value == 'americas' %}selected{% endif %}>Amerika</option>
-          <option value="europe" {% if search and search.destination_scope.value == 'europe' %}selected{% endif %}>Avrupa</option>
-          <option value="middle_east" {% if search and search.destination_scope.value == 'middle_east' %}selected{% endif %}>Orta Doğu</option>
-          <option value="asia" {% if search and search.destination_scope.value == 'asia' %}selected{% endif %}>Asya</option>
-          <option value="africa" {% if search and search.destination_scope.value == 'africa' %}selected{% endif %}>Afrika</option>
-          <option value="oceania" {% if search and search.destination_scope.value == 'oceania' %}selected{% endif %}>Okyanusya</option>
+          <option value="anywhere" data-i18n="continent_anywhere" {% if not search or search.destination_scope.value == 'anywhere' %}selected{% endif %}>{{ t.continent_anywhere }}</option>
+          <option value="americas" data-i18n="continent_americas" {% if search and search.destination_scope.value == 'americas' %}selected{% endif %}>{{ t.continent_americas }}</option>
+          <option value="europe" data-i18n="continent_europe" {% if search and search.destination_scope.value == 'europe' %}selected{% endif %}>{{ t.continent_europe }}</option>
+          <option value="middle_east" data-i18n="continent_middle_east" {% if search and search.destination_scope.value == 'middle_east' %}selected{% endif %}>{{ t.continent_middle_east }}</option>
+          <option value="asia" data-i18n="continent_asia" {% if search and search.destination_scope.value == 'asia' %}selected{% endif %}>{{ t.continent_asia }}</option>
+          <option value="africa" data-i18n="continent_africa" {% if search and search.destination_scope.value == 'africa' %}selected{% endif %}>{{ t.continent_africa }}</option>
+          <option value="oceania" data-i18n="continent_oceania" {% if search and search.destination_scope.value == 'oceania' %}selected{% endif %}>{{ t.continent_oceania }}</option>
         </select>
         <div id="country-grid" class="country-grid country-grid-compact"></div>
-        <p class="hint compact-hint" id="country-selection-hint">Ülke seçilmezse tüm kıta taranır.</p>
+        <p class="hint compact-hint" id="country-selection-hint" data-i18n="continent_hint">{{ t.continent_hint }}</p>
       </section>
 
       <section class="form-section" id="destination-airports-field" hidden>
-        <h2 class="form-section-title">Varış havalimanları</h2>
+        <h2 class="form-section-title" data-i18n="dest_airports_heading">{{ t.dest_airports_heading }}</h2>
         <div id="destination-airport-grid" class="country-grid country-grid-compact"></div>
-        <p class="hint compact-hint" id="destination-airport-hint">Seçilmezse tüm ülke taranır.</p>
+        <p class="hint compact-hint" id="destination-airport-hint" data-i18n="dest_airports_hint">{{ t.dest_airports_hint }}</p>
       </section>
 
       <!-- 3. Tarih -->
@@ -77,23 +141,26 @@
       {% set trip_dep = search.date_from if search and search.date_from else (search.departure_date if search and search.departure_date else today) %}
 
       <section class="form-section" id="trip-date-panel">
-        <h2 class="form-section-title">Tarih</h2>
-        <div class="trip-type-tabs" id="trip-type-tabs" role="tablist">
-          <button type="button" class="trip-type-tab" id="tab-one-way" data-return="0">Tek yön</button>
-          <button type="button" class="trip-type-tab" id="tab-round-trip" data-return="1">Gidiş-dönüş</button>
-        </div>
-        <input type="checkbox" name="use_return_date" id="use-return-date" class="visually-hidden" {% if has_return %}checked{% endif %}>
+        <h2 class="form-section-title" data-i18n="date_heading">{{ t.date_heading }}</h2>
 
         <div class="date-range-row date-range-row-clean">
           <label>
-            Gidiş
-            <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
+            <span data-i18n="date_departure">{{ t.date_departure }}</span>
+            <div class="date-input-row">
+              <button type="button" class="date-shift" data-target="trip-departure" data-delta="-1" aria-label="-1">‹</button>
+              <input type="date" name="date_from" id="trip-departure" value="{{ trip_dep }}">
+              <button type="button" class="date-shift" data-target="trip-departure" data-delta="1" aria-label="+1">›</button>
+            </div>
           </label>
           <label id="return-date-field">
-            Dönüş
-            <input type="date" name="date_to" id="trip-return"
-              value="{{ search.date_to if search and search.date_to else default_range_end }}"
-              {% if not has_return %}disabled{% endif %}>
+            <span data-i18n="date_return">{{ t.date_return }}</span>
+            <div class="date-input-row">
+              <button type="button" class="date-shift" data-target="trip-return" data-delta="-1" aria-label="-1">‹</button>
+              <input type="date" name="date_to" id="trip-return"
+                value="{{ search.date_to if search and search.date_to else default_range_end }}"
+                {% if not has_return %}disabled{% endif %}>
+              <button type="button" class="date-shift" data-target="trip-return" data-delta="1" aria-label="+1">›</button>
+            </div>
           </label>
         </div>
 
@@ -101,67 +168,43 @@
           <label class="checkbox">
             <input type="checkbox" name="flexible_search" id="flexible-search"
               {% if search and search.flexible_departure_in_range %}checked{% endif %}>
-            Esnek tarih (± gün)
+            <span data-i18n="flexible_date_label">{{ t.flexible_date_label }}</span>
           </label>
           <label id="flexibility-days-field" class="flex-days-field">
-            ± gün
+            ± <span data-i18n="date_hint_day_unit">{{ t.date_hint_day_unit }}</span>
             <input type="number" min="1" max="14" name="flexibility_days" id="flexibility-days"
               value="{{ search.flexibility_days if search and search.flexibility_days else 3 }}"
               {% if not search or not search.flexible_departure_in_range %}disabled{% endif %}>
           </label>
         </div>
         <input type="hidden" name="trip_days" id="trip-days" value="{{ search.trip_days if search else 5 }}">
-        <p class="hint compact-hint" id="trip-date-hint">Dönüş seçilmezse tek gidiş aranır.</p>
+        <p class="hint compact-hint" id="trip-date-hint" data-i18n="date_hint_default">{{ t.date_hint_default }}</p>
       </section>
 
-      <!-- 4. Yolcu & seçenekler -->
+      <!-- 4. Ek secenekler -->
       <section class="form-section">
-        <h2 class="form-section-title">Yolcu & seçenekler</h2>
-        <div class="form-grid nested cols-3 form-passengers">
-          <label>
-            Yetişkin
-            <input type="number" min="1" max="9" name="adults" value="{{ search.adults if search else 1 }}">
-          </label>
-          <label>
-            Çocuk
-            <input type="number" min="0" max="9" name="children" value="{{ search.children if search else 0 }}">
-          </label>
-          <label>
-            Kabin
-            <select name="cabin_class">
-              {% for cabin in ['economy', 'premium-economy', 'business', 'first'] %}
-              <option value="{{ cabin }}" {% if search and search.cabin_class == cabin %}selected{% elif not search and cabin == 'economy' %}selected{% endif %}>{{ cabin }}</option>
-              {% endfor %}
-            </select>
-          </label>
-        </div>
         <label class="checkbox">
           <input type="checkbox" name="prefer_thy" {% if search and search.prefer_thy %}checked{% endif %}>
-          Yalnızca THY
+          <span data-i18n="thy_only_label">{{ t.thy_only_label }}</span>
         </label>
         <label class="full mode-select-label">
-          Arama modu
+          <span data-i18n="search_mode_label">{{ t.search_mode_label }}</span>
           <select name="mode" id="mode-select">
             {% set eff_mode = search.mode.value if search else 'fixed_trip' %}
             {% if eff_mode == 'hub_to_country' %}{% set eff_mode = 'fixed_trip' %}{% endif %}
             {% if eff_mode == 'date_range' %}{% set eff_mode = 'fixed_trip' %}{% endif %}
-            <option value="fixed_trip" {% if not search or eff_mode != 'flexible' %}selected{% endif %}>Uçuş fiyat taraması</option>
-            <option value="flexible" id="mode-flexible" {% if search and eff_mode == 'flexible' %}selected{% endif %}>Esnek harita</option>
+            <option value="fixed_trip" data-i18n="search_mode_fixed" {% if not search or eff_mode != 'flexible' %}selected{% endif %}>{{ t.search_mode_fixed }}</option>
+            <option value="flexible" id="mode-flexible" data-i18n="search_mode_flexible" {% if search and eff_mode == 'flexible' %}selected{% endif %}>{{ t.search_mode_flexible }}</option>
           </select>
         </label>
       </section>
 
-      <!-- 5. Kaydet & ara -->
+      <!-- 5. Ara -->
       <section class="form-section form-section-actions">
-        <label class="save-name-label">
-          Arama adı <span class="label-optional">(kaydetmek için)</span>
-          <input type="text" name="name" value="{{ search.name if search else '' }}" placeholder="Örn. Milano Ağustos">
-        </label>
         <div class="form-submit-row">
-          <button class="button primary button-lg" type="submit" formaction="{{ run_action or '/search/run' }}">Ara</button>
-          <button class="button button-lg" type="submit" formaction="{{ action }}">Kaydet</button>
+          <button class="button primary button-lg" type="submit" id="search-submit" data-i18n="search_button">{{ t.search_button }}</button>
         </div>
-        <p class="hint compact-hint center-hint">Filtreler sonuç sayfasında · Ara = hemen tara · Kaydet = listeye ekle</p>
+        <p class="hint compact-hint center-hint" data-i18n="form_footer_note">{{ t.form_footer_note }}</p>
       </section>
 
     </form>
