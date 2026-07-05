@@ -134,7 +134,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "hub_comparison_hint": "Her satır farklı bir Avrupa hub'ından hedefe giden rotayı gösterir.",
         "cheapest_destinations_heading": "En ucuz destinasyonlar",
         "no_search_yet": "Henüz tarama yapılmadı.",
-        "search_again_button": "Şimdi tara",
+        "search_again_button": "Şimdi ara",
         "view_flights_link": "Uçuşları gör",
         "google_link_note": "Google'da aynı tarih ve rota açılır; sıralama farklı olabilir.",
         "new_search_button": "Yeni arama",

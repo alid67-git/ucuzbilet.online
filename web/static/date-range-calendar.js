@@ -154,7 +154,12 @@
     prev.className = "fs-cal-nav";
     prev.textContent = "‹";
     prev.setAttribute("aria-label", "previous month");
-    prev.addEventListener("click", () => {
+    prev.addEventListener("click", (event) => {
+      // render() bu tikin icinde takvimi yeniden olusturup eski butonu
+      // DOM'dan kaldiriyor; olay document'a kadar yukselirse "disari
+      // tiklandi" saniliyor ve popover kapaniyor. stopPropagation ile
+      // bunu onluyoruz.
+      event.stopPropagation();
       viewMonth -= 1;
       if (viewMonth < 0) {
         viewMonth = 11;
@@ -170,7 +175,8 @@
     next.className = "fs-cal-nav";
     next.textContent = "›";
     next.setAttribute("aria-label", "next month");
-    next.addEventListener("click", () => {
+    next.addEventListener("click", (event) => {
+      event.stopPropagation();
       viewMonth += 1;
       if (viewMonth > 11) {
         viewMonth = 0;
@@ -212,7 +218,10 @@
       btn.className = cellClass(iso, minIso);
       btn.textContent = String(day);
       btn.disabled = iso < minIso;
-      btn.addEventListener("click", () => onDayClick(iso));
+      btn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onDayClick(iso);
+      });
       grid.appendChild(btn);
     }
 

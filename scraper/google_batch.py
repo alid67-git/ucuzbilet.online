@@ -121,6 +121,101 @@ def _is_thy_offer(offer: ExploreOffer) -> bool:
     return bool(offer.airline) and "turkish airlines" in offer.airline.lower()
 
 
+def _should_supplement_thy(search: ExploreSearchRequest) -> bool:
+    if search.prefer_thy:
+        return False
+    return search.alliance.value in {"any", "STAR_ALLIANCE"}
+
+
+def _build_route_query(
+    origin_code: str,
+    dest_code: str,
+    departure: date,
+    return_date: date | None,
+    search: ExploreSearchRequest,
+    *,
+    airlines: list[str] | None,
+    one_way: bool,
+    max_stops: int | None,
+):
+    outbound = FlightQuery(
+        date=departure.isoformat(),
+        from_airport=origin_code,
+        to_airport=dest_code,
+        max_stops=max_stops,
+        airlines=airlines,
+    )
+    passengers = Passengers(adults=search.adults, children=search.children)
+    if one_way:
+        return create_query(
+            flights=[outbound],
+            trip="one-way",
+            passengers=passengers,
+            seat=search.cabin_class,
+            currency=search.currency,
+            language="tr",
+        )
+    assert return_date is not None
+    return create_query(
+        flights=[
+            outbound,
+            FlightQuery(
+                date=return_date.isoformat(),
+                from_airport=dest_code,
+                to_airport=origin_code,
+                max_stops=max_stops,
+                airlines=airlines,
+            ),
+        ],
+        trip="round-trip",
+        passengers=passengers,
+        seat=search.cabin_class,
+        currency=search.currency,
+        language="tr",
+    )
+
+
+def _fetch_cheapest_thy_flight(
+    origin_code: str,
+    dest_code: str,
+    departure: date,
+    return_date: date | None,
+    search: ExploreSearchRequest,
+    *,
+    one_way: bool,
+    max_stops: int | None,
+):
+    # Google'in varsayilan sonuc kumesi bu rota icin THY dondurmeyebilir (orn.
+    # THY'nin kendi hub'i (IST) uzerinden actigi ama Google'in ilk sayfada
+    # göstermedigi baglantili bir bilet). "TK" havayolu filtresiyle ayri bir
+    # sorgu atarak THY'nin gercekten sattigi en ucuz secenegi ariyoruz.
+    try:
+        query = _build_route_query(
+            origin_code,
+            dest_code,
+            departure,
+            return_date,
+            search,
+            airlines=["TK"],
+            one_way=one_way,
+            max_stops=max_stops,
+        )
+        results = get_flights(query)
+        if not results:
+            return None, None
+        valid = [
+            f
+            for f in results
+            if _validate_flight_route(origin_code, dest_code, f.flights) and _is_thy_flight(f)
+        ]
+        if not valid:
+            return None, None
+        valid.sort(key=lambda f: f.price or float("inf"))
+        return valid[0], query
+    except Exception:
+        return None, None
+
+
 def _search_sync(
     origin_code: str,
     dest_code: str,
@@ -133,41 +228,16 @@ def _search_sync(
     one_way = search.one_way and not search.use_return_date and return_date is None
 
     try:
-        outbound = FlightQuery(
-            date=departure.isoformat(),
-            from_airport=origin_code,
-            to_airport=dest_code,
-            max_stops=max_stops,
+        query = _build_route_query(
+            origin_code,
+            dest_code,
+            departure,
+            return_date,
+            search,
             airlines=airlines,
+            one_way=one_way,
+            max_stops=max_stops,
         )
-        if one_way:
-            query = create_query(
-                flights=[outbound],
-                trip="one-way",
-                passengers=Passengers(adults=search.adults, children=search.children),
-                seat=search.cabin_class,
-                currency=search.currency,
-                language="tr",
-            )
-        else:
-            assert return_date is not None
-            query = create_query(
-                flights=[
-                    outbound,
-                    FlightQuery(
-                        date=return_date.isoformat(),
-                        from_airport=dest_code,
-                        to_airport=origin_code,
-                        max_stops=max_stops,
-                        airlines=airlines,
-                    ),
-                ],
-                trip="round-trip",
-                passengers=Passengers(adults=search.adults, children=search.children),
-                seat=search.cabin_class,
-                currency=search.currency,
-                language="tr",
-            )
         results = get_flights(query)
         if not results:
             return []
@@ -177,23 +247,35 @@ def _search_sync(
             return []
         valid.sort(key=lambda f: f.price or float("inf"))
 
-        chosen = []
+        chosen: list[tuple[object, object]] = []
         seen_airlines: set[str] = set()
         for flight in valid:
             airline_key = ", ".join(flight.airlines[:2]) if flight.airlines else ""
             if airline_key in seen_airlines:
                 continue
             seen_airlines.add(airline_key)
-            chosen.append(flight)
+            chosen.append((flight, query))
             if len(chosen) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
                 break
 
         # THY bu rotayi ucuyorsa "Sadece THY" filtresinde her zaman gorunsun --
         # en ucuz N farkli havayolu arasina girmese bile en ucuz THY secenegini ekle.
-        if not any(_is_thy_flight(f) for f in chosen):
+        # Genel sorguda hic THY yoksa, THY'ye ozel ek bir sorguyla tekrar denenir.
+        if not any(_is_thy_flight(f) for f, _ in chosen):
             cheapest_thy = next((f for f in valid if _is_thy_flight(f)), None)
-            if cheapest_thy is not None:
-                chosen.append(cheapest_thy)
+            thy_query = query
+            if cheapest_thy is None and _should_supplement_thy(search):
+                cheapest_thy, thy_query = _fetch_cheapest_thy_flight(
+                    origin_code,
+                    dest_code,
+                    departure,
+                    return_date,
+                    search,
+                    one_way=one_way,
+                    max_stops=max_stops,
+                )
+            if cheapest_thy is not None and thy_query is not None:
+                chosen.append((cheapest_thy, thy_query))
 
         destinations = destinations_for_search(
             search.destination_place(),
@@ -219,7 +301,7 @@ def _search_sync(
         )
 
         offers = []
-        for flight in chosen:
+        for flight, booking_query in chosen:
             amount, currency = _parse_price_amount(flight.price)
             outbound_segments, _ = _split_outbound_return(flight.flights, dest_code)
             leg_segments = outbound_segments or flight.flights
@@ -256,7 +338,7 @@ def _search_sync(
                     stops_count=stops_count,
                     airline=", ".join(flight.airlines[:2]) if flight.airlines else None,
                     summary=f"{origin_code} → {dest_code}",
-                    booking_url=query.url(),
+                    booking_url=booking_query.url(),
                     origin_note=origin_code,
                 )
             )
