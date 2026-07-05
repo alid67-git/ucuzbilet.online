@@ -97,53 +97,61 @@
               </div>
             </div>
 
-            <details class="filter-details">
-              <summary id="filter-airlines-summary" data-i18n="filter_airline">{{ t.filter_airline }}</summary>
-              <div class="filter-chip-actions">
-                <button type="button" class="button small" data-chip-select-all="filter-airline" data-i18n="filter_select_all">{{ t.filter_select_all }}</button>
-                <button type="button" class="button small" data-chip-select-none="filter-airline" data-i18n="filter_select_none">{{ t.filter_select_none }}</button>
+            <div class="filters-toolbar">
+              <div class="filter-group">
+                <span class="filter-label"><span data-i18n="filter_max_duration">{{ t.filter_max_duration }}</span>: <span id="filter-duration-value">-</span></span>
+                <input type="range" id="filter-duration" class="filter-range">
               </div>
+
+              <div class="filter-group">
+                <span class="filter-label" data-i18n="filter_sort">{{ t.filter_sort }}</span>
+                <select id="sort-select">
+                  <option value="price" data-i18n="sort_price">{{ t.sort_price }}</option>
+                  <option value="duration" data-i18n="sort_duration">{{ t.sort_duration }}</option>
+                  <option value="stops" data-i18n="sort_stops">{{ t.sort_stops }}</option>
+                  <option value="recommended" data-i18n="sort_recommended">{{ t.sort_recommended }}</option>
+                  <option value="country" data-i18n="sort_country">{{ t.sort_country }}</option>
+                </select>
+              </div>
+
+              <div class="filter-group" id="pagination-controls">
+                <span class="filter-label" data-i18n="page_size_label">{{ t.page_size_label }}</span>
+                <input type="number" id="page-size-input" min="5" max="200" value="20">
+              </div>
+            </div>
+
+            <details class="filter-details">
+              <summary class="filter-details-summary">
+                <span id="filter-airlines-title" class="filter-details-title" data-i18n="filter_airline">{{ t.filter_airline }}</span>
+                <span class="filter-chip-bulk">
+                  <button type="button" class="chip-bulk-btn" data-chip-select-all="filter-airline" title="{{ t.filter_select_all }}" aria-label="{{ t.filter_select_all }}">☑</button>
+                  <button type="button" class="chip-bulk-btn" data-chip-select-none="filter-airline" title="{{ t.filter_select_none }}" aria-label="{{ t.filter_select_none }}">☐</button>
+                </span>
+              </summary>
               <div id="filter-airlines" class="filter-chip-row"></div>
             </details>
 
             <details class="filter-details filter-details-open" open>
-              <summary id="filter-origin-countries-summary" data-i18n="filter_departure_country">{{ t.filter_departure_country }}</summary>
-              <div class="filter-chip-actions">
-                <button type="button" class="button small" data-chip-select-all="filter-origin-country" data-i18n="filter_select_all">{{ t.filter_select_all }}</button>
-                <button type="button" class="button small" data-chip-select-none="filter-origin-country" data-i18n="filter_select_none">{{ t.filter_select_none }}</button>
-              </div>
+              <summary class="filter-details-summary">
+                <span id="filter-origin-countries-title" class="filter-details-title" data-i18n="filter_departure_country">{{ t.filter_departure_country }}</span>
+                <span class="filter-chip-bulk">
+                  <button type="button" class="chip-bulk-btn" data-chip-select-all="filter-origin-country" title="{{ t.filter_select_all }}" aria-label="{{ t.filter_select_all }}">☑</button>
+                  <button type="button" class="chip-bulk-btn" data-chip-select-none="filter-origin-country" title="{{ t.filter_select_none }}" aria-label="{{ t.filter_select_none }}">☐</button>
+                </span>
+              </summary>
               <div id="filter-origin-countries" class="filter-chip-row"></div>
             </details>
 
             <details class="filter-details filter-details-open" open>
-              <summary id="filter-countries-summary" data-i18n="filter_destination_country">{{ t.filter_destination_country }}</summary>
-              <div class="filter-chip-actions">
-                <button type="button" class="button small" data-chip-select-all="filter-country" data-i18n="filter_select_all">{{ t.filter_select_all }}</button>
-                <button type="button" class="button small" data-chip-select-none="filter-country" data-i18n="filter_select_none">{{ t.filter_select_none }}</button>
-              </div>
+              <summary class="filter-details-summary">
+                <span id="filter-countries-title" class="filter-details-title" data-i18n="filter_destination_country">{{ t.filter_destination_country }}</span>
+                <span class="filter-chip-bulk">
+                  <button type="button" class="chip-bulk-btn" data-chip-select-all="filter-country" title="{{ t.filter_select_all }}" aria-label="{{ t.filter_select_all }}">☑</button>
+                  <button type="button" class="chip-bulk-btn" data-chip-select-none="filter-country" title="{{ t.filter_select_none }}" aria-label="{{ t.filter_select_none }}">☐</button>
+                </span>
+              </summary>
               <div id="filter-countries" class="filter-chip-row"></div>
             </details>
-
-            <div class="filter-group">
-              <span class="filter-label"><span data-i18n="filter_max_duration">{{ t.filter_max_duration }}</span>: <span id="filter-duration-value">-</span></span>
-              <input type="range" id="filter-duration" class="filter-range">
-            </div>
-
-            <div class="filter-group">
-              <span class="filter-label" data-i18n="filter_sort">{{ t.filter_sort }}</span>
-              <select id="sort-select">
-                <option value="price" data-i18n="sort_price">{{ t.sort_price }}</option>
-                <option value="duration" data-i18n="sort_duration">{{ t.sort_duration }}</option>
-                <option value="stops" data-i18n="sort_stops">{{ t.sort_stops }}</option>
-                <option value="recommended" data-i18n="sort_recommended">{{ t.sort_recommended }}</option>
-                <option value="country" data-i18n="sort_country">{{ t.sort_country }}</option>
-              </select>
-            </div>
-
-            <div class="filter-group" id="pagination-controls">
-              <span class="filter-label" data-i18n="page_size_label">{{ t.page_size_label }}</span>
-              <input type="number" id="page-size-input" min="5" max="200" value="20">
-            </div>
 
             <div class="filter-group actions">
               <button type="button" class="button" id="filter-reset" data-i18n="filter_reset">{{ t.filter_reset }}</button>

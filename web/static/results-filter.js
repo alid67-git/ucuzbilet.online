@@ -9,11 +9,11 @@
 
   const stopsCheckboxes = Array.from(document.querySelectorAll(".filter-stops"));
   const airlinesContainer = document.getElementById("filter-airlines");
-  const airlinesSummary = document.getElementById("filter-airlines-summary");
+  const airlinesTitle = document.getElementById("filter-airlines-title");
   const countriesContainer = document.getElementById("filter-countries");
-  const countriesSummary = document.getElementById("filter-countries-summary");
+  const countriesTitle = document.getElementById("filter-countries-title");
   const originCountriesContainer = document.getElementById("filter-origin-countries");
-  const originCountriesSummary = document.getElementById("filter-origin-countries-summary");
+  const originCountriesTitle = document.getElementById("filter-origin-countries-title");
   const durationInput = document.getElementById("filter-duration");
   const durationValue = document.getElementById("filter-duration-value");
   const resetBtn = document.getElementById("filter-reset");
@@ -62,6 +62,26 @@
     return Array.from(new Set(values.filter((v) => v))).sort((a, b) => a.localeCompare(b, "tr"));
   }
 
+  function countryPriceMap(cards, datasetKey) {
+    const byCountry = new Map();
+    cards.forEach((c) => {
+      const country = c.dataset[datasetKey];
+      if (!country) return;
+      const price = numAttr(c, "price");
+      if (!byCountry.has(country)) byCountry.set(country, []);
+      if (price !== null) byCountry.get(country).push(price);
+    });
+    return byCountry;
+  }
+
+  function countryChipLabel(country, prices) {
+    let text = " " + country;
+    if (prices.length) {
+      text += " (" + formatPrice(Math.min(...prices)) + " - " + formatPrice(Math.max(...prices)) + ")";
+    }
+    return text;
+  }
+
   function buildChipRow(container, values, className) {
     container.innerHTML = "";
     values.forEach((value) => {
@@ -80,14 +100,7 @@
 
   function buildCountryChipRow(container, cards, datasetKey, className) {
     container.innerHTML = "";
-    const byCountry = new Map();
-    cards.forEach((c) => {
-      const country = c.dataset[datasetKey];
-      if (!country) return;
-      const price = numAttr(c, "price");
-      if (!byCountry.has(country)) byCountry.set(country, []);
-      if (price !== null) byCountry.get(country).push(price);
-    });
+    const byCountry = countryPriceMap(cards, datasetKey);
     Array.from(byCountry.keys())
       .sort((a, b) => a.localeCompare(b, "tr"))
       .forEach((country) => {
@@ -100,13 +113,35 @@
         input.value = country;
         input.checked = true;
         label.appendChild(input);
-        let text = " " + country;
-        if (prices.length) {
-          text += " (" + formatPrice(Math.min(...prices)) + " - " + formatPrice(Math.max(...prices)) + ")";
-        }
-        label.appendChild(document.createTextNode(text));
+        label.appendChild(document.createTextNode(countryChipLabel(country, prices)));
         container.appendChild(label);
       });
+  }
+
+  function updateCountryChipPrices(container, cards, datasetKey, className) {
+    const byCountry = countryPriceMap(cards, datasetKey);
+    const checkboxes = Array.from(container.querySelectorAll("." + className));
+    if (!checkboxes.length) return false;
+
+    const existing = new Set(checkboxes.map((cb) => cb.value));
+    const next = new Set(byCountry.keys());
+    if (existing.size !== next.size || Array.from(existing).some((value) => !next.has(value))) {
+      return false;
+    }
+
+    checkboxes.forEach((cb) => {
+      const prices = byCountry.get(cb.value) || [];
+      const label = cb.closest("label");
+      if (!label) return;
+      const textNode = Array.from(label.childNodes).find((node) => node.nodeType === Node.TEXT_NODE);
+      const nextText = countryChipLabel(cb.value, prices);
+      if (textNode) {
+        textNode.textContent = nextText;
+      } else {
+        label.appendChild(document.createTextNode(nextText));
+      }
+    });
+    return true;
   }
 
   function snapshotCountryChecks(className) {
@@ -131,8 +166,10 @@
 
   function rebuildCountryChipRow(container, cards, datasetKey, className) {
     const previous = snapshotCountryChecks(className);
-    buildCountryChipRow(container, cards, datasetKey, className);
-    restoreCountryChecks(className, previous);
+    if (!updateCountryChipPrices(container, cards, datasetKey, className)) {
+      buildCountryChipRow(container, cards, datasetKey, className);
+      restoreCountryChecks(className, previous);
+    }
   }
 
   const AIRLINE_GROUPS = {
@@ -230,26 +267,27 @@
   }
 
   function updateAirlineSummary() {
-    if (!airlinesSummary) return;
+    if (!airlinesTitle) return;
     const total = document.querySelectorAll(".filter-airline").length;
     const checked = document.querySelectorAll(".filter-airline:checked").length;
-    airlinesSummary.textContent = "Havayolu (" + checked + "/" + total + " secili)";
+    const label = window.SiteLocale ? window.SiteLocale.t("filter_airline") : "Havayolu";
+    airlinesTitle.textContent = label + " (" + checked + "/" + total + " secili)";
   }
 
   function updateCountrySummary() {
-    if (!countriesSummary) return;
+    if (!countriesTitle) return;
     const total = document.querySelectorAll(".filter-country").length;
     const checked = document.querySelectorAll(".filter-country:checked").length;
     const label = window.SiteLocale ? window.SiteLocale.t("filter_destination_country") : "Gidis ulkesi";
-    countriesSummary.textContent = label + " (" + checked + "/" + total + " secili)";
+    countriesTitle.textContent = label + " (" + checked + "/" + total + " secili)";
   }
 
   function updateOriginCountrySummary() {
-    if (!originCountriesSummary) return;
+    if (!originCountriesTitle) return;
     const total = document.querySelectorAll(".filter-origin-country").length;
     const checked = document.querySelectorAll(".filter-origin-country:checked").length;
     const label = window.SiteLocale ? window.SiteLocale.t("filter_departure_country") : "Cikis ulkesi";
-    originCountriesSummary.textContent = label + " (" + checked + "/" + total + " secili)";
+    originCountriesTitle.textContent = label + " (" + checked + "/" + total + " secili)";
   }
 
   function restoreGroupedView() {
@@ -564,6 +602,10 @@
   filtersPanel.addEventListener("click", (event) => {
     const selectAllBtn = event.target.closest("[data-chip-select-all]");
     const selectNoneBtn = event.target.closest("[data-chip-select-none]");
+    if (selectAllBtn || selectNoneBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     if (selectAllBtn) {
       setChipChecks(selectAllBtn.dataset.chipSelectAll, true);
     } else if (selectNoneBtn) {
@@ -571,11 +613,27 @@
     }
   });
 
+  function applyBulkButtonTitles() {
+    if (!window.SiteLocale) return;
+    document.querySelectorAll("[data-chip-select-all]").forEach((btn) => {
+      const title = window.SiteLocale.t("filter_select_all");
+      btn.title = title;
+      btn.setAttribute("aria-label", title);
+    });
+    document.querySelectorAll("[data-chip-select-none]").forEach((btn) => {
+      const title = window.SiteLocale.t("filter_select_none");
+      btn.title = title;
+      btn.setAttribute("aria-label", title);
+    });
+  }
+
   refresh();
   applyTierTabLabels();
+  applyBulkButtonTitles();
   refreshOfferPrices();
   document.addEventListener("localechange", () => {
     applyTierTabLabels();
+    applyBulkButtonTitles();
     refreshCountryPriceLabels();
     refreshOfferPrices();
     refresh();
