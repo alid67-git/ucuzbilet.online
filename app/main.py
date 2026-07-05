@@ -46,41 +46,6 @@ def _default_dates() -> tuple[str, str, str]:
     return today.isoformat(), (today + timedelta(days=5)).isoformat(), (today + timedelta(days=30)).isoformat()
 
 
-# Hero altindaki "populer rotalar" seridi icin kucuk, elle secilmis liste --
-# oneri motoru degil, sabit bir kisayol seti.
-POPULAR_ROUTE_CODES = [
-    ("IST", "FCO"),
-    ("IST", "BKK"),
-    ("IST", "AMS"),
-    ("IST", "DXB"),
-    ("IST", "JFK"),
-    ("IST", "CDG"),
-    ("IST", "BCN"),
-    ("IST", "ATH"),
-]
-
-
-def _popular_routes() -> list[dict]:
-    routes = []
-    for origin_code, dest_code in POPULAR_ROUTE_CODES:
-        origin = get_place(origin_code)
-        dest = get_place(dest_code)
-        if not origin or not dest:
-            continue
-        routes.append(
-            {
-                "origin_code": origin_code,
-                "origin_label": place_label(origin),
-                "origin_city": origin.city or origin.name,
-                "dest_code": dest_code,
-                "dest_label": place_label(dest),
-                "dest_city": dest.city or dest.name,
-                "dest_flag": country_flag(dest.country_code),
-            }
-        )
-    return routes
-
-
 def _form_context(search=None) -> dict:
     today, default_return, default_range_end = _default_dates()
     return {
@@ -88,7 +53,6 @@ def _form_context(search=None) -> dict:
         "today": today,
         "default_return": default_return,
         "default_range_end": default_range_end,
-        "popular_routes": _popular_routes(),
     }
 
 
@@ -217,7 +181,6 @@ def _parse_search_form(
     children: int,
     max_price: str,
     cabin_class: str,
-    enable_hub_combo: str | None = None,
 ) -> ExploreSearchRequest:
     hub = use_european_hubs == "on" or mode == "hub_to_country"
     if mode == "hub_to_country":
@@ -264,7 +227,6 @@ def _parse_search_form(
             destination_place_id=dest.id if dest else None,
             destination_label=place_label(dest) if dest else "",
             use_european_hubs=hub,
-            enable_hub_combo=enable_hub_combo == "on",
             mode=explore_mode,
             departure_date=parsed_from,
             date_from=parsed_from,
@@ -322,7 +284,6 @@ async def quick_search_run(
     children: int = Form(0),
     max_price: str = Form(""),
     cabin_class: str = Form("economy"),
-    enable_hub_combo: str | None = Form(None),
 ):
     payload = _parse_search_form(
         name or f"Hizli arama {date.today().isoformat()}",
@@ -346,7 +307,6 @@ async def quick_search_run(
         children,
         max_price,
         cabin_class,
-        enable_hub_combo,
     )
     saved = save_quick_search(payload)
     await _run_search_and_save(saved)

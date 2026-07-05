@@ -38,7 +38,6 @@ class ExploreSearchRequest(BaseModel):
     destination_place_id: str | None = None
     destination_label: str = ""
     use_european_hubs: bool = False
-    enable_hub_combo: bool = False
     mode: ExploreMode = ExploreMode.FIXED_TRIP
     date_from: date | None = None
     date_to: date | None = None
@@ -109,16 +108,6 @@ class ExploreSearchRequest(BaseModel):
                 self.target_airport_ids = []
         else:
             self.target_airport_ids = []
-
-        if self.enable_hub_combo:
-            dest_for_hub = self.destination_place()
-            if (
-                self.use_european_hubs
-                or self.mode not in (ExploreMode.FIXED_TRIP, ExploreMode.DATE_RANGE)
-                or not dest_for_hub
-                or dest_for_hub.type not in ("airport", "city")
-            ):
-                self.enable_hub_combo = False
 
         if self.mode == ExploreMode.FIXED_TRIP:
             if not self.departure_date and not self.date_from:
@@ -210,19 +199,6 @@ class ExploreOffer(BaseModel):
     origin_note: str | None = None
 
 
-class HubComboOffer(BaseModel):
-    leg1: ExploreOffer
-    leg2: ExploreOffer
-    hub_code: str
-    hub_city: str | None = None
-    hub_country: str | None = None
-    connection_hours: float
-    baggage_estimate: float
-    layover_penalty: float
-    total_cost: float
-    risky: bool = False
-
-
 class SearchRunResult(BaseModel):
     search_id: str
     search_name: str
@@ -230,7 +206,6 @@ class SearchRunResult(BaseModel):
     status: Literal["success", "partial", "failed"]
     message: str
     offers: list[ExploreOffer] = Field(default_factory=list)
-    hub_combo_offers: list[HubComboOffer] = Field(default_factory=list)
     scraped_at: str
 
 

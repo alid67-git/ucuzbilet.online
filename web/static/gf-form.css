@@ -36,7 +36,7 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(255, 248, 240, 0.7) 0%, rgba(240, 249, 255, 0.65) 40%, rgba(255, 245, 235, 0.72) 100%),
+    linear-gradient(180deg, rgba(255, 248, 240, 0.9) 0%, rgba(240, 249, 255, 0.85) 40%, rgba(255, 245, 235, 0.92) 100%),
     radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255, 179, 71, 0.2), transparent 60%);
 }
 
@@ -86,8 +86,7 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.12) 45%, rgba(15, 23, 42, 0.78) 100%),
-    linear-gradient(125deg, rgba(232, 93, 74, 0.18) 0%, transparent 55%),
+    linear-gradient(125deg, rgba(15, 23, 42, 0.75) 0%, rgba(232, 93, 74, 0.55) 48%, rgba(14, 165, 160, 0.5) 100%),
     var(--photo-beach) center/cover no-repeat;
   z-index: -1;
 }
@@ -593,71 +592,4 @@
   }
 
   .search-hero-banner::after { display: none; }
-}
-
-.popular-routes-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin: 0 0 1.25rem;
-}
-
-.route-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 999px;
-  background: var(--gradient-hero);
-  color: #fff;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(232, 93, 74, 0.18);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.route-chip:hover,
-.route-chip:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(232, 93, 74, 0.28);
-}
-
-.route-chip-cities { white-space: nowrap; }
-.route-chip-flag { font-size: 1rem; }
-
-@media (max-width: 640px) {
-  .popular-routes-strip {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.25rem;
-    -webkit-overflow-scrolling: touch;
-  }
-  .route-chip { flex: 0 0 auto; }
-}
-
-.hub-combo-section {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px dashed var(--border);
-}
-
-.hub-combo-offer {
-  border-left: 3px solid var(--secondary);
-}
-
-.hub-combo-offer-risky {
-  border-left-color: var(--danger);
-}
-
-.hub-combo-risky-badge {
-  display: inline-block;
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
-  background: #fde4e2;
-  color: var(--danger);
-  font-size: 0.75rem;
-  font-weight: 700;
 }
