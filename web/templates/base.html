@@ -29,25 +29,31 @@
               <button type="button" class="lang-btn{% if lang == 'fr' %} active{% endif %}" data-lang="fr" data-flag="🇫🇷">🇫🇷 Français</button>
             </div>
           </div>
+          <div class="currency-picker" id="currency-picker">
+            <button type="button" class="currency-picker-toggle" id="currency-picker-toggle" aria-haspopup="true" aria-expanded="false" aria-label="{{ t.currency }}">
+              <span id="currency-picker-symbol">₺</span>
+              <span class="currency-picker-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="currency-picker-menu" id="currency-picker-menu" hidden role="menu">
+              <label class="currency-picker-row">
+                <span class="top-currency-label">{{ t.currency }}</span>
+                <select id="currency-select" class="top-select" aria-label="{{ t.currency }}">
+                  <option value="TRY">₺ TRY</option>
+                  <option value="EUR">€ EUR</option>
+                  <option value="USD">$ USD</option>
+                  <option value="GBP">£ GBP</option>
+                </select>
+              </label>
+              <label class="top-auto-currency">
+                <input type="checkbox" id="currency-auto" checked>
+                <span data-i18n="currency_auto">{{ t.currency_auto }}</span>
+              </label>
+            </div>
+          </div>
           <button type="button" class="button small help-btn" id="help-open" title="{{ t.help }}" aria-label="{{ t.help }}">?</button>
         </div>
         <span class="top-developer">{{ t.developer }}</span>
       </div>
-    </div>
-    <div class="top-bar-right">
-      <label class="top-currency-wrap">
-        <span class="top-currency-label">{{ t.currency }}</span>
-        <select id="currency-select" class="top-select" aria-label="{{ t.currency }}">
-          <option value="TRY">₺ TRY</option>
-          <option value="EUR">€ EUR</option>
-          <option value="USD">$ USD</option>
-          <option value="GBP">£ GBP</option>
-        </select>
-      </label>
-      <label class="top-auto-currency">
-        <input type="checkbox" id="currency-auto" checked>
-        <span data-i18n="currency_auto">{{ t.currency_auto }}</span>
-      </label>
     </div>
   </nav>
 

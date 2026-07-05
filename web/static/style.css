@@ -775,8 +775,7 @@ input, select {
   backdrop-filter: blur(8px);
 }
 
-.top-bar-left,
-.top-bar-right {
+.top-bar-left {
   display: flex;
   align-items: center;
   gap: 0.65rem;
@@ -835,13 +834,6 @@ input, select {
 .lang-btn.active {
   background: var(--gradient-hero);
   color: white;
-}
-
-.top-currency-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.82rem;
 }
 
 .top-currency-label {
@@ -1171,6 +1163,62 @@ input, select {
 .lang-picker-menu .lang-btn.active {
   background: var(--gradient-hero);
   color: white;
+}
+
+/* --- Ust bar: para birimi acilir menu --- */
+.currency-picker {
+  position: relative;
+}
+
+.currency-picker-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 999px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.currency-picker-caret {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.currency-picker-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 0.6rem;
+  gap: 0.55rem;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(26, 35, 50, 0.16);
+}
+
+.currency-picker-menu[hidden] {
+  display: none;
+}
+
+.currency-picker-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.currency-picker-row .top-select {
+  width: 100%;
 }
 
 /* --- Form: Google Flights tarzi ust secim satiri --- */

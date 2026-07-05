@@ -71,6 +71,8 @@
       sel.disabled = currencyAuto;
     }
     if (auto) auto.checked = currencyAuto;
+    const symbolEl = document.getElementById("currency-picker-symbol");
+    if (symbolEl) symbolEl.textContent = SYMBOLS[effectiveCurrency()] || "₺";
   }
 
   async function setLang(next) {
@@ -95,31 +97,24 @@
     document.dispatchEvent(new CustomEvent("localechange", { detail: { lang, currency: effectiveCurrency() } }));
   }
 
-  function initLangPicker() {
-    const picker = document.getElementById("lang-picker");
-    const toggle = document.getElementById("lang-picker-toggle");
-    const menu = document.getElementById("lang-picker-menu");
-    if (!picker || !toggle || !menu) return;
+  const openDropdowns = [];
 
+  function registerDropdown(picker, toggle, menu) {
     function closeMenu() {
       menu.hidden = true;
       toggle.setAttribute("aria-expanded", "false");
     }
     function openMenu() {
+      openDropdowns.forEach((close) => close());
       menu.hidden = false;
       toggle.setAttribute("aria-expanded", "true");
     }
+    openDropdowns.push(closeMenu);
 
     toggle.addEventListener("click", (event) => {
       event.stopPropagation();
       if (menu.hidden) openMenu();
       else closeMenu();
-    });
-    menu.querySelectorAll(".lang-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        setLang(btn.dataset.lang);
-        closeMenu();
-      });
     });
     document.addEventListener("click", (event) => {
       if (!picker.contains(event.target)) closeMenu();
@@ -127,10 +122,35 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeMenu();
     });
+    return { closeMenu, openMenu };
+  }
+
+  function initLangPicker() {
+    const picker = document.getElementById("lang-picker");
+    const toggle = document.getElementById("lang-picker-toggle");
+    const menu = document.getElementById("lang-picker-menu");
+    if (!picker || !toggle || !menu) return;
+
+    const { closeMenu } = registerDropdown(picker, toggle, menu);
+    menu.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setLang(btn.dataset.lang);
+        closeMenu();
+      });
+    });
+  }
+
+  function initCurrencyPicker() {
+    const picker = document.getElementById("currency-picker");
+    const toggle = document.getElementById("currency-picker-toggle");
+    const menu = document.getElementById("currency-picker-menu");
+    if (!picker || !toggle || !menu) return;
+    registerDropdown(picker, toggle, menu);
   }
 
   function initTopBar() {
     initLangPicker();
+    initCurrencyPicker();
     const sel = document.getElementById("currency-select");
     const auto = document.getElementById("currency-auto");
     if (auto) {

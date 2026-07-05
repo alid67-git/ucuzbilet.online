@@ -91,6 +91,14 @@
               value="{{ search.origin_label if search else '' }}">
             <input type="hidden" name="origin_place_id" id="origin-place-id" value="{{ search.origin_place_id if search else '' }}">
             <div class="place-dropdown" id="origin-dropdown"></div>
+            <label class="checkbox hub-inline" id="hub-checkbox-field">
+              <input type="checkbox" name="use_european_hubs" id="use-european-hubs"
+                {% if search and (search.use_european_hubs or search.mode.value == 'hub_to_country') %}checked{% endif %}>
+              <span data-i18n="hub_checkbox_label">{{ t.hub_checkbox_label }}</span>
+            </label>
+            <p class="hint compact-hint" id="origin-hint" hidden data-i18n="origin_hint_default">{{ t.origin_hint_default }}</p>
+            <p class="hint compact-hint" id="origin-hub-note" hidden data-i18n="origin_hub_note">{{ t.origin_hub_note }}</p>
+            <p class="hint compact-hint" id="hub-hint" hidden data-i18n="hub_hint">{{ t.hub_hint }}</p>
           </div>
           <button type="button" class="swap-button swap-button-center" id="swap-places" title="{{ t.swap_places }}" aria-label="{{ t.swap_places }}">⇄</button>
           <div class="place-field" id="destination-field">
@@ -102,17 +110,9 @@
             </div>
             <input type="hidden" name="destination_place_id" id="destination-place-id" value="{{ search.destination_place_id if search and search.destination_place_id else '' }}">
             <div class="place-dropdown" id="destination-dropdown"></div>
+            <p class="hint compact-hint" id="destination-hint" hidden data-i18n="dest_hint_empty">{{ t.dest_hint_empty }}</p>
           </div>
         </div>
-        <label class="checkbox hub-inline" id="hub-checkbox-field">
-          <input type="checkbox" name="use_european_hubs" id="use-european-hubs"
-            {% if search and (search.use_european_hubs or search.mode.value == 'hub_to_country') %}checked{% endif %}>
-          <span data-i18n="hub_checkbox_label">{{ t.hub_checkbox_label }}</span>
-        </label>
-        <p class="hint compact-hint" id="origin-hint" hidden data-i18n="origin_hint_default">{{ t.origin_hint_default }}</p>
-        <p class="hint compact-hint" id="origin-hub-note" hidden data-i18n="origin_hub_note">{{ t.origin_hub_note }}</p>
-        <p class="hint compact-hint" id="destination-hint" hidden data-i18n="dest_hint_empty">{{ t.dest_hint_empty }}</p>
-        <p class="hint compact-hint" id="hub-hint" hidden data-i18n="hub_hint">{{ t.hub_hint }}</p>
 
         <!-- Bolge hedefi: varisin hemen altinda -->
         <div class="explore-inline" id="scope-field">
