@@ -409,7 +409,7 @@ class GoogleBatchScraper:
         search: ExploreSearchRequest,
     ) -> list[ExploreOffer]:
         origin = search.origin_place()
-        max_origin = len(origin.airports) if search.use_european_hubs else 4
+        max_origin = len(origin.airports) if search.use_european_hubs else 6
         origin_codes = origin_codes_for_search(origin, max_codes=max_origin)
         destinations = destinations_for_search(
             search.destination_place(),

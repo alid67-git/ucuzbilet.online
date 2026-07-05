@@ -24,6 +24,42 @@ class Place(BaseModel):
 
 PLACES_FILE = Path(__file__).resolve().parent.parent / "data" / "places.json"
 
+# Bir ulke/sehir "tum havalimanlari" olarak secildiginde ve arama yalnizca
+# ilk N havalimanini taradiginda, N alfabetik siraya gore degil trafigi en
+# yuksek havalimanlarina gore secilsin diye kullanilan oncelik sirasi.
+# (orn. "Turkiye" icin alfabetik ilk 4 kod ADA/ADB/ADF/AFY olurdu ve
+# Istanbul'u disarida birakirdi.) Sira onemli: her ulkede en buyuk/en cok
+# baglantili havalimani en basta.
+MAJOR_AIRPORT_ORDER: tuple[str, ...] = (
+    # Turkiye
+    "IST", "SAW", "ESB", "AYT", "ADB", "ADA", "GZT", "TZX", "DLM", "BJV",
+    # Avrupa
+    "LHR", "CDG", "FRA", "AMS", "MAD", "FCO", "MXP", "MUC", "BCN", "LGW",
+    "ORY", "STN", "MAN", "EDI", "NCE", "DUS", "BER", "HAM", "AGP", "PMI",
+    "LIN", "BGY", "VCE", "NAP", "ZRH", "GVA", "VIE", "CPH", "ARN", "OSL",
+    "HEL", "DUB", "BRU", "LIS", "OPO", "WAW", "KRK", "PRG", "BUD", "ATH",
+    "SKG", "OTP", "SOF", "BEG", "ZAG", "LJU", "RIX", "TLL", "VNO", "KEF",
+    "GOT", "BGO",
+    # Ortadogu
+    "DXB", "DOH", "AUH", "JED", "RUH", "DMM", "KWI", "BAH", "MCT", "AMM",
+    "BEY", "TLV", "CAI",
+    # Kuzey Amerika
+    "ATL", "JFK", "LAX", "ORD", "DFW", "DEN", "SFO", "SEA", "MIA", "IAH",
+    "EWR", "LGA", "MCO", "BOS", "PHL", "IAD", "DCA", "LAS", "PHX", "YYZ",
+    "YVR", "YUL", "MEX", "CUN",
+    # Guney Amerika
+    "GRU", "GIG", "EZE", "SCL", "BOG", "LIM", "UIO", "PTY",
+    # Asya
+    "HND", "NRT", "PEK", "PVG", "PKX", "ICN", "HKG", "SIN", "BKK", "CAN",
+    "SZX", "TPE", "KUL", "DMK", "MNL", "CGK", "DPS", "DEL", "BOM", "BLR",
+    "MAA", "HYD", "CCU", "KTM", "CMB", "DAC",
+    # Afrika
+    "JNB", "CPT", "ADD", "NBO", "LOS", "ACC", "CMN", "TUN", "ALG",
+    # Okyanusya
+    "SYD", "MEL", "BNE", "PER", "AKL", "NAN",
+)
+_MAJOR_AIRPORT_RANK: dict[str, int] = {code: rank for rank, code in enumerate(MAJOR_AIRPORT_ORDER)}
+
 
 def _normalize(text: str) -> str:
     lowered = text.strip().lower()
@@ -173,11 +209,9 @@ def place_children(place: Place, limit: int = 24) -> list[Place]:
 def expand_to_airport_codes(place: Place, max_airports: int = 6) -> list[str]:
     if place.type == "airport":
         return [place.id]
-    if place.type == "city":
-        codes = [code for code in place.airports if get_place(code)]
-        return codes[:max_airports]
-    expanded = [code for code in place.airports if get_place(code)]
-    return expanded[:max_airports]
+    codes = [code for code in place.airports if get_place(code)]
+    codes.sort(key=lambda code: (_MAJOR_AIRPORT_RANK.get(code, len(MAJOR_AIRPORT_ORDER)), code))
+    return codes[:max_airports]
 
 
 def expand_search_origins(place: Place, max_airports: int = 6) -> list[Place]:
