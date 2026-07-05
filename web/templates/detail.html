@@ -194,6 +194,7 @@
                     </span>
                   </strong>
                   <div class="offer-meta-right">
+                    {% if offer.is_self_transfer %}<span class="miles-badge self-transfer-badge">{{ t.self_transfer_badge }}</span>{% endif %}
                     {% if r.miles_estimate %}<span class="miles-badge">~{{ r.miles_estimate|format_miles }} mil</span>{% endif %}
                     <span class="price" data-price-try="{{ offer.price_amount if offer.price_amount is not none else '' }}">{{ offer.price_text }}</span>
                   </div>
@@ -204,6 +205,9 @@
                 {% endif %}
                 {% if offer.layover_summary %}
                 <p class="muted small layover-summary">{{ t.layover_prefix }}: {{ offer.layover_summary }}</p>
+                {% endif %}
+                {% if offer.is_self_transfer %}
+                <p class="muted small self-transfer-note">{{ t.self_transfer_note }}</p>
                 {% endif %}
                 {% if offer.booking_url %}
                 <div class="booking-link-wrap">

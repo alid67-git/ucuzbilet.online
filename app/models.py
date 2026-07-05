@@ -198,6 +198,7 @@ class ExploreOffer(BaseModel):
     summary: str | None = None
     booking_url: str | None = None
     origin_note: str | None = None
+    is_self_transfer: bool = False
 
 
 class SearchRunResult(BaseModel):

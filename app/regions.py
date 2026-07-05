@@ -74,6 +74,17 @@ def scope_label(scope_id: str, lang: str = DEFAULT_REGION_LANG) -> str:
     return scope_id.replace("_", " ").title()
 
 
+def continent_id_by_country_code(country_code: str | None) -> str | None:
+    if not country_code or len(country_code) != 2:
+        return None
+    code = country_code.upper()
+    for continent in load_continents():
+        for country in continent["countries"]:
+            if country["country_code"] == code:
+                return continent["id"]
+    return None
+
+
 def country_name_by_code(country_code: str | None, lang: str = DEFAULT_REGION_LANG) -> str | None:
     if not country_code or len(country_code) != 2:
         return None

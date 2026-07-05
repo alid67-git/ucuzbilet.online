@@ -300,6 +300,16 @@ input, select {
   white-space: nowrap;
 }
 
+.self-transfer-badge {
+  color: #8a5b00;
+  background: #fff4db;
+}
+
+.self-transfer-note {
+  max-width: 36rem;
+  line-height: 1.35;
+}
+
 .flag {
   font-size: 1.15rem;
   line-height: 1;

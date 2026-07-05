@@ -26,6 +26,38 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
         return offers, "google_explore"
 
     offers = await GoogleBatchScraper().scrape_exact(request)
+
+    SPARSE_RESULT_THRESHOLD = 3
+    if len(offers) < SPARSE_RESULT_THRESHOLD and not request.use_european_hubs and request.mode in (
+        ExploreMode.FIXED_TRIP,
+        ExploreMode.DATE_RANGE,
+    ):
+        # Dogrudan sonuc hic gelmediyse veya cok azsa -- ozellikle uzak
+        # bolgeler arasinda (Avrupa/Ortadogu <-> Asya/Okyanusya/Amerika/
+        # Afrika) tek biletli itinerary hep bulunamayabiliyor/az cikabiliyor
+        # -- Korfez/Uzakdogu/Kuzey Amerika hub'lari uzerinden ayri biletli
+        # (self-transfer) kombinasyon deneniyor ve mevcut sonuclara EKLENIYOR.
+        # Bu tamamen otomatik ve en fazla hub-combo'nun kendi zaman
+        # butcesi kadar surer; hicbir zaman ana aramayi patlatmaz.
+        try:
+            from app.hub_routes import find_self_transfer_offers
+
+            dest_place = request.destination_place()
+            origin_place = request.origin_place()
+            departure = request.date_from or request.departure_date
+            if dest_place and origin_place and departure:
+                from app.places import expand_to_airport_codes
+
+                origin_codes = expand_to_airport_codes(origin_place, max_airports=1)
+                dest_codes = expand_to_airport_codes(dest_place, max_airports=1)
+                if origin_codes and dest_codes and origin_codes[0] != dest_codes[0]:
+                    combo_offers = await find_self_transfer_offers(
+                        request, origin_codes[0], dest_codes[0], departure
+                    )
+                    offers = offers + combo_offers
+        except Exception:
+            pass
+
     return offers, "google_batch"
 
 
