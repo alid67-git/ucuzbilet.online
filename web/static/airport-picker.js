@@ -9,11 +9,16 @@
     });
   }
 
+  function t(key, fallback) {
+    const value = window.SiteLocale?.t(key);
+    return value && value !== key ? value : fallback;
+  }
+
   function typeLabel(type) {
-    if (type === "country") return "Ulke";
-    if (type === "city") return "Sehir";
-    if (type === "hub") return "Hub";
-    return "Havalimani";
+    if (type === "country") return t("place_type_country", "Ulke");
+    if (type === "city") return t("place_type_city", "Sehir");
+    if (type === "hub") return t("place_type_hub", "Hub");
+    return t("place_type_airport", "Havalimani");
   }
 
   function escapeHtml(text) {
@@ -72,7 +77,7 @@
     function renderItems(results) {
       dropdown.innerHTML = "";
       if (!results.length) {
-        dropdown.innerHTML = '<div class="place-empty">Sonuc bulunamadi</div>';
+        dropdown.innerHTML = '<div class="place-empty">' + escapeHtml(t("no_results_found", "Sonuc bulunamadi")) + "</div>";
         dropdown.classList.add("open");
         return;
       }
@@ -233,14 +238,14 @@
             originHidden.value = "HUB_EU";
           }
           if (modeSelect?.value === "flexible") {
-            abort("Hub modu esnek taramayla kullanilamaz. Ucus fiyat taramasi secin.");
+            abort(t("hub_flexible_conflict", "Hub modu esnek taramayla kullanilamaz. Ucus fiyat taramasi secin."));
             return;
           }
         } else if (originPicker) {
           await originPicker.resolveQuery();
           if (!originHidden.value) {
             abort(
-              "Lutfen listeden bir kalkis noktasi secin (ornek: Italya — Tum havalimanlari).",
+              t("origin_not_resolved", "Lutfen listeden bir kalkis noktasi secin (ornek: Italya — Tum havalimanlari)."),
               document.getElementById("origin-input")
             );
             return;
@@ -250,7 +255,7 @@
         if (destText && destPicker) {
           await destPicker.resolveQuery();
           if (!destHidden.value) {
-            abort("Varis cozulemedi. Listeden secin veya alani bos birakin (bolge hedefi kullanilir).", destInput);
+            abort(t("destination_not_resolved", "Varis cozulemedi. Listeden secin veya alani bos birakin (bolge hedefi kullanilir)."), destInput);
             return;
           }
         } else if (destHidden) {
@@ -268,7 +273,7 @@
         form.action = targetAction;
         form.submit();
       } catch {
-        abort("Beklenmeyen bir hata olustu. Lutfen tekrar deneyin.");
+        abort(t("unexpected_error_retry", "Beklenmeyen bir hata olustu. Lutfen tekrar deneyin."));
       }
     });
   }

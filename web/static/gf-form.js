@@ -31,13 +31,9 @@
     return value && value !== key ? value : fallback;
   }
 
-  const MONTHS_TR = [
-    "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
-  ];
-  const WEEKDAYS_TR = [
-    "Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi",
-  ];
+  function currentLang() {
+    return document.documentElement.lang || "tr";
+  }
 
   const CABIN_LABELS = {
     economy: "Ekonomi",
@@ -68,9 +64,11 @@
     if (!d || Number.isNaN(d.getTime())) {
       return { day: "—", meta: t("date_hint_pick", "Tarih seçin"), empty: true };
     }
+    const month = d.toLocaleDateString(currentLang(), { month: "long" });
+    const weekday = d.toLocaleDateString(currentLang(), { weekday: "long" });
     return {
       day: String(d.getDate()),
-      meta: MONTHS_TR[d.getMonth()] + " · " + WEEKDAYS_TR[d.getDay()],
+      meta: month + " · " + weekday,
       empty: false,
     };
   }

@@ -4,6 +4,7 @@ from app.flags import country_flag
 from app.miles import estimate_flight_miles
 from app.models import ExploreOffer
 from app.places import get_place
+from app.regions import localized_country_name
 
 
 def _code_from_summary(summary: str | None, index: int) -> str | None:
@@ -28,7 +29,7 @@ def format_miles(value: int | None) -> str:
     return f"{value:,}".replace(",", ".")
 
 
-def route_display(offer: ExploreOffer) -> dict:
+def route_display(offer: ExploreOffer, lang: str = "tr") -> dict:
     origin_code = (offer.origin_code or _code_from_summary(offer.summary, 0) or "").upper() or None
     dest_code = (offer.destination_code or _code_from_summary(offer.summary, 1) or "").upper() or None
 
@@ -40,6 +41,7 @@ def route_display(offer: ExploreOffer) -> dict:
     )
     origin_country = offer.origin_country or (origin_place.country if origin_place else None)
     origin_country_code = offer.origin_country_code or (origin_place.country_code if origin_place else None)
+    origin_country = localized_country_name(origin_country_code, lang, origin_country)
 
     dest_city = offer.destination_city or (dest_place.city if dest_place else None)
     if not dest_city and dest_place:
@@ -49,6 +51,7 @@ def route_display(offer: ExploreOffer) -> dict:
 
     dest_country = offer.country or (dest_place.country if dest_place else None)
     dest_country_code = offer.destination_country_code or (dest_place.country_code if dest_place else None)
+    dest_country = localized_country_name(dest_country_code, lang, dest_country)
 
     miles = offer.miles_estimate
     if miles is None and origin_code and dest_code:

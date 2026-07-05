@@ -9,6 +9,11 @@
 
   if (!destInput || !destHidden || !field || !grid) return;
 
+  function t(key, fallback) {
+    const value = window.SiteLocale?.t(key);
+    return value && value !== key ? value : fallback;
+  }
+
   function clearGrid() {
     grid.innerHTML = "";
     field.hidden = true;
@@ -24,8 +29,8 @@
     if (!hint) return;
     const selected = selectedAirportIds();
     hint.textContent = selected.length
-      ? selected.length + " yer secildi."
-      : "Hicbiri isaretlenmezse tum ulke taranir.";
+      ? t("airports_selected", "{n} yer secildi.").replace("{n}", String(selected.length))
+      : t("airports_none_selected_hint", "Hicbiri isaretlenmezse tum ulke taranir.");
   }
 
   function escapeHtml(text) {
@@ -104,4 +109,5 @@
     }
   }
   init();
+  document.addEventListener("localechange", updateHint);
 })();

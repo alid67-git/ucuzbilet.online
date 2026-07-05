@@ -29,6 +29,11 @@
 
   let currentPage = 1;
 
+  function t(key, fallback) {
+    const value = window.SiteLocale?.t(key);
+    return value && value !== key ? value : fallback;
+  }
+
   function numAttr(el, name) {
     const raw = el.dataset[name];
     if (raw === undefined || raw === "") return null;
@@ -415,7 +420,12 @@
         group.hidden = !anyVisible;
       });
 
-      if (summary) summary.textContent = passing.length + " sonuc gosteriliyor.";
+      if (summary) {
+        summary.textContent = t("results_showing_all", "{n} sonuc gosteriliyor.").replace(
+          "{n}",
+          String(passing.length)
+        );
+      }
       return;
     }
 
@@ -436,13 +446,19 @@
       card.hidden = idx < startIdx || idx >= endIdx;
     });
 
-    if (pageIndicator) pageIndicator.textContent = "Sayfa " + currentPage + " / " + totalPages;
+    if (pageIndicator) {
+      pageIndicator.textContent = t("page_indicator", "Sayfa {current} / {total}")
+        .replace("{current}", String(currentPage))
+        .replace("{total}", String(totalPages));
+    }
     if (pagePrevBtn) pagePrevBtn.disabled = currentPage <= 1;
     if (pageNextBtn) pageNextBtn.disabled = currentPage >= totalPages;
 
     if (summary) {
       const shown = Math.max(0, Math.min(pageSize, sorted.length - startIdx));
-      summary.textContent = sorted.length + " sonuctan " + shown + " tanesi gosteriliyor.";
+      summary.textContent = t("results_showing_partial", "{total} sonuctan {shown} tanesi gosteriliyor.")
+        .replace("{total}", String(sorted.length))
+        .replace("{shown}", String(shown));
     }
   }
 

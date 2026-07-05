@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from app.flags import country_flag
 from app.i18n import all_strings, normalize_lang, DEFAULT_LANG
 from app.offer_display import format_miles, route_display
-from app.regions import country_labels, load_continents, scope_label
+from app.regions import country_labels, load_continents, localized_country_name, scope_label
 from app.models import AllianceFilter, DestinationScope, ExploreMode, ExploreSearchRequest
 from app.version import APP_VERSION, BETA_BUILD, BETA_MAJOR
 from app.places import get_place, place_children, place_label, resolve_place, search_places
@@ -33,6 +33,7 @@ templates.env.filters["scope_label"] = scope_label
 templates.env.filters["country_labels"] = country_labels
 templates.env.filters["route_display"] = route_display
 templates.env.filters["format_miles"] = format_miles
+templates.env.globals["localized_country_name"] = localized_country_name
 
 app = FastAPI(title="UcuzBilet Avcisi", version=APP_VERSION)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "web" / "static")), name="static")
@@ -110,8 +111,8 @@ async def api_resolve_place(q: str = Query(..., min_length=1)):
 
 
 @app.get("/api/regions")
-async def api_regions():
-    return JSONResponse(load_continents())
+async def api_regions(lang: str = Query(DEFAULT_LANG)):
+    return JSONResponse(load_continents(normalize_lang(lang)))
 
 
 @app.get("/api/places/{place_id}/children")

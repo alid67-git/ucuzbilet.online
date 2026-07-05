@@ -31,11 +31,11 @@
         {% if search.use_european_hubs or search.mode.value == 'hub_to_country' %}
         <li><span data-i18n="hub_label">{{ t.hub_label }}</span>: Europe (FRA, AMS, CDG, LHR, MXP, MAD, FCO...)</li>
         {% if search.destination_label %}<li><span data-i18n="target_label">{{ t.target_label }}</span>: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
-        <li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} ({{ t.region_all_countries }}){% endif %}</li>{% endif %}
+        <li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ search.destination_scope.value | scope_label(lang) }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels(lang) %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} ({{ t.region_all_countries }}){% endif %}</li>{% endif %}
         {% else %}
         <li><span data-i18n="origin_label">{{ t.origin_label }}</span>: {{ search.origin_label }}</li>
         {% if search.destination_label %}<li><span data-i18n="destination_label">{{ t.destination_label }}</span>: {{ search.destination_label }}</li>{% elif search.destination_scope.value != 'anywhere' %}
-        <li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ search.destination_scope.value | scope_label }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} ({{ t.region_all_countries }}){% endif %}</li>{% else %}<li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ t.region_everywhere }}</li>{% endif %}
+        <li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ search.destination_scope.value | scope_label(lang) }}{% if search.target_country_ids %} — {% for c in search.target_country_ids | country_labels(lang) %}{{ c.flag }} {{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %} ({{ t.region_all_countries }}){% endif %}</li>{% else %}<li><span data-i18n="region_label">{{ t.region_label }}</span>: {{ t.region_everywhere }}</li>{% endif %}
         {% endif %}
         {% if search.prefer_thy %}
         <li>{{ t.tier_thy }}: Turkish Airlines (THY)</li>
@@ -160,11 +160,12 @@
           </div>
 
           {% for country, country_offers in result.offers|groupby('country') %}
+          {% set group_country_name = localized_country_name(country_offers[0].destination_country_code, lang, country) or t.region_everywhere %}
           <div class="country-group" data-country-group="{{ country or t.region_everywhere }}">
-            <h3 class="country-group-title">{{ country or t.region_everywhere }} <span class="muted">— {{ country_offers|length }} {{ t.result_count_suffix }}</span></h3>
+            <h3 class="country-group-title">{{ group_country_name }} <span class="muted">— {{ country_offers|length }} {{ t.result_count_suffix }}</span></h3>
             <div class="offers">
               {% for offer in country_offers %}
-              {% set r = offer|route_display %}
+              {% set r = offer|route_display(lang) %}
               <div class="offer"
                 data-country="{{ country or t.region_everywhere }}"
                 data-origin-country="{{ offer.origin_country or r.origin_country or t.region_everywhere }}"

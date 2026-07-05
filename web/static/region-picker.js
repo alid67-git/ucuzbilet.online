@@ -6,6 +6,15 @@
 
   let continents = [];
 
+  function t(key, fallback) {
+    const value = window.SiteLocale?.t(key);
+    return value && value !== key ? value : fallback;
+  }
+
+  function currentLang() {
+    return window.SiteLocale ? window.SiteLocale.lang() : "tr";
+  }
+
   function selectedCountryIds() {
     if (!countryGrid) return [];
     return Array.from(countryGrid.querySelectorAll('input[name="target_countries"]:checked')).map(
@@ -20,7 +29,7 @@
     if (!continent || continentId === "anywhere") {
       countryGrid.hidden = true;
       if (selectionHint) {
-        selectionHint.textContent = "Her yer secili — tum bolgeler taranir.";
+        selectionHint.textContent = t("region_anywhere_hint", "Her yer secili — tum bolgeler taranir.");
       }
       return;
     }
@@ -55,22 +64,43 @@
     if (!selectionHint) return;
     const selected = selectedCountryIds();
     if (selected.length === 0) {
-      selectionHint.textContent = "Hic ulke secilmezse secili kitadaki tum ulkeler taranir.";
+      selectionHint.textContent = t(
+        "region_no_country_hint",
+        "Hic ulke secilmezse secili kitadaki tum ulkeler taranir."
+      );
     } else {
-      selectionHint.textContent = selected.length + " ulke secildi.";
+      selectionHint.textContent = t("region_countries_selected", "{n} ulke secildi.").replace(
+        "{n}",
+        String(selected.length)
+      );
     }
     document.dispatchEvent(new CustomEvent("region-selection-changed"));
   }
 
-  async function init() {
+  async function loadRegions() {
     if (!continentSelect || !countryGrid) return;
-    const response = await fetch("/api/regions");
+    const response = await fetch("/api/regions?lang=" + encodeURIComponent(currentLang()));
     if (!response.ok) return;
     continents = await response.json();
     renderCountries(continentSelect.value);
+  }
+
+  async function init() {
+    if (!continentSelect || !countryGrid) return;
+    await loadRegions();
     continentSelect.addEventListener("change", () => {
       savedCountries.length = 0;
       renderCountries(continentSelect.value);
+    });
+    document.addEventListener("localechange", () => {
+      const previouslyChecked = selectedCountryIds();
+      loadRegions().then(() => {
+        if (continentSelect.value === "anywhere") return;
+        countryGrid.querySelectorAll('input[name="target_countries"]').forEach((input) => {
+          input.checked = previouslyChecked.includes(input.value);
+        });
+        updateHint();
+      });
     });
   }
 
