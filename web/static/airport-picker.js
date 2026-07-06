@@ -36,6 +36,12 @@
 
     let timer = null;
 
+    function scrollFieldIntoView() {
+      window.setTimeout(() => {
+        input.scrollIntoView({ block: "start", behavior: "smooth" });
+      }, 300);
+    }
+
     function closeDropdown() {
       dropdown.classList.remove("open");
       dropdown.innerHTML = "";
@@ -84,6 +90,7 @@
       closeAllDropdowns(dropdown);
       results.forEach((place) => appendPlaceOption(place, 0, selectPlace));
       dropdown.classList.add("open");
+      scrollFieldIntoView();
     }
 
     async function fetchWithTimeout(url, ms) {
@@ -138,6 +145,7 @@
 
     input.addEventListener("focus", () => {
       closeAllDropdowns(dropdown);
+      scrollFieldIntoView();
       if (input.disabled || input.readOnly) return;
       const query = input.value.trim();
       if (query.length >= 2 && !hidden.value) {

@@ -65,7 +65,9 @@
           <p class="muted">{{ result.scraped_at }} — {{ result.message }}</p>
 
           {% if result.offers %}
-          <div class="filters-panel" id="results-filters">
+          <details class="filters-panel" id="results-filters">
+            <summary class="filters-panel-summary" data-i18n="filters_panel_heading">{{ t.filters_panel_heading }}</summary>
+            <div class="filters-panel-body">
             <p class="price-range-highlight" id="price-range-highlight"></p>
 
             <div class="filter-group">
@@ -157,7 +159,8 @@
               <button type="button" class="button" id="filter-reset" data-i18n="filter_reset">{{ t.filter_reset }}</button>
               <p class="hint" id="filter-summary"></p>
             </div>
-          </div>
+            </div>
+          </details>
 
           {% for country, country_offers in result.offers|groupby('country') %}
           {% set group_country_name = localized_country_name(country_offers[0].destination_country_code, lang, country) or t.region_everywhere %}

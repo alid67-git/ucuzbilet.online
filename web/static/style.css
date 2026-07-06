@@ -343,15 +343,48 @@ input, select {
 }
 
 .filters-panel {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  padding: 1.15rem 1.25rem;
+  display: block;
   margin-bottom: 1rem;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--panel);
   box-shadow: 0 4px 18px rgba(26, 35, 50, 0.05);
+  overflow: hidden;
+}
+
+.filters-panel-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.85rem 1.25rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.filters-panel-summary::-webkit-details-marker {
+  display: none;
+}
+
+.filters-panel-summary::before {
+  content: "▸";
+  color: var(--primary-dark, #c45);
+  font-size: 0.8rem;
+  transition: transform 0.15s ease;
+}
+
+.filters-panel[open] > .filters-panel-summary::before {
+  transform: rotate(90deg);
+}
+
+.filters-panel-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 0 1.25rem 1.15rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.15rem;
 }
 
 .filter-chip {

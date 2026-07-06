@@ -349,6 +349,7 @@
 
 .gf-hub-check {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.4rem;
   font-size: 0.78rem;
