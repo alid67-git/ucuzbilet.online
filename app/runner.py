@@ -1,9 +1,12 @@
 import asyncio
+import logging
 from datetime import UTC, datetime
 
 from app.models import ExploreMode, ExploreSearchRequest, SavedSearch, SearchRunResult
 from scraper.google_batch import GoogleBatchScraper
 from scraper.exceptions import BotBlockedError
+
+logger = logging.getLogger(__name__)
 
 # Render'in ucretsiz plani gibi ortamlarda ters proxy/mobil baglanti zaman
 # asimlari genelde 60-100 sn civarindadir; bu sinirin altinda kalip
@@ -72,7 +75,7 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                         )
                         offers = offers + combo_offers
         except Exception:
-            pass
+            logger.exception("Az sonuc fallback'i basarisiz oldu")
 
     return offers, "google_batch"
 
