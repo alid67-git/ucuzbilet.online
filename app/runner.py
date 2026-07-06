@@ -31,7 +31,7 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
     offers = await GoogleBatchScraper().scrape_exact(request)
 
     SPARSE_RESULT_THRESHOLD = 3
-    if len(offers) < SPARSE_RESULT_THRESHOLD and not request.use_european_hubs and request.mode in (
+    if not request.use_european_hubs and request.mode in (
         ExploreMode.FIXED_TRIP,
         ExploreMode.DATE_RANGE,
     ):
@@ -49,33 +49,54 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                 dest_codes = expand_to_airport_codes(dest_place, max_airports=1)
                 if origin_codes and dest_codes and origin_codes[0] != dest_codes[0]:
                     origin_code, dest_code = origin_codes[0], dest_codes[0]
+                    return_date = request.date_to if request.use_return_date and request.date_to else None
 
-                    # 1) Gidis-donus sorgusu az sonuc dondurdugunde, ayni rotanin
-                    # gidis ve donusunu ayri birer tek yon bilet olarak sorgular
-                    # -- gidis-donus fiyatlandirmasinda gorunmeyen ucuz/farkli
-                    # havayolu secenekleri boylece yakalanabiliyor.
-                    if request.use_return_date and request.date_to:
-                        from app.hub_routes import find_separate_oneway_offers
-
-                        oneway_offers = await find_separate_oneway_offers(
-                            request, origin_code, dest_code, departure, request.date_to
-                        )
-                        offers = offers + oneway_offers
-
-                    # 2) Uzak bolgeler arasinda (Avrupa/Ortadogu <-> Asya/
-                    # Okyanusya/Amerika/Afrika) tek biletli itinerary hep
-                    # bulunamayabiliyor -- Korfez/Uzakdogu/Kuzey Amerika
-                    # hub'lari uzerinden ayri biletli (self-transfer)
-                    # kombinasyon deneniyor.
                     if len(offers) < SPARSE_RESULT_THRESHOLD:
-                        from app.hub_routes import find_self_transfer_offers
+                        # 1) Gidis-donus sorgusu az sonuc dondurdugunde, ayni rotanin
+                        # gidis ve donusunu ayri birer tek yon bilet olarak sorgular
+                        # -- gidis-donus fiyatlandirmasinda gorunmeyen ucuz/farkli
+                        # havayolu secenekleri boylece yakalanabiliyor.
+                        if request.use_return_date and request.date_to:
+                            from app.hub_routes import find_separate_oneway_offers
 
-                        combo_offers = await find_self_transfer_offers(
-                            request, origin_code, dest_code, departure
+                            oneway_offers = await find_separate_oneway_offers(
+                                request, origin_code, dest_code, departure, request.date_to
+                            )
+                            offers = offers + oneway_offers
+
+                        # 2) Uzak bolgeler arasinda (Avrupa/Ortadogu <-> Asya/
+                        # Okyanusya/Amerika/Afrika) tek biletli itinerary hep
+                        # bulunamayabiliyor -- Korfez/Uzakdogu/Kuzey Amerika
+                        # hub'lari uzerinden ayri biletli (self-transfer)
+                        # kombinasyon deneniyor.
+                        if len(offers) < SPARSE_RESULT_THRESHOLD:
+                            from app.hub_routes import find_self_transfer_offers
+
+                            combo_offers = await find_self_transfer_offers(
+                                request, origin_code, dest_code, departure
+                            )
+                            offers = offers + combo_offers
+
+                    # 3) THY garanti kontrolu: yukaridaki adimlar toplam sonuc
+                    # sayisina bagli calisir, ama THY'nin gorunup gorunmemesi
+                    # ayri bir sorun -- ana toplu taramada butun IST-kaynakli
+                    # sorgular bos donebilir (Google tarafi degiskenligi) ve
+                    # boylece THY hic denenmeden atlanabilir. Bu yuzden sonuc
+                    # sayisindan bagimsiz olarak, en olasi rotada (birincil
+                    # havalimani ciftinde) THY'yi "TK" filtresiyle ayrica ve
+                    # her zaman bir kez deniyoruz.
+                    from scraper.google_batch import _is_thy_offer, _search_sync, _should_supplement_thy
+
+                    if not any(_is_thy_offer(o) for o in offers) and _should_supplement_thy(request):
+                        loop = asyncio.get_event_loop()
+                        thy_search = request.model_copy(update={"prefer_thy": True})
+                        thy_offers = await loop.run_in_executor(
+                            None, _search_sync, origin_code, dest_code, departure, return_date, thy_search
                         )
-                        offers = offers + combo_offers
+                        if thy_offers:
+                            offers = offers + thy_offers[:1]
         except Exception:
-            logger.exception("Az sonuc fallback'i basarisiz oldu")
+            logger.exception("Az sonuc / THY garanti fallback'i basarisiz oldu")
 
     return offers, "google_batch"
 
