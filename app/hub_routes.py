@@ -19,7 +19,9 @@ from scraper.google_batch import (
     MAX_AIRLINE_VARIANTS_PER_ROUTE,
     _airline_filter,
     _build_route_query,
+    _fetch_cheapest_thy_flight,
     _parse_price_amount,
+    _should_supplement_thy,
     _simple_datetime_to_dt,
     _validate_flight_route,
 )
@@ -103,6 +105,19 @@ def _leg_options_sync(
             return []
         valid.sort(key=lambda f: f.price or float("inf"))
 
+        def flight_to_option(flight, airline_key: str) -> dict | None:
+            amount, currency = _parse_price_amount(flight.price)
+            if amount is None:
+                return None
+            return {
+                "amount": amount,
+                "currency": currency,
+                "airline": airline_key or None,
+                "departure_dt": _simple_datetime_to_dt(flight.flights[0].departure),
+                "arrival_dt": _simple_datetime_to_dt(flight.flights[-1].arrival),
+                "stops_count": max(0, len(flight.flights) - 1),
+            }
+
         options: list[dict] = []
         seen_airlines: set[str] = set()
         for flight in valid:
@@ -111,22 +126,28 @@ def _leg_options_sync(
             airline_key = ", ".join(flight.airlines[:2]) if flight.airlines else ""
             if airline_key in seen_airlines:
                 continue
-            amount, currency = _parse_price_amount(flight.price)
-            if amount is None:
+            option = flight_to_option(flight, airline_key)
+            if option is None:
                 continue
             seen_airlines.add(airline_key)
-            options.append(
-                {
-                    "amount": amount,
-                    "currency": currency,
-                    "airline": airline_key or None,
-                    "departure_dt": _simple_datetime_to_dt(flight.flights[0].departure),
-                    "arrival_dt": _simple_datetime_to_dt(flight.flights[-1].arrival),
-                    "stops_count": max(0, len(flight.flights) - 1),
-                }
-            )
+            options.append(option)
             if len(options) >= max_variants:
                 break
+
+        # THY, en ucuz N farkli havayolu arasina girmese bile "Sadece THY"
+        # filtresinde her zaman gorunsun -- gerekirse "TK" filtreli ayri bir
+        # sorguyla THY'nin gercekten sattigi en ucuz bileti ariyoruz.
+        thy_already_included = any("turkish airlines" in (o["airline"] or "").lower() for o in options)
+        if max_variants > 1 and not thy_already_included and _should_supplement_thy(search):
+            cheapest_thy, _ = _fetch_cheapest_thy_flight(
+                origin_code, dest_code, departure, None, search, one_way=True, max_stops=None
+            )
+            if cheapest_thy is not None and cheapest_thy.flights:
+                thy_key = ", ".join(cheapest_thy.airlines[:2]) if cheapest_thy.airlines else ""
+                thy_option = flight_to_option(cheapest_thy, thy_key)
+                if thy_option is not None:
+                    options.append(thy_option)
+
         return options
     except Exception:
         return []
