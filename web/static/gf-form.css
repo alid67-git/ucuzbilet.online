@@ -266,10 +266,12 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   grid-template-rows: auto auto;
-  align-items: stretch;
+  align-items: start;
+  gap: 0.6rem 0.5rem;
+  padding: 0.6rem;
   border: 1px solid #dadce0;
   border-radius: 16px;
-  background: white;
+  background: #f1f3f4;
   overflow: visible;
 }
 
@@ -295,6 +297,21 @@
 .gf-dest-block {
   position: relative;
   min-width: 0;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(26, 35, 50, 0.06);
+}
+
+.gf-origin-block {
+  border: 1.5px solid rgba(25, 103, 210, 0.35);
+  border-left: 4px solid #1967d2;
+  background: linear-gradient(180deg, rgba(25, 103, 210, 0.06), white 55%);
+}
+
+.gf-dest-block {
+  border: 1.5px solid rgba(14, 165, 160, 0.35);
+  border-left: 4px solid #0d9488;
+  background: linear-gradient(180deg, rgba(14, 165, 160, 0.06), white 55%);
 }
 
 .gf-origin-block { grid-column: 1; grid-row: 1; }
@@ -376,10 +393,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.7rem;
-  padding: 0.75rem 0.85rem 0.85rem;
-  border-top: 1px solid #dadce0;
   cursor: pointer;
-  background: #f1f3f4;
 }
 
 .gf-dates-row.gf-dates-oneway { grid-template-columns: 1fr; }
