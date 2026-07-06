@@ -335,6 +335,9 @@
   font-size: 0.92rem;
   font-weight: 500;
   outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .gf-field input[type="text"]::placeholder {
