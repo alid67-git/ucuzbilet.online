@@ -148,6 +148,17 @@ def _leg_options_sync(
                 if thy_option is not None:
                     options.append(thy_option)
 
+        # Havayolu bagimsiz genel garanti: bu bacakta direkt bir ucus varsa,
+        # en ucuz N farkli havayolu secimine takilip disarida kalmis olsa bile
+        # "Direkt" filtresinde her zaman en az bir secenek gorunsun.
+        if max_variants > 1 and not any(o["stops_count"] == 0 for o in options):
+            cheapest_direct = next((f for f in valid if f.flights and len(f.flights) == 1), None)
+            if cheapest_direct is not None:
+                direct_key = ", ".join(cheapest_direct.airlines[:2]) if cheapest_direct.airlines else ""
+                direct_option = flight_to_option(cheapest_direct, direct_key)
+                if direct_option is not None:
+                    options.append(direct_option)
+
         return options
     except Exception:
         return []

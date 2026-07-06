@@ -338,6 +338,19 @@ def _search_sync(
             if direct_thy is not None and direct_thy_query is not None:
                 chosen.append((direct_thy, direct_thy_query))
 
+        # Havayolu bagimsiz genel garanti: bu rotada direkt bir ucus varsa,
+        # en ucuz N farkli havayolu secimine takilip disarida kalmis olsa bile
+        # "Direkt" filtresinde her zaman en az bir secenek gorunsun.
+        if max_stops != 0 and not any(
+            _flight_stops_count(f, dest_code) == 0 for f, _ in chosen
+        ):
+            cheapest_direct = next(
+                (f for f in valid if _flight_stops_count(f, dest_code) == 0),
+                None,
+            )
+            if cheapest_direct is not None:
+                chosen.append((cheapest_direct, query))
+
         destinations = destinations_for_search(
             search.destination_place(),
             search.destination_scope.value,
