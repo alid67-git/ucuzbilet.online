@@ -98,21 +98,36 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                     # gerekiyor.
                     origin_codes_top = expand_to_airport_codes(origin_place, max_airports=2)
                     dest_codes_top = expand_to_airport_codes(dest_place, max_airports=3)
-                    thy_pairs = [(oc, dest_code) for oc in origin_codes_top if oc != dest_code]
+
+                    # "Bir yerde direkt ucus var mi" sorusu havalimani bazinda
+                    # sorulmali -- IST'ten direkt bir THY ucusu bulunmus olmasi,
+                    # SAW'dan da direkt bir ucus (orn. AJet/Pegasus) oldugunu
+                    # garantilemez. Bu yuzden her kalkis havalimani ayri ayri
+                    # kontrol edilip sadece direkt secenegi HENUZ olmayanlar
+                    # icin sorgu atiliyor.
+                    origins_with_direct_thy = {
+                        o.origin_code for o in offers if _is_thy_offer(o) and o.stops_count == 0
+                    }
+                    origins_with_direct_any = {
+                        o.origin_code for o in offers if o.stops_count == 0
+                    }
+
+                    thy_pairs = [
+                        (oc, dest_code)
+                        for oc in origin_codes_top
+                        if oc != dest_code and oc not in origins_with_direct_thy
+                    ]
                     direct_pairs = [
                         (oc, dc)
                         for oc in origin_codes_top
                         for dc in dest_codes_top
-                        if oc != dc
+                        if oc != dc and oc not in origins_with_direct_any
                     ]
 
                     loop = asyncio.get_event_loop()
-                    has_direct_thy = any(_is_thy_offer(o) and o.stops_count == 0 for o in offers)
-                    has_direct_any = any(o.stops_count == 0 for o in offers)
-
                     tasks = []
                     task_kinds = []
-                    if not has_direct_thy and _should_supplement_thy(request):
+                    if thy_pairs and _should_supplement_thy(request):
                         # THY genelde bir sehrin ikincil/ucuz havalimanina degil
                         # ana havalimanina uctugu icin sadece birincil varis
                         # kodu (dest_code) denenir.
@@ -123,8 +138,8 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                                     None, _search_sync, oc, dc, departure, return_date, thy_direct_search
                                 )
                             )
-                            task_kinds.append("thy")
-                    if not has_direct_any:
+                            task_kinds.append(("thy", oc))
+                    if direct_pairs:
                         # Ucuz havayollari genelde sehrin ikincil havalimanina
                         # (orn. Milano icin BGY) direkt uctugu icin varis
                         # tarafinda birden fazla havalimani deneniyor.
@@ -135,21 +150,19 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                                     None, _search_sync, oc, dc, departure, return_date, plain_direct_search
                                 )
                             )
-                            task_kinds.append("direct")
+                            task_kinds.append(("direct", oc))
 
                     if tasks:
                         gathered = await asyncio.gather(*tasks, return_exceptions=True)
-                        thy_added = False
-                        direct_added = False
-                        for kind, result in zip(task_kinds, gathered):
+                        added: set[tuple[str, str]] = set()
+                        for (kind, oc), result in zip(task_kinds, gathered):
                             if isinstance(result, BaseException) or not result:
                                 continue
-                            if kind == "thy" and not thy_added:
-                                offers = offers + result[:1]
-                                thy_added = True
-                            elif kind == "direct" and not direct_added:
-                                offers = offers + result[:1]
-                                direct_added = True
+                            key = (kind, oc)
+                            if key in added:
+                                continue
+                            offers = offers + result[:1]
+                            added.add(key)
 
                     # Direkt THY bulunamadiysa, aktarmali olsa bile THY'nin
                     # "Sadece THY" filtresinde en az bir kez gorunmesini
