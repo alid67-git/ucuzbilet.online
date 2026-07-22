@@ -131,6 +131,26 @@ def _validate_flight_route(
     return True
 
 
+# Google bazen kisa/orta menzilli bir rota icin gercekci olmayan derecede
+# dolambacli (ornegin Istanbul-Milano icin Madrid + Londra uzerinden 2
+# aktarmali, 24+ saatlik) bir itinerary donduruyor. Bu, sadece o rotaya
+# ozgu tek bir "en ucuz" secenek gibi gorunup kullanicilarin gozunde
+# saglam bir alternatifmis gibi one cikabiliyor. Kus ucusu mesafeye gore
+# kaba bir "makul sure" ust siniri koyup bunlari eliyoruz.
+_REASONABLE_DURATION_SPEED_MPH = 500
+_REASONABLE_DURATION_MULTIPLIER = 4
+_REASONABLE_DURATION_BUFFER_MINUTES = 240
+
+
+def _is_reasonable_duration(total_minutes: int, origin_code: str, dest_code: str) -> bool:
+    miles = estimate_flight_miles(origin_code, dest_code)
+    if not miles:
+        return True
+    baseline_minutes = miles / _REASONABLE_DURATION_SPEED_MPH * 60
+    threshold = baseline_minutes * _REASONABLE_DURATION_MULTIPLIER + _REASONABLE_DURATION_BUFFER_MINUTES
+    return total_minutes <= threshold
+
+
 MAX_AIRLINE_VARIANTS_PER_ROUTE = 6
 
 # Esnek tarih (± gun) genis kalkis/varis secimleriyle (orn. "Turkiye - Tum
@@ -282,16 +302,36 @@ def _search_sync(
             return []
         valid.sort(key=lambda f: f.price or float("inf"))
 
+        # Once sadece "makul sureli" ucuslardan en fazla N farkli havayolu
+        # seciliyor -- boylece asiri dolambacli/uzun bir itinerary, ayni
+        # havayolunun/rotanin daha makul bir secenegi varken hic gorunmuyor.
+        # Bu rotada gercekten HICBIR makul secenek yoksa (chosen bos kalirsa),
+        # eski davranisa donup en ucuzu yine de gosteriyoruz -- hicbir sonuc
+        # gostermemekten iyidir.
         chosen: list[tuple[object, object]] = []
         seen_airlines: set[str] = set()
         for flight in valid:
             airline_key = ", ".join(flight.airlines[:2]) if flight.airlines else ""
             if airline_key in seen_airlines:
                 continue
+            total_minutes = _display_journey_minutes(flight.flights, dest_code, one_way)
+            if not _is_reasonable_duration(total_minutes, origin_code, dest_code):
+                continue
             seen_airlines.add(airline_key)
             chosen.append((flight, query))
             if len(chosen) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
                 break
+
+        if not chosen:
+            seen_airlines = set()
+            for flight in valid:
+                airline_key = ", ".join(flight.airlines[:2]) if flight.airlines else ""
+                if airline_key in seen_airlines:
+                    continue
+                seen_airlines.add(airline_key)
+                chosen.append((flight, query))
+                if len(chosen) >= MAX_AIRLINE_VARIANTS_PER_ROUTE:
+                    break
 
         # THY bu rotayi ucuyorsa "Sadece THY" filtresinde her zaman gorunsun --
         # en ucuz N farkli havayolu arasina girmese bile en ucuz THY secenegini ekle.

@@ -19,7 +19,9 @@ from scraper.google_batch import (
     MAX_AIRLINE_VARIANTS_PER_ROUTE,
     _airline_filter,
     _build_route_query,
+    _display_journey_minutes,
     _fetch_cheapest_thy_flight,
+    _is_reasonable_duration,
     _parse_price_amount,
     _should_supplement_thy,
     _simple_datetime_to_dt,
@@ -118,21 +120,34 @@ def _leg_options_sync(
                 "stops_count": max(0, len(flight.flights) - 1),
             }
 
-        options: list[dict] = []
-        seen_airlines: set[str] = set()
-        for flight in valid:
-            if not flight.flights:
-                continue
-            airline_key = ", ".join(flight.airlines[:2]) if flight.airlines else ""
-            if airline_key in seen_airlines:
-                continue
-            option = flight_to_option(flight, airline_key)
-            if option is None:
-                continue
-            seen_airlines.add(airline_key)
-            options.append(option)
-            if len(options) >= max_variants:
-                break
+        # Once sadece "makul sureli" (mesafeye gore asiri dolambacli olmayan)
+        # ucuslardan en fazla max_variants farkli havayolu seciliyor; bu
+        # bacak icin hicbir makul secenek yoksa en ucuzuna geri donuluyor.
+        def build_options(require_reasonable: bool) -> list[dict]:
+            picked: list[dict] = []
+            seen: set[str] = set()
+            for flight in valid:
+                if not flight.flights:
+                    continue
+                airline_key = ", ".join(flight.airlines[:2]) if flight.airlines else ""
+                if airline_key in seen:
+                    continue
+                if require_reasonable:
+                    total_minutes = _display_journey_minutes(flight.flights, dest_code, True)
+                    if not _is_reasonable_duration(total_minutes, origin_code, dest_code):
+                        continue
+                option = flight_to_option(flight, airline_key)
+                if option is None:
+                    continue
+                seen.add(airline_key)
+                picked.append(option)
+                if len(picked) >= max_variants:
+                    break
+            return picked
+
+        options = build_options(require_reasonable=True)
+        if not options:
+            options = build_options(require_reasonable=False)
 
         # THY, en ucuz N farkli havayolu arasina girmese bile "Sadece THY"
         # filtresinde her zaman gorunsun -- gerekirse "TK" filtreli ayri bir
