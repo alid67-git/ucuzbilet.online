@@ -77,18 +77,84 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                             )
                             offers = offers + combo_offers
 
-                    # 3) THY garanti kontrolu: yukaridaki adimlar toplam sonuc
-                    # sayisina bagli calisir, ama THY'nin gorunup gorunmemesi
-                    # ayri bir sorun -- ana toplu taramada butun IST-kaynakli
-                    # sorgular bos donebilir (Google tarafi degiskenligi) ve
-                    # boylece THY hic denenmeden atlanabilir. Bu yuzden sonuc
-                    # sayisindan bagimsiz olarak, en olasi rotada (birincil
-                    # havalimani ciftinde) THY'yi "TK" filtresiyle ayrica ve
-                    # her zaman bir kez deniyoruz.
+                    # 3) Direkt ucus garantisi: yukaridaki adimlar toplam sonuc
+                    # sayisina bagli calisir, ama "hic direkt ucus yok" ayri bir
+                    # sorun -- ana toplu taramada belirli bir havalimaninin
+                    # (orn. SAW) sorgulari o an bos donebilir (Google tarafi
+                    # degiskenligi) ve boylece o havalimanindan gercekte var
+                    # olan bir direkt ucus (orn. AJet/Pegasus nonstop, THY
+                    # nonstop) hic denenmeden atlanabilir. Bu yuzden en olasi
+                    # 2 kalkis havalimaninda (orn. IST, SAW), sonuc sayisindan
+                    # bagimsiz olarak, hem THY'ye ozel hem havayolu-bagimsiz
+                    # birer direkt-ucus denemesi paralel yapiliyor.
                     from scraper.google_batch import _is_thy_offer, _search_sync, _should_supplement_thy
 
+                    # Kalkis icin en olasi 2 havalimani (orn. IST, SAW), varis
+                    # icin de (genelde tek sehrin butun havalimanlari, orn.
+                    # Milano: MXP/LIN/BGY) en fazla 3 havalimani deneniyor --
+                    # ucuz havayollari genelde o sehrin "birincil" havalimanina
+                    # degil (orn. MXP) ikincil birine (orn. BGY) direkt uctugu
+                    # icin varis tarafinda da birden fazla secenek denemek
+                    # gerekiyor.
+                    origin_codes_top = expand_to_airport_codes(origin_place, max_airports=2)
+                    dest_codes_top = expand_to_airport_codes(dest_place, max_airports=3)
+                    thy_pairs = [(oc, dest_code) for oc in origin_codes_top if oc != dest_code]
+                    direct_pairs = [
+                        (oc, dc)
+                        for oc in origin_codes_top
+                        for dc in dest_codes_top
+                        if oc != dc
+                    ]
+
+                    loop = asyncio.get_event_loop()
+                    has_direct_thy = any(_is_thy_offer(o) and o.stops_count == 0 for o in offers)
+                    has_direct_any = any(o.stops_count == 0 for o in offers)
+
+                    tasks = []
+                    task_kinds = []
+                    if not has_direct_thy and _should_supplement_thy(request):
+                        # THY genelde bir sehrin ikincil/ucuz havalimanina degil
+                        # ana havalimanina uctugu icin sadece birincil varis
+                        # kodu (dest_code) denenir.
+                        thy_direct_search = request.model_copy(update={"prefer_thy": True, "direct_only": True})
+                        for oc, dc in thy_pairs:
+                            tasks.append(
+                                loop.run_in_executor(
+                                    None, _search_sync, oc, dc, departure, return_date, thy_direct_search
+                                )
+                            )
+                            task_kinds.append("thy")
+                    if not has_direct_any:
+                        # Ucuz havayollari genelde sehrin ikincil havalimanina
+                        # (orn. Milano icin BGY) direkt uctugu icin varis
+                        # tarafinda birden fazla havalimani deneniyor.
+                        plain_direct_search = request.model_copy(update={"direct_only": True})
+                        for oc, dc in direct_pairs:
+                            tasks.append(
+                                loop.run_in_executor(
+                                    None, _search_sync, oc, dc, departure, return_date, plain_direct_search
+                                )
+                            )
+                            task_kinds.append("direct")
+
+                    if tasks:
+                        gathered = await asyncio.gather(*tasks, return_exceptions=True)
+                        thy_added = False
+                        direct_added = False
+                        for kind, result in zip(task_kinds, gathered):
+                            if isinstance(result, BaseException) or not result:
+                                continue
+                            if kind == "thy" and not thy_added:
+                                offers = offers + result[:1]
+                                thy_added = True
+                            elif kind == "direct" and not direct_added:
+                                offers = offers + result[:1]
+                                direct_added = True
+
+                    # Direkt THY bulunamadiysa, aktarmali olsa bile THY'nin
+                    # "Sadece THY" filtresinde en az bir kez gorunmesini
+                    # garantile (onceki davranis).
                     if not any(_is_thy_offer(o) for o in offers) and _should_supplement_thy(request):
-                        loop = asyncio.get_event_loop()
                         thy_search = request.model_copy(update={"prefer_thy": True})
                         thy_offers = await loop.run_in_executor(
                             None, _search_sync, origin_code, dest_code, departure, return_date, thy_search
