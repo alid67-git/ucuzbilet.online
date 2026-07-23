@@ -8,6 +8,29 @@ from scraper.exceptions import BotBlockedError
 
 logger = logging.getLogger(__name__)
 
+
+def _offer_fingerprint(offer) -> tuple:
+    return (
+        offer.origin_code,
+        offer.destination_code,
+        offer.airline,
+        offer.stops_count,
+        round(offer.price_amount) if offer.price_amount is not None else None,
+    )
+
+
+def _merge_unique(offers: list, new_offers: list, seen: set) -> list:
+    """Ayni ucusun (ayni kalkis/varis/havayolu/aktarma/fiyat) birden fazla
+    garanti mekanizmasi tarafindan bulunup ikilenmesini onler."""
+    merged = list(offers)
+    for offer in new_offers:
+        fp = _offer_fingerprint(offer)
+        if fp in seen:
+            continue
+        seen.add(fp)
+        merged.append(offer)
+    return merged
+
 # Render'in ucretsiz plani gibi ortamlarda ters proxy/mobil baglanti zaman
 # asimlari genelde 60-100 sn civarindadir; bu sinirin altinda kalip
 # sonsuza kadar "donmus" gorunen bir istek yerine anlasilir bir hata donmek
@@ -29,9 +52,10 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
         return offers, "google_explore"
 
     offers = await GoogleBatchScraper().scrape_exact(request)
+    seen_offers = {_offer_fingerprint(o) for o in offers}
 
     SPARSE_RESULT_THRESHOLD = 3
-    if not request.use_european_hubs and request.mode in (
+    if request.mode in (
         ExploreMode.FIXED_TRIP,
         ExploreMode.DATE_RANGE,
     ):
@@ -62,7 +86,7 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                             oneway_offers = await find_separate_oneway_offers(
                                 request, origin_code, dest_code, departure, request.date_to
                             )
-                            offers = offers + oneway_offers
+                            offers = _merge_unique(offers, oneway_offers, seen_offers)
 
                         # 2) Uzak bolgeler arasinda (Avrupa/Ortadogu <-> Asya/
                         # Okyanusya/Amerika/Afrika) tek biletli itinerary hep
@@ -75,7 +99,7 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                             combo_offers = await find_self_transfer_offers(
                                 request, origin_code, dest_code, departure
                             )
-                            offers = offers + combo_offers
+                            offers = _merge_unique(offers, combo_offers, seen_offers)
 
                     # 3) Direkt ucus garantisi: yukaridaki adimlar toplam sonuc
                     # sayisina bagli calisir, ama "hic direkt ucus yok" ayri bir
@@ -161,7 +185,7 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                             key = (kind, oc)
                             if key in added:
                                 continue
-                            offers = offers + result[:1]
+                            offers = _merge_unique(offers, result[:1], seen_offers)
                             added.add(key)
 
                     # Direkt THY bulunamadiysa, aktarmali olsa bile THY'nin
@@ -173,7 +197,7 @@ async def _run_scrape(request: ExploreSearchRequest) -> tuple[list, str]:
                             None, _search_sync, origin_code, dest_code, departure, return_date, thy_search
                         )
                         if thy_offers:
-                            offers = offers + thy_offers[:1]
+                            offers = _merge_unique(offers, thy_offers[:1], seen_offers)
         except Exception:
             logger.exception("Az sonuc / THY garanti fallback'i basarisiz oldu")
 
