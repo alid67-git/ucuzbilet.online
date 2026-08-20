@@ -351,8 +351,64 @@
 }
 
 .gf-hub-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0 1rem 0.5rem;
   border-bottom: 1px dashed rgba(25, 103, 210, 0.15);
+}
+
+.gf-caption-with-help {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.field-help-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.field-help-btn:hover,
+.field-help-btn:focus-visible {
+  opacity: 1;
+  background: rgba(25, 103, 210, 0.1);
+}
+
+.field-tooltip {
+  flex-basis: 100%;
+  margin: 0.35rem 1rem 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  background: #fffaf3;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 14px rgba(26, 35, 50, 0.08);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.field-tooltip p {
+  margin: 0;
+}
+
+.gf-field-stack .field-tooltip {
+  margin: 0.35rem 0 0.6rem;
 }
 
 .gf-hub-check {
@@ -406,6 +462,28 @@
 }
 
 .gf-dates-row.gf-dates-oneway { grid-template-columns: 1fr; }
+
+.gf-flex-date-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 0.85rem;
+  margin-top: 0.6rem;
+}
+
+.gf-flex-date-row .checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.gf-flex-date-hint {
+  flex-basis: 100%;
+  margin: 0;
+}
 
 .gf-date-chip {
   display: flex;

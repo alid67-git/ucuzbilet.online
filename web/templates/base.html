@@ -67,14 +67,30 @@
   <dialog id="help-dialog" class="help-dialog">
     <div class="help-dialog-inner">
       <button type="button" class="help-close" id="help-close" aria-label="{{ t.close }}">×</button>
-      <h2 data-i18n="help_title">{{ t.help_title }}</h2>
-      <p data-i18n="help_body">{{ t.help_body }}</p>
-      <ul class="help-list">
-        <li><strong data-i18n="tier_lcc">{{ t.tier_lcc }}</strong> — <span data-i18n="tier_lcc_tip">{{ t.tier_lcc_tip }}</span></li>
-        <li><strong data-i18n="tier_ulcc">{{ t.tier_ulcc }}</strong> — <span data-i18n="tier_ulcc_tip">{{ t.tier_ulcc_tip }}</span></li>
-        <li><strong data-i18n="tier_fsc">{{ t.tier_fsc }}</strong> — <span data-i18n="tier_fsc_tip">{{ t.tier_fsc_tip }}</span></li>
-        <li><strong data-i18n="tier_thy">{{ t.tier_thy }}</strong> — <span data-i18n="tier_thy_tip">{{ t.tier_thy_tip }}</span></li>
-      </ul>
+      <div class="help-dialog-body">
+        <h2 data-i18n="help_title">{{ t.help_title }}</h2>
+        <p data-i18n="help_body">{{ t.help_body }}</p>
+
+        <h3 class="help-subheading" data-i18n="help_hub_heading">{{ t.help_hub_heading }}</h3>
+        <div class="help-hub-block">
+          <p data-i18n="help_hub_p1">{{ t.help_hub_p1 }}</p>
+          <p data-i18n="help_hub_p2">{{ t.help_hub_p2 }}</p>
+          <p class="help-hub-example" data-i18n="help_hub_p3">{{ t.help_hub_p3 }}</p>
+          <p data-i18n="help_hub_p4">{{ t.help_hub_p4 }}</p>
+          <p class="help-hub-warning" data-i18n="help_hub_p5">{{ t.help_hub_p5 }}</p>
+        </div>
+
+        <h3 class="help-subheading" data-i18n="help_flex_heading">{{ t.help_flex_heading }}</h3>
+        <p data-i18n="help_flex_body">{{ t.help_flex_body }}</p>
+
+        <h3 class="help-subheading" data-i18n="help_airlines_heading">{{ t.help_airlines_heading }}</h3>
+        <ul class="help-list">
+          <li><strong data-i18n="tier_lcc">{{ t.tier_lcc }}</strong> — <span data-i18n="tier_lcc_tip">{{ t.tier_lcc_tip }}</span></li>
+          <li><strong data-i18n="tier_ulcc">{{ t.tier_ulcc }}</strong> — <span data-i18n="tier_ulcc_tip">{{ t.tier_ulcc_tip }}</span></li>
+          <li><strong data-i18n="tier_fsc">{{ t.tier_fsc }}</strong> — <span data-i18n="tier_fsc_tip">{{ t.tier_fsc_tip }}</span></li>
+          <li><strong data-i18n="tier_thy">{{ t.tier_thy }}</strong> — <span data-i18n="tier_thy_tip">{{ t.tier_thy_tip }}</span></li>
+        </ul>
+      </div>
     </div>
   </dialog>
 

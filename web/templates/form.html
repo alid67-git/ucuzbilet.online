@@ -92,7 +92,13 @@
         <div class="gf-search-row">
           <div class="gf-origin-block" id="origin-field">
             <div class="gf-field-stack">
-              <span class="gf-field-caption" data-i18n="route_from">{{ t.route_from }}</span>
+              <span class="gf-field-caption gf-caption-with-help">
+                <span data-i18n="route_from">{{ t.route_from }}</span>
+                <button type="button" class="field-help-btn" data-tooltip-target="origin-help-tip" aria-label="{{ t.origin_help_aria }}">?</button>
+              </span>
+              <div class="field-tooltip" id="origin-help-tip" role="tooltip" hidden>
+                <p data-i18n="origin_help_text">{{ t.origin_help_text }}</p>
+              </div>
               <label class="gf-field gf-field-origin">
                 <span class="gf-field-icon" aria-hidden="true">○</span>
                 <input type="text" id="origin-input" autocomplete="off" placeholder="{{ t.origin_placeholder }}"
@@ -107,6 +113,10 @@
                   {% if search and (search.use_european_hubs or search.mode.value == 'hub_to_country') %}checked{% endif %}>
                 <span data-i18n="hub_checkbox_label">{{ t.hub_checkbox_label }}</span>
               </label>
+              <button type="button" class="field-help-btn" data-tooltip-target="hub-help-tip" aria-label="{{ t.hub_help_aria }}">?</button>
+              <div class="field-tooltip" id="hub-help-tip" role="tooltip" hidden>
+                <p data-i18n="hub_help_text">{{ t.hub_help_text }}</p>
+              </div>
             </div>
             <p class="gf-hint" id="origin-hint" hidden data-i18n="origin_hint_default">{{ t.origin_hint_default }}</p>
             <p class="gf-hint" id="origin-hub-note" hidden data-i18n="origin_hub_note">{{ t.origin_hub_note }}</p>
@@ -117,7 +127,13 @@
 
           <div class="gf-dest-block" id="destination-field">
             <div class="gf-field-stack">
-              <span class="gf-field-caption"><span data-i18n="route_to">{{ t.route_to }}</span> <span class="label-optional">(<span data-i18n="optional_tag">{{ t.optional_tag }}</span>)</span></span>
+              <span class="gf-field-caption gf-caption-with-help">
+                <span data-i18n="route_to">{{ t.route_to }}</span> <span class="label-optional">(<span data-i18n="optional_tag">{{ t.optional_tag }}</span>)</span>
+                <button type="button" class="field-help-btn" data-tooltip-target="dest-help-tip" aria-label="{{ t.dest_help_aria }}">?</button>
+              </span>
+              <div class="field-tooltip" id="dest-help-tip" role="tooltip" hidden>
+                <p data-i18n="dest_help_text">{{ t.dest_help_text }}</p>
+              </div>
               <label class="gf-field gf-field-dest">
                 <span class="gf-field-icon" aria-hidden="true">📍</span>
                 <input type="text" id="destination-input" autocomplete="off" placeholder="{{ t.destination_placeholder }}"
@@ -187,6 +203,21 @@
             <input type="hidden" name="trip_days" id="trip-days" value="{{ search.trip_days if search else 5 }}">
           </div>
         </div>
+
+        <div class="gf-flex-date-row" id="flex-date-row">
+          <label class="checkbox">
+            <input type="checkbox" name="flexible_search" id="flexible-search"
+              {% if search and search.flexible_departure_in_range %}checked{% endif %}>
+            <span data-i18n="flexible_date_label">{{ t.flexible_date_label }}</span>
+          </label>
+          <label id="flexibility-days-field" class="flex-days-field">
+            ± <span data-i18n="date_hint_day_unit">{{ t.date_hint_day_unit }}</span>
+            <input type="number" min="1" max="14" name="flexibility_days" id="flexibility-days"
+              value="{{ search.flexibility_days if search and search.flexibility_days else 3 }}"
+              {% if not search or not search.flexible_departure_in_range %}disabled{% endif %}>
+          </label>
+          <p class="gf-hint gf-flex-date-hint" data-i18n="flexible_date_hint">{{ t.flexible_date_hint }}</p>
+        </div>
       </section>
 
       <div class="gf-cta-wrap">
@@ -221,19 +252,6 @@
               <option value="flexible" id="mode-flexible" data-i18n="search_mode_flexible" {% if search and eff_mode == 'flexible' %}selected{% endif %}>{{ t.search_mode_flexible }}</option>
             </select>
           </label>
-          <div class="form-inline-options">
-            <label class="checkbox">
-              <input type="checkbox" name="flexible_search" id="flexible-search"
-                {% if search and search.flexible_departure_in_range %}checked{% endif %}>
-              <span data-i18n="flexible_date_label">{{ t.flexible_date_label }}</span>
-            </label>
-            <label id="flexibility-days-field" class="flex-days-field">
-              ± <span data-i18n="date_hint_day_unit">{{ t.date_hint_day_unit }}</span>
-              <input type="number" min="1" max="14" name="flexibility_days" id="flexibility-days"
-                value="{{ search.flexibility_days if search and search.flexibility_days else 3 }}"
-                {% if not search or not search.flexible_departure_in_range %}disabled{% endif %}>
-            </label>
-          </div>
         </div>
       </details>
 

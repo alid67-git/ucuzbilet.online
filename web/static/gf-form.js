@@ -286,4 +286,25 @@
   syncDateDisplays();
 
   window.GfForm = { syncDateDisplays, syncTripTriggerLabel, closeAll };
+
+  document.querySelectorAll("[data-tooltip-target]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const target = document.getElementById(btn.dataset.tooltipTarget);
+      if (!target) return;
+      const willOpen = target.hidden;
+      document.querySelectorAll(".field-tooltip").forEach((el) => {
+        el.hidden = true;
+      });
+      target.hidden = !willOpen;
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".field-tooltip") || e.target.closest("[data-tooltip-target]")) return;
+    document.querySelectorAll(".field-tooltip").forEach((el) => {
+      el.hidden = true;
+    });
+  });
 })();
